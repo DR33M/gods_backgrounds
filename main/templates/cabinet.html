@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Index
+{% endblock title %}
+
+{% block content %}
+    <section class="images-search mt50px">
+        <input class="images-search__input p14px" type="text" value="Something.." />
+        <button class="images_search__find mr5px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+            </svg>
+        </button>
+    </section>
+    <!--<section class="accounts-search mt15px">
+        <input class="accounts-search__input p14px" type="text" placeholder="User search.." />
+        <button class="accounts_search__find mr5px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+            </svg>
+        </button>
+    </section>-->
+
+    <section class="user-panel mt50px">
+        <div class="account mr50px">
+            <img class="account__image" src="{% static 'img/goose.jpg '%}" alt="Account image" />
+            <p class="account__nickname ml5px">TestNick</p>
+        </div>
+        <div class="right-content">
+            <button class="user-panel__item p10px">Add image</button>
+            <a class="user-panel__item p10px" href="#">Settings</a>
+        </div>
+    </section>
+    <!--<section class="moderator-panel mt50px">
+        <div class="account mr50px">
+            <img class="account__image" src="img/goose.jpg" alt="Account image" />
+            <p class="account__nickname ml5px">TestNick</p>
+        </div>
+        <div class="right-content">
+            <a class="user-panel__item p10px" href="#">Settings</a>
+        </div>
+    </section>
+    <section class="administrator-panel mt50px">
+        <div class="account mr50px">
+            <img class="account__image" src="img/goose.jpg" alt="Account image" />
+            <p class="account__nickname ml5px">TestNick</p>
+        </div>
+        <div class="right-content">
+            <a class="user-panel__item p10px" href="#">Settings</a>
+        </div>
+    </section>-->
+
+     <section class="images mt50px">
+        <div class="images-columns">
+            <div class="images-column">
+                 <div class="image-block mb20px">
+                    <img class="preview-image-small" src="{% static 'img/3.jpg '%}" alt="tags tags tags tags">
+                    <div class="author-panel">
+                        <a class="account-block ml2per" href="#">
+                            <img class="account__image" src="{% static 'img/goose.jpg '%}" alt="Account image" />
+                            <span class="account__nickname">Name Lastname</span>
+                        </a>
+                        <button class="upvote-button mr2per">
+                            <span class="rating cw">1</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="images-column">
+                 <div class="image-block mb20px">
+                    <img class="preview-image-small" src="{% static 'img/3.jpg '%}" alt="tags tags tags tags">
+                    <div class="author-panel">
+                        <a class="account-block ml2per" href="#">
+                            <img class="account__image" src="{% static 'img/goose.jpg '%}" alt="Account image" />
+                            <span class="account__nickname">Name Lastname</span>
+                        </a>
+                        <button class="upvote-button mr2per">
+                            <span class="rating cw">1</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="images-column">
+                 <div class="image-block mb20px">
+                    <img class="preview-image-small" src="{% static 'img/3.jpg '%}" alt="tags tags tags tags">
+                    <div class="author-panel">
+                        <a class="account-block ml2per" href="#">
+                            <img class="account__image" src="{% static 'img/goose.jpg '%}" alt="Account image" />
+                            <span class="account__nickname">Name Lastname</span>
+                        </a>
+                        <button class="upvote-button mr2per">
+                            <span class="rating cw">1</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="images-column">
+                 <div class="image-block mb20px">
+                    <img class="preview-image-small" src="{% static 'img/3.jpg '%}" alt="tags tags tags tags">
+                    <div class="author-panel">
+                        <a class="account-block ml2per" href="#">
+                            <img class="account__image" src="{% static 'img/goose.jpg '%}" alt="Account image" />
+                            <span class="account__nickname">Name Lastname</span>
+                        </a>
+                        <button class="upvote-button mr2per">
+                            <span class="rating cw">1</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </section>
+    <!--<section class="image-detail mt50px">
+        <div class="top-content">
+            <img class="preview-image" src="img/1.jpg" alt="tag tag tag tag" />
+        </div>
+        <div class="bottom-content mt5px">
+            <div class="image-detail-panel mb20px">
+                <a class="account" href="cabinet.html">
+                    <img class="account__image" src="img/goose.jpg" alt="Account image" />
+                    <p class="account__nickname ml5px">TestNick</p>
+                </a>
+                <div class="download-wrapper">
+                    <button class="report mr15px">Report</button>
+                    <button class="approve">Approve</button>
+                    <button class="replace-image ml15px">Replace image</button>
+                </div>
+            </div>
+            <div class="bottom-content">
+                <div class="tags-panel">
+                    <div class="tag mr5px">
+                        <button class="delete-tag mr5px">-</button>
+                        <button class="tag-name">tag</button>
+                    </div>
+                    <div class="tag mr5px">
+                        <button class="delete-tag mr5px">-</button>
+                        <button class="tag-name">tag</button>
+                    </div>
+                    <div class="tag mr5px">
+                        <button class="delete-tag mr5px">-</button>
+                        <button class="tag-name">tag</button>
+                    </div>
+                    <button class="add-tag ml5px">+</button>
+                </div>
+                <div class="colors-panel mt15px">
+                    <span class="colors-span">Colors:</span>
+                    <button class="color ml5px" style="background: #0064f9"></button>
+                    <button class="color ml5px" style="background: cornflowerblue"></button>
+                    <button class="color ml5px" style="background: darkkhaki"></button>
+                </div>
+            </div>
+        </div>
+    </section>-->
+{% endblock content %}
