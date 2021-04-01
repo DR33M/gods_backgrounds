@@ -1,12 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+from django.shortcuts import get_object_or_404
+from .models import Image
 
 
-def index(request):
-    return render(request, 'index.html', {})
+def home(request):
+    return render(request, 'home.html')
 
 
-def detailed_image_view(request, image_name):
-    return render(request, 'detailed_image_view.html', {})
+def detailed_image_view(request, slug):
+    image = get_object_or_404(Image, slug=slug)
+    return render(request, 'detailed_image_view.html', {'image': image})
 
 
 def cabinet(request):
