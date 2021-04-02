@@ -1,0 +1,7 @@
+{% load static %}
+<header class="main-header m5px">
+    <a class="logo-link ml15px" href="/">GodsFon</a>
+    <a class="header__account mlA mr15px" href="{% url 'accounts:account' %}">
+        <div class="account__image small" style="background-image: url({{ user.profile.photo.url }});"></div>
+    </a>
+</header>

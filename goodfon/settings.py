@@ -25,16 +25,17 @@ SECRET_KEY = 'uec)92b17#1jbl7$c-)@7at=$(qh428a&9_#((=6^ym4!&+q$#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
-
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-)
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'accounts.com',
+]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'taggit',
+    'social_django',
 
     'main.apps.MainConfig',
 ]
@@ -62,7 +64,7 @@ ROOT_URLCONF = 'goodfon.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [(os.path.join(BASE_DIR, 'templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -88,6 +92,21 @@ DATABASES = {
     }
 }
 
+AUTHENTICATION_BACKENDS = (
+    'accounts.authentication.EmailAuthBackend',
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '809794877796-7k18usfc3vt0nu7skiuh50adgr77q66l.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'p1WTnw_Qnw6GSPox_2STRP88'
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/accounts/'
+LOGOUT_URL = '/accounts/logout/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -130,4 +149,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 TAGGIT_CASE_INSENSITIVE = True
+
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = '7d13b29f6abc2d'
+EMAIL_HOST_PASSWORD = 'd48a53540f7826'
+EMAIL_PORT = '2525'
 

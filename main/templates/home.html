@@ -39,3 +39,12 @@
         {% include "pagination.html" with page=images_list %}
     </section>
 {% endblock content %}
+{% block js %}
+<script>
+    /*imagesRows = document.getElementsByClassName('images-column');
+    imagesColumns = document.getElementsByClassName('image-block');
+
+    for (let i = 0; i < imagesColumns.length; i++)
+       imagesRows[i % 4].append(imagesColumns[i]);*/
+</script>
+{% endblock js %}

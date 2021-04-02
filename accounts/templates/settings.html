@@ -7,6 +7,9 @@
 {% endblock title %}
 
 {% block content %}
+    {{ data }}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
     <section class="settings mt50px">
         <div class="top-content mt15px">
             <h1 class="settings-title">Edit Your Profile</h1>
@@ -17,8 +20,11 @@
                     <span class="settings__option-title">Avatar</span>
                 </div>
                 <div class="bottom-content mt5px">
-                    <img class="account__image settings-page" src="{% static 'img/goose.jpg '%}" alt="Account image" />
-                    <button class="choose-file ml15px">Choose file</button>
+                    <div class="account__image settings-page" style="background-image: url({{ profile_form.instance.photo.url }});"></div>
+                    <label class="custom-file-upload">
+                        {{ profile_form.photo }}
+                        <div class="upload-button ml15px p10px">Upload</div>
+                    </label>
                 </div>
             </div>
             <div class="email mt15px">
@@ -26,7 +32,23 @@
                     <span class="settings__option-title">Email</span>
                 </div>
                 <div class="bottom-content">
-                    <input class="settings-input p10px" value="" />
+                    {{ user_form.email }}
+                </div>
+            </div>
+            <div class="first-name mt15px">
+                <div class="top-content">
+                    <span class="settings__option-title">First name</span>
+                </div>
+                <div class="bottom-content">
+                    {{ user_form.first_name }}
+                </div>
+            </div>
+            <div class="last-name mt15px">
+                <div class="top-content">
+                    <span class="settings__option-title">Last name</span>
+                </div>
+                <div class="bottom-content">
+                    {{ user_form.last_name }}
                 </div>
             </div>
         </div>
@@ -41,7 +63,7 @@
                     <span class="settings__option-title">Old password</span>
                 </div>
                 <div class="bottom-content">
-                    <input class="settings-input p10px" value="" />
+                    {{ user_form.old_password }}
                 </div>
             </div>
             <div class="new-password mt5px">
@@ -49,13 +71,14 @@
                     <span class="settings__option-title">New password <span class="characters-info">(6 characters minimum)</span></span>
                 </div>
                 <div class="bottom-content">
-                    <input class="settings-input p10px" value="" />
+                    {{ user_form.new_password }}
                 </div>
             </div>
         </div>
         <div class="bottom-content mt25px">
-            <button class="change-password__done-btn">Update Profile</button>
-            <button class="exit-btn mt15px">Exit</button>
+            <input class="change-password__done-btn" type="submit" value="Update Profile">
+            <a class="exit-btn mt15px" href="{% url 'accounts:logout' %}">Exit</a>
         </div>
     </section>
+</form>
 {% endblock content %}

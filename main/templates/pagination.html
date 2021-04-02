@@ -4,19 +4,19 @@
     {% if page.has_previous %}
         <div class="pagination__block">
             <div>
-                <a href="{% relative_url 1 'page' request.GET.urlencode %}">Первая</a>
+                <a href="{% relative_url 1 'page' request.GET.urlencode %}">First</a>
             </div>
-            <div class="pagination__block__bg">
-                <a href="{% relative_url page.previous_page_number 'page' request.GET.urlencode %}">Предыдущая</a>
+            <div class="pagination__block__bg left">
+                <a href="{% relative_url page.previous_page_number 'page' request.GET.urlencode %}">Previous</a>
             </div>
         </div>
     {% else %}
         <div class="pagination__block pagination__block__disabled">
             <div>
-                <span class="pagination__block__emp">Первая</span>
+                <span class="pagination__block__emp">First</span>
             </div>
-            <div class="pagination__block__bg">
-                <span class="pagination__block__emp">Предыдущая</span>
+            <div class="pagination__block__bg left">
+                <span class="pagination__block__emp">Previous</span>
             </div>
         </div>
     {% endif %}
@@ -25,21 +25,21 @@
     </div>
     {% if page.has_next %}
         <div class="pagination__block">
-            <div class="pagination__block__bg">
-                <a href="{% relative_url page.next_page_number 'page' request.GET.urlencode %}">Cледующая</a>
+            <div class="pagination__block__bg right">
+                <a href="{% relative_url page.next_page_number 'page' request.GET.urlencode %}">Next</a>
             </div>
             <div>
 
-                <a href="{% relative_url page.paginator.num_pages 'page' request.GET.urlencode %}">Последняя</a>
+                <a href="{% relative_url page.paginator.num_pages 'page' request.GET.urlencode %}">Last</a>
             </div>
         </div>
     {% else %}
         <div class="pagination__block pagination__block__disabled">
-            <div class="pagination__block__bg">
-                <span class="pagination__block__emp">Cледующая</span>
+            <div class="pagination__block__bg right">
+                <span class="pagination__block__emp">Next</span>
             </div>
             <div>
-                <span class="pagination__block__emp">Последняя</span>
+                <span class="pagination__block__emp">Last</span>
             </div>
         </div>
     {% endif %}

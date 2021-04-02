@@ -1,8 +1,10 @@
+from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from taggit.models import Tag
+from django.core import serializers
 
 from .models import Image
 from .forms import SearchForm
@@ -24,7 +26,7 @@ def images_list(request, tag_slug=None):
             query = request.GET['q']
             object_list = object_list.filter(tags__name__iexact=query)
 
-    paginator = Paginator(object_list, 10)
+    paginator = Paginator(object_list, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -47,16 +49,8 @@ def detailed_image_view(request, slug):
     })
 
 
-def cabinet(request):
-    return render(request, 'cabinet.html', {})
-
-
 def user_agreements(request):
     return render(request, 'user_agreements.html', {})
-
-
-def settings(request):
-    return render(request, 'settings.html', {})
 
 
 def page_not_found_error(request, exception):

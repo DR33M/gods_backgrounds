@@ -7,33 +7,30 @@
 {% endblock title %}
 
 {% block content %}
-    <section class="images-search mt50px">
-        <input class="images-search__input p14px" type="text" value="Something.."/>
-        <button class="images_search__find mr5px">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-            </svg>
-        </button>
+    <section class="user-panel mt50px">
+        <div class="account mr50px">
+            <img class="account__image small" src="{{ user.profile.photo.url }}" alt="Account image" />
+            <p class="account__nickname ml5px">{{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+        <div class="right-content">
+            <button class="user-panel__item p10px">Add image</button>
+            <a class="user-panel__item p10px" href="{% url 'accounts:settings' %}">Settings</a>
+        </div>
     </section>
     <section class="image-detail mt50px">
         <div class="top-content">
-            <img class="preview-image" src="{{ image }}" alt="tag tag tag tag"/>
+            <img class="preview-image" src="img/1.jpg" alt="tag tag tag tag" />
         </div>
         <div class="bottom-content mt5px">
             <div class="image-detail-panel mb20px">
                 <a class="account" href="cabinet.html">
-                    <img class="account__image small" src="{% static 'img/goose.jpg ' %}" alt="Account image"/>
-                    <p class="account__nickname ml5px">{{ image.author }}</p>
+                    <img class="account__image small" src="img/goose.jpg" alt="Account image" />
+                    <p class="account__nickname ml5px">TestNick</p>
                 </a>
                 <div class="download-wrapper">
                     <button class="report mr15px">Report</button>
-                    <button class="download">Download</button>
-                    <button class="get-license ml15px">Get License</button>
-                </div>
-                <div class="rating">
-                    <button class="plus">+</button>
-                    <span class="rating-number">1</span>
-                    <button class="minus">-</button>
+                    <button class="approve">Approve</button>
+                    <button class="replace-image ml15px">Replace image</button>
                 </div>
             </div>
             <div class="bottom-content">
@@ -60,11 +57,5 @@
                 </div>
             </div>
         </div>
-    </section>
-    <section class="image-similar mt50px">
-        <h3 class="image-similar-title mb20px">SIMILAR IMAGES</h3>
-        <section class="images">
-            {% include "image-block.html" with images=similar_images %}
-        </section>
     </section>
 {% endblock content %}
