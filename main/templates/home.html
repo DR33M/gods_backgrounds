@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% load static %}
-{% load filters %}
 
 {% block title %}
     Index
@@ -9,24 +8,24 @@
 
 {% block content %}
     <section class="images-search mt50px">
-        <input class="images-search__input p14px" type="text" value="Something.."/>
-        <button class="images_search__find mr5px">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-            </svg>
-        </button>
+        <form action="{% url 'main:search_images_by_tag' %}" method="GET">
+            {{ search_form.q }}
+            <button class="images_search__find mr5px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                </svg>
+            </button>
+        </form>
     </section>
     <section class="main tags-panel mt15px">
-        <span class="mr5px">tag</span>
-        <span class="mr5px">tag</span>
-        <span class="mr5px">tag</span>
-        <span class="mr5px" style="font-size: 26px">tag</span>
-        <span class="mr5px">tag</span>
-        <span class="mr5px">tag</span>
-        <span class="mr5px">tag</span>
-        <span class="mr5px">tag</span>
+        {% for tag in common_tags %}
+            <a href="{% url "main:images_list_by_tag" tag.slug %}"><span class="mr5px">{{ tag }}</span></a>
+        {% endfor %}
     </section>
     <section class="images-section mt50px">
+        {% if tag %}
+            <h2>Posts tagged with "{{ tag.name }}"</h2>
+        {% endif %}
         <section class="sorting-section">
             <div class="sort-list">
                 <button class="sort-item p10px active">date</button>
@@ -35,100 +34,8 @@
             </div>
         </section>
         <section class="images">
-            <div class="images-columns">
-                <div class="images-column infinite-container"></div>
-                <div class="images-column infinite-container"></div>
-                <div class="images-column infinite-container"></div>
-                <div class="images-column infinite-container"></div>
-            </div>
-            <div id="loader" class="loader-ellips" style="display: none;">
-                <span class="loader-ellips__dot"></span>
-                <span class="loader-ellips__dot"></span>
-                <span class="loader-ellips__dot"></span>
-                <span class="loader-ellips__dot"></span>
-            </div>
+            {% include "image-block.html" with images=images_list %}
         </section>
+        {% include "pagination.html" with page=images_list %}
     </section>
-
-     <div class="image-block mb20px" style="display: none">
-        <a class="image-link" href="#">
-            <img class="preview-image-small" src="#" alt="tags tags tags tags">
-        </a>
-        <div class="author-panel">
-            <a class="account-block ml2per" href="#">
-                <img class="account__image" src="/static/img/goose.jpg" alt="Account image" />
-                <span class="account__nickname"></span>
-            </a>
-            <button class="upvote-button mr2per">
-                <span class="rating cw">1</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"></path></svg>
-            </button>
-        </div>
-    </div>
 {% endblock content %}
-
-{% block script %}
-    <script>
-    $(document).ready(function() {
-        const SIZE_OF_COLUMNS = 4;
-        let $imageBlock = $(".image-block");
-        let isAjaxBusy = false;
-        let apiUrl = '/api/images/';
-
-        loadImages();
-
-        function colSplit(array, sizeOfColumns) {
-            let result = Array(sizeOfColumns).fill(null).map(() => Array(0));
-            for (let i = 0; i < array.length; i++) {
-                result[i % sizeOfColumns].push(array[i]);
-            }
-            return result;
-        }
-
-        function loadImages() {
-            $.ajax({
-                type: "GET",
-                url: apiUrl,
-                dataType: 'html',
-                beforeSend: function () {
-                    isAjaxBusy = true;
-                    $("#loader").show();
-                },
-                complete: function () {
-                    isAjaxBusy = false;
-                    $('#loader').hide();
-                },
-                success: function (data) {
-                    let json = $.parseJSON(data)
-                    let $containers = $(".infinite-container").sort(function (a, b) {
-                        return $(a).children().length - $(b).children().length;
-                    });
-                    let results = colSplit(json.results, SIZE_OF_COLUMNS);
-
-                    apiUrl = json.next;
-
-                    for (let i = 0; i < $containers.length; i++) {
-                        for (let j = 0; j < results[i].length; j++) {
-                            let clone = $imageBlock.clone();
-                            clone.show();
-                            clone.find(".image-link").attr('href', results[i][j]['url']);
-                            clone.find(".preview-image-small").attr('src', results[i][j]['image']);
-                            clone.find(".account__nickname").text(results[i][j]['author']['username']);
-                            $($containers[i]).append(clone);
-                        }
-                    }
-                }
-            });
-        }
-
-        $(window).scroll(function () {
-            if ($(window).scrollTop() + $(window).height() > $(document).height() - 1000) {
-                if (!apiUrl || isAjaxBusy) {
-                    return false;
-                }
-                loadImages();
-            }
-        });
-    });
-    </script>
-{% endblock %}

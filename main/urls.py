@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
@@ -11,9 +11,10 @@ urlpatterns = [
     path('user_agreements/', views.user_agreements, name="user_agreements"),
     path('settings/', views.settings, name="settings"),
 
-    path('api/', include('main.api.urls')),
+    path('search/', views.images_list, name='search_images_by_tag'),
 
-    path('', views.home, name="home")
+    path('catalog/<tag_slug>/', views.images_list, name='images_list_by_tag'),
+    path('', views.images_list, name="home")
 ]
 
 if settings.DEBUG:

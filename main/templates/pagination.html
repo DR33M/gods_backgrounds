@@ -1,0 +1,46 @@
+{% load templatehelpers %}
+
+<div class="pagination">
+    {% if page.has_previous %}
+        <div class="pagination__block">
+            <div>
+                <a href="{% relative_url 1 'page' request.GET.urlencode %}">Первая</a>
+            </div>
+            <div class="pagination__block__bg">
+                <a href="{% relative_url page.previous_page_number 'page' request.GET.urlencode %}">Предыдущая</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="pagination__block pagination__block__disabled">
+            <div>
+                <span class="pagination__block__emp">Первая</span>
+            </div>
+            <div class="pagination__block__bg">
+                <span class="pagination__block__emp">Предыдущая</span>
+            </div>
+        </div>
+    {% endif %}
+    <div class="pagination__page">
+        {{ page.number }} из {{ page.paginator.num_pages }}
+    </div>
+    {% if page.has_next %}
+        <div class="pagination__block">
+            <div class="pagination__block__bg">
+                <a href="{% relative_url page.next_page_number 'page' request.GET.urlencode %}">Cледующая</a>
+            </div>
+            <div>
+
+                <a href="{% relative_url page.paginator.num_pages 'page' request.GET.urlencode %}">Последняя</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="pagination__block pagination__block__disabled">
+            <div class="pagination__block__bg">
+                <span class="pagination__block__emp">Cледующая</span>
+            </div>
+            <div>
+                <span class="pagination__block__emp">Последняя</span>
+            </div>
+        </div>
+    {% endif %}
+</div>

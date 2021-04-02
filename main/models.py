@@ -4,21 +4,7 @@ from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.urls import reverse
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(blank=True, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def natural_key(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super(Tag, self).save(*args, **kwargs)
+from taggit.managers import TaggableManager
 
 
 class Image(models.Model):
@@ -27,7 +13,7 @@ class Image(models.Model):
         APPROVED = 1
 
     image = models.ImageField(upload_to='images/%Y/%m/%d')
-    tag = models.ManyToManyField(Tag)
+    tags = TaggableManager()
     slug = models.SlugField(unique=True, blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,
@@ -41,7 +27,7 @@ class Image(models.Model):
         return self.image.url
 
     def get_slug(self):
-        self.slug = slugify('-'.join([str(a) for a in self.tag.all()]))
+        self.slug = slugify('-'.join([str(a) for a in self.tags.all()]))
         try:
             image = Image.objects.get(slug=self.slug)
             self.slug += "-" + str(self.id)
@@ -54,7 +40,7 @@ class Image(models.Model):
         return reverse('main:detailed_image_view', kwargs={'slug': self.slug})
 
 
-@receiver(m2m_changed, sender=Image.tag.through)
+@receiver(m2m_changed, sender=Image.tags.through)
 def create_slug_name(sender, instance, action, **kwargs):
     if action == 'post_add':
         instance.get_slug()
