@@ -12,6 +12,17 @@
             <div class="auth-form__title">
                 Welcome Back To Godsfon
             </div>
+            <span class="auth-form__subtitle">{{ message }}</span>
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <span class="auth-form__subtitle">{{ error|escape }}</span>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <span class="auth-form__subtitle">{{ error|escape }}</span>
+                {% endfor %}
+            {% endif %}
             <form method="post">
                 {% csrf_token %}
                 <div class="inputs auth-form__inputs">

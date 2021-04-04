@@ -1,10 +1,8 @@
-from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from taggit.models import Tag
-from django.core import serializers
 
 from .models import Image
 from .forms import SearchForm

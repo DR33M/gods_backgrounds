@@ -16,8 +16,8 @@ class Profile(models.Model):
 @receiver(pre_save, sender=User)
 def set_username(sender, instance, **kwargs):
     if not instance.username:
-        users_numbers = User.objects.count()
-        instance.username = users_numbers + 1
+        instance.username = instance.email
+        instance.is_active = False
 
 
 @receiver(post_save, sender=User)

@@ -18,16 +18,14 @@
 .mb20px { margin-bottom: 20px; }
 .mb1per { margin-bottom: 1%; }
 
+.pb2px { padding: 2px; }
+
 .p10px { padding: 10px; }
 .p14px { padding: 14px; }
 .p16px { padding: 16px; }
 
 .cw {
     color: white !important;
-}
-
-input[type="file"] {
-    display: none;
 }
 
 
@@ -65,7 +63,7 @@ input[type="file"] {
 }
 .account__nickname {
     margin-left: .5rem;
-    color: RGBA(255, 255, 255, .65);
+    color: RGBA(0, 0, 0, .65);
 }
 
 
@@ -128,6 +126,10 @@ input[type="file"] {
     margin-top: 2rem;
     margin-bottom: 2rem;
     text-align: center;
+}
+.alert, .errorlist > li {
+    padding: .5rem 0 .1rem 0;
+    color: darkred;
 }
 .auth-form .button{
     width: 100%;
@@ -314,7 +316,7 @@ input[type="file"] {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    /*max-width: 100%;*/
+    max-width: 100%;
 }
 .author-panel {
     position: absolute;
@@ -326,10 +328,13 @@ input[type="file"] {
     height: 15%;
     background: linear-gradient(0deg, black, transparent);
 }
-.account-block {
+.image__account {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.image__account > .account__nickname {
+    color: RGBA(255,255,255,.65);
 }
 .preview-image {
     max-height: 60vh;
@@ -461,6 +466,7 @@ input[type="file"] {
 .avatar > .bottom-content {
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 .settings__option-title {
     font-size: 1.5rem;
@@ -476,6 +482,9 @@ input[type="file"] {
     display: flex;
     justify-content: center;
 }
+.custom-file-upload > input {
+    display: none;
+}
 .upload-button {
     display: flex;
     justify-content: center;
@@ -484,6 +493,14 @@ input[type="file"] {
     border-radius: 3px;
     background: deepskyblue;
     color: white;
+}
+.settings-input {
+    width: 500px;
+    border-radius: 3px;
+    border: 1px solid #e8e8e8;
+    vertical-align: middle;
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
 }
 .change-password__done-btn {
     display: flex;
