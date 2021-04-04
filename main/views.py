@@ -1,13 +1,11 @@
-from django.http import JsonResponse
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from taggit.models import Tag
-from django.core import serializers
 
 from .models import Image
-from .forms import SearchForm
+from .forms import SearchForm, ImageUploadForm
 
 
 def images_list(request, tag_slug=None):
@@ -47,6 +45,24 @@ def detailed_image_view(request, slug):
         'image': image,
         'similar_images': similar_images,
     })
+
+
+def add_image(request):
+    if request.method == 'POST':
+        image_form = ImageUploadForm(data=request.POST, files=request.FILES)
+        if image_form.is_valid():
+            image = image_form.save(commit=False)
+            image.author = request.user
+            image.save()
+            image_form.save_m2m()
+            return redirect('main:detailed_image_view', slug=image.slug)
+    else:
+        image_form = ImageUploadForm()
+
+    return render(request, 'add.html', {
+        'image_form': image_form,
+    })
+
 
 
 def user_agreements(request):

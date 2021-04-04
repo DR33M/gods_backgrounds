@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Add image
+{% endblock title %}
+
+{% block content %}
+    <section class="add-images">
+        <h2>Welcome Back To Godsfon</h2>
+        <form class="add-images__form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="inputs auth-form__inputs">
+                {{ image_form.errors.image }}
+                <div class="mt15px mb20px">
+                    <label for="id_image">Image: </label>
+                    {{ image_form.image }}
+                </div>
+                {{ image_form.errors.tags }}
+                <div class="inputs__item">
+                    {{ image_form.tags }}
+                </div>
+                <input class="button" type="submit" value="Enter">
+            </div>
+        </form>
+    </section>
+{% endblock content %}

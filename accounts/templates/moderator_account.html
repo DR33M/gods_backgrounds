@@ -13,7 +13,7 @@
             <p class="account__nickname ml5px">{{ user.first_name }} {{ user.last_name }}</p>
         </div>
         <div class="right-content">
-            <button class="user-panel__item p10px">Add image</button>
+            <a href="{% url 'main:add_image' %}" class="user-panel__item p10px">Add image</a>
             <a class="user-panel__item p10px" href="{% url 'accounts:settings' %}">Settings</a>
         </div>
     </section>
