@@ -6,10 +6,11 @@
     Index
 {% endblock title %}
 
+
 {% block content %}
     <section class="images-search mt50px">
-        <form action="{% url 'main:search_images_by_tag' %}" method="GET">
-            {{ search_form.q }}
+        <form action="{% url 'main:home' %}" method="GET">
+            <input name="search" class="images-search__input p14px" type="text" placeholder="Something.."/>
             <button class="images_search__find mr5px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
@@ -33,18 +34,14 @@
                 <button class="sort-item p10px">rating</button>
             </div>
         </section>
-        <section class="images">
-            {% include "image-block.html" with images=images_list %}
-        </section>
-        {% include "pagination.html" with page=images_list %}
+        {% if images_list %}
+            <section class="images">
+                {% include "image-block.html" with images=images_list status=images_display_status %}
+            </section>
+            {% include "pagination.html" with page=images_list %}
+        {% else %}
+            <h2 class="mt50px mb20px" style="text-align: center">There are no images available.</h2>
+        {% endif %}
+
     </section>
 {% endblock content %}
-{% block js %}
-<script>
-    /*imagesRows = document.getElementsByClassName('images-column');
-    imagesColumns = document.getElementsByClassName('image-block');
-
-    for (let i = 0; i < imagesColumns.length; i++)
-       imagesRows[i % 4].append(imagesColumns[i]);*/
-</script>
-{% endblock js %}

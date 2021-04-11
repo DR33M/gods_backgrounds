@@ -9,6 +9,8 @@ from django.core.files.base import ContentFile
 from PIL import Image as Img
 import logging
 
+from unidecode import unidecode
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +35,7 @@ class Image(models.Model):
         return self.image.url
 
     def get_slug(self):
-        self.slug = slugify('-'.join([str(a) for a in self.tags.all()]))
+        self.slug = slugify('-'.join([unidecode(str(a)) for a in self.tags.all()]))
         try:
             image = Image.objects.get(slug=self.slug)
             self.slug += "-" + str(self.id)

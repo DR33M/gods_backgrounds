@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render
@@ -6,8 +7,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
+from django.conf import settings as config
 
+from main.models import Image
 from .mail import Messages
+from utils.user import is_moderator
 
 from .forms import LoginForm, UserRegistrationForm, UserEditForm, EmailForm, ProfileEditForm
 import logging
@@ -109,15 +113,25 @@ def account(request, username=''):
         }))
 
     user = request.user
-    moderator = False
 
     if not request.user.username == username:
         user = User.objects.get(username=username)
 
-    if user.groups.filter(name='images-moderators').exists():
-        moderator = True
+    images_list = Image.objects.filter(author=user).order_by('-created_at')
 
-    return render(request, 'account.html', {'user': user, 'moderator': moderator})
+    search_query = request.GET.get('search', '')
+    if search_query:
+        images_list = images_list.filter(tags__name__iexact=search_query)
+
+    paginator = Paginator(images_list, config.IMAGE_MAXIMUM_COUNT_PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'account.html', {
+        'user': user,
+        'images_list': page_obj,
+        'images_display_status': True,
+        'moderator': is_moderator(user),
+    })
 
 
 @login_required

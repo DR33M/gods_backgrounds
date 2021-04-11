@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Add image
+{% endblock title %}
+
+{% block content %}
+    <section class="add-images">
+        <div class="top-content mt15px">
+            <h1 class="add-images__title settings-title">Upload your photo</h1>
+        </div>
+        <form class="add-images__form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="inputs auth-form__inputs">
+                <div class="avatar">
+                    <div class="top-content">
+                        <span class="add-images__option-title settings__option-title">Image</span>
+                    </div>
+                    {{ image_form.errors.image }}
+                    <div class="bottom-content mt5px">
+                        {{ image_form.image }}
+                    </div>
+                </div>
+                <div class="tags">
+                    <div class="top-content">
+                        <span class="add-images__option-title settings__option-title">Tags</span>
+                    </div>
+                    {{ image_form.errors.tags }}
+                    <div class="bottom-content mt5px">
+                        {{ image_form.tags }}
+                    </div>
+                </div>
+                <input class="button button--blue mt15px" type="submit" value="Enter">
+            </div>
+        </form>
+    </section>
+{% endblock content %}
+
+{% block js %}
+    {{ image_form.media }}
+{% endblock %}
