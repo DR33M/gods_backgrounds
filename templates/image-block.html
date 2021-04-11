@@ -3,6 +3,13 @@
 
 {% for image in images %}
     <div class="image-block mb20px">
+        {% if status %}
+            {% if image.status == image.Status.APPROVED %}
+                <div class="image__status image__status--moderated">Approved</div>
+            {% else %}
+                <div class="image__status image__status--add">On moderation</div>
+            {% endif %}
+        {% endif %}
         <a class="image-link" href="{{ image.get_absolute_url }}">
             <div class="preview-image-small" style="background-image: url({{ image.preview_image.url }});"></div>
         </a>

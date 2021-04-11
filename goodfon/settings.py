@@ -35,7 +35,10 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'accounts',
-    
+
+    'dal',
+    'dal_select2',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
 
     'taggit',
     'social_django',
+
 
     'main.apps.MainConfig',
 ]
@@ -168,5 +172,9 @@ EMAIL_HOST_USER = '7d13b29f6abc2d'
 EMAIL_HOST_PASSWORD = 'd48a53540f7826'
 EMAIL_PORT = '2525'
 
-IMAGE_PREVIEW_HEIGHT = 500
 
+IMAGE_PREVIEW_HEIGHT = 500
+IMAGE_MAXIMUM_FILESIZE_IN_MB = 5
+IMAGE_MINIMUM_DIMENSION = (500, 500)
+IMAGE_MAXIMUM_COUNT_PER_PAGE = 12
+IMAGE_MINIMUM_TAGS = 3

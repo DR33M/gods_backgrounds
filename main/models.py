@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image as PIL_Image
 
 from django.db import models
 from django.urls import reverse
@@ -15,6 +15,8 @@ from taggit.managers import TaggableManager
 
 import logging
 
+from unidecode import unidecode
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +30,7 @@ class Colors(models.Model):
         return self.color
 
 
-class Images(models.Model):
+class Image(models.Model):
     class Meta:
         verbose_name_plural = "Images"
 
@@ -54,11 +56,11 @@ class Images(models.Model):
         return self.image.url
 
     def get_slug(self):
-        self.slug = slugify('-'.join([str(a) for a in self.tags.all()]))
+        self.slug = slugify('-'.join([unidecode(str(a)) for a in self.tags.all()]))
         try:
-            image = Images.objects.get(slug=self.slug)
+            image = Image.objects.get(slug=self.slug)
             self.slug += "-" + str(self.id)
-        except Images.DoesNotExist:
+        except Image.DoesNotExist:
             pass
 
         return self.slug
@@ -68,13 +70,13 @@ class Images(models.Model):
 
     def delete(self, *args, **kwargs):
         storage, path = self.image.storage, self.image.path
-        super(Images, self).delete(*args, **kwargs)
+        super(Image, self).delete(*args, **kwargs)
         storage.delete(path)
 
     def save(self):
         super().save()
 
-        image_file = Image.open(self.image)
+        image_file = PIL_Image.open(self.image)
         if image_file.height > settings.IMAGE_PREVIEW_HEIGHT or image_file.width > settings.IMAGE_PREVIEW_HEIGHT:
             ratio = image_file.width / image_file.height
             output_size = (settings.IMAGE_PREVIEW_HEIGHT, round(ratio * settings.IMAGE_PREVIEW_HEIGHT))
@@ -102,14 +104,14 @@ class Images(models.Model):
         self.colors.add(*colors)
 
 
-@receiver(m2m_changed, sender=Images.tags.through)
+@receiver(m2m_changed, sender=Image.tags.through)
 def create_slug_name(sender, instance, action, **kwargs):
     if action == 'post_add':
         instance.get_slug()
         instance.save()
 
 
-@receiver(pre_save, sender=Images)
+@receiver(pre_save, sender=Image)
 def copy_image(sender, instance, **kwargs):
     if not instance.preview_image:
         copied_file = ContentFile(instance.image.file.read())

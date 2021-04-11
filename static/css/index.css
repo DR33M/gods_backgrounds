@@ -28,7 +28,6 @@
     color: white !important;
 }
 
-
 .main-header {
     display: flex;
     align-items: center;
@@ -84,14 +83,28 @@
     text-decoration: none;
     white-space: nowrap;
     padding: 11px 24px;
-    margin-bottom: 1rem;
     box-sizing: border-box;
 }
 .button:hover {
     background: #06b995;
-    border-color: #05a081;
 }
-
+.button--small {
+    padding: 6px 12px;
+}
+.button--blue {
+    background: deepskyblue;
+    border-color: deepskyblue;
+}
+.button--blue:hover {
+    background: deepskyblue;
+}
+.button--red {
+    background: red;
+    border-color: red;
+}
+.button--red:hover {
+    background: red;
+}
 
 .auth {
     padding-top: 4.3rem;
@@ -311,6 +324,22 @@
     /*position: relative;*/
     /*max-width: 100%;*/
 }
+.image-block .image__status {
+    padding: 3px 6px;
+    font-size: 12px;
+    color: #fff;
+    top: 10px;
+    left: 10px;
+    position: absolute;
+    border-radius: 3px;
+    background-color: #24cfa1;
+}
+.image-block .image__status.image__status--moderated {
+    background: #24cfa1;
+}
+.image-block .image__status.image__status--add {
+    background: #ffa048
+}
 .preview-image-small {
     padding-bottom: 75%;
     background-position: center;
@@ -433,12 +462,22 @@
     max-height: 20vh;
     max-width: 20vh;
 }
-.user-panel, .moderator-panel, .administrator-panel {
+.user-panel, .administrator-panel {
     padding: .5rem 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 3px 3px #e1e1e1;
+}
+.moderator-panel {
+    font-size: 12px;
+    background-color: #f5f7fa;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 3px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
 }
 .user-panel__item {
     height: 100%;
@@ -453,7 +492,7 @@
     align-items: start;
     min-width: 500px;
 }
-.avatar, .email, .old-password, .new-password {
+.avatar, .email, .old-password, .new-password, .tags {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -493,6 +532,7 @@
     border-radius: 3px;
     background: deepskyblue;
     color: white;
+    cursor: pointer;
 }
 .settings-input {
     width: 500px;
@@ -554,6 +594,7 @@
 .pagination__block__disabled {
     opacity: .5;
 }
+
 
 @media (min-width: 1900px) {
     .images-section {

@@ -1,11 +1,11 @@
-from .models import Images, Colors
-from .forms import ImageForm
+from .models import Image, Colors
+from .forms import ImageUploadForm
 from django.contrib import admin
 
 
-@admin.register(Images)
+@admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    form = ImageForm
+    form = ImageUploadForm
 
 
 admin.site.register(Colors)
