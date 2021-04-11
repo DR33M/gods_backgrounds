@@ -4,13 +4,17 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from taggit.models import Tag
 
-from .models import Image
+from .models import Images
 from .forms import SearchForm
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def images_list(request, tag_slug=None):
-    object_list = Image.objects.filter(status=Image.Status.APPROVED).order_by('-created_at')
-    common_tags = Image.tags.most_common()[:10]
+    object_list = Images.objects.filter(status=Images.Status.APPROVED).order_by('-created_at')
+    common_tags = Images.tags.most_common()[:10]
     search_form = SearchForm()
     tag = None
 
@@ -37,12 +41,14 @@ def images_list(request, tag_slug=None):
 
 
 def detailed_image_view(request, slug):
-    image = get_object_or_404(Image, slug=slug)
+    image = get_object_or_404(Images, slug=slug)
+    colors = image.colors.all()
     images_tags_ids = image.tags.values_list('id', flat=True)
-    similar_images = Image.objects.filter(tags__in=images_tags_ids).exclude(id=image.id)
+    similar_images = Images.objects.filter(tags__in=images_tags_ids).exclude(id=image.id)
     similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[:4]
     return render(request, 'detailed_image_view.html', {
         'image': image,
+        'colors': colors,
         'similar_images': similar_images,
     })
 

@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 
 class Profile(models.Model):
@@ -16,7 +18,7 @@ class Profile(models.Model):
 @receiver(pre_save, sender=User)
 def set_username(sender, instance, **kwargs):
     if not instance.username:
-        instance.username = instance.email
+        instance.username = urlsafe_base64_encode(force_bytes(instance.pk))
         instance.is_active = False
 
 

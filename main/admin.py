@@ -1,5 +1,12 @@
+from .models import Images, Colors
+from .forms import ImageForm
 from django.contrib import admin
-from .models import Image
 
 
-admin.site.register(Image)
+@admin.register(Images)
+class ImageAdmin(admin.ModelAdmin):
+    form = ImageForm
+
+
+admin.site.register(Colors)
+

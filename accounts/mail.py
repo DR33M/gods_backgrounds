@@ -8,8 +8,7 @@ from django.utils.http import urlsafe_base64_encode
 
 class Messages:
     @staticmethod
-    def activate(request, to_email):
-        user = request.user
+    def activate(request, user):
         current_site = get_current_site(request)
         mail_subject = 'Activate your account.'
         message = render_to_string('acc_active_email.html', {
@@ -20,7 +19,7 @@ class Messages:
         })
 
         email = EmailMessage(
-            mail_subject, message, to=[to_email]
+            mail_subject, message, to=[user.email]
         )
         email.send()
 

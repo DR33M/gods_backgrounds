@@ -54,9 +54,9 @@
                 </div>
                 <div class="colors-panel mt15px">
                     <span class="colors-span">Colors:</span>
-                    <button class="color ml5px" style="background: #0064f9"></button>
-                    <button class="color ml5px" style="background: cornflowerblue"></button>
-                    <button class="color ml5px" style="background: darkkhaki"></button>
+                    {% for color in colors %}
+                        <button class="color ml5px" style="background: {{ color.color }}"></button>
+                    {% endfor %}
                 </div>
             </div>
         </div>

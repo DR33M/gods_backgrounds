@@ -29,7 +29,7 @@ def sign_in(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return render(request, 'account.html')
+                    return HttpResponseRedirect('accounts/')
                 else:
                     message = 'Disabled account'
             else:
@@ -57,7 +57,7 @@ def registration(request):
             user.set_password(user_form.cleaned_data['password'])
             user.save()
 
-            Messages.activate(request, user_form.cleaned_data.get('email'))
+            Messages.activate(request, user)
 
             return render(request, 'registration.html', {
                 'message': 'Please confirm your email address to complete the registration'
