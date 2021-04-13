@@ -76,12 +76,16 @@
     </section>
     <section class="images-section flex jc ac mt50px">
         <h1 class="mb20px">SIMILAR IMAGES</h1>
-        <section class="images-list flex js ac">
+        <ul class="images-list flex js as">
+            {% for column in columns %}
+                <li class="image-column"></li>
+            {% endfor %}
             {% include "image-block.html" with images=similar_images %}
-        </section>
+        </ul>
     </section>
 {% endblock content %}
 
 {% block js %}
+    <script src="{% static 'js/image_columns.js' %}"></script>
     {{ form.media }}
 {% endblock %}

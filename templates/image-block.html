@@ -8,10 +8,9 @@
                 <span class="image-status moderation">On moderation</span>
             {% endif %}
         {% endif %}
-        <img class="image-preview" src="{{ image.preview_image.url }}" />
-{#        <a class="image-link" href="{{ image.get_absolute_url }}">#}
-{#            <div class="image-preview" style="background-image: url('{{ image.preview_image.url }}')"></div>#}
-{#        </a>#}
+        <a class="image-link" href="{{ image.get_absolute_url }}">
+            <img class="image-preview" src="{{ image.preview_image.url }}" />
+        </a>
         <section class="image__author-panel p10px">
             <a class="author__account-link" href="{% url 'accounts:account' image.author %}">
                 {% if profile_form.photo %}

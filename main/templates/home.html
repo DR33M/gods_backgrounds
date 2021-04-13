@@ -39,12 +39,12 @@
             </ul>
         </section>
         {% if images_list %}
-            <section class="images-list flex js as mt5px">
+            <ul class="images-list flex js as mt5px">
                 {% for column in columns %}
                     <li class="image-column"></li>
                 {% endfor %}
                 {% include "image-block.html" with images=images_list status=images_display_status %}
-            </section>
+            </ul>
             {% include "pagination.html" with page=images_list %}
         {% else %}
             <h1 class="p16px">There are no images available.</h1>

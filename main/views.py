@@ -78,7 +78,8 @@ def detailed_image_view(request, slug):
         'colors': colors,
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
-        'form': form
+        'form': form,
+        'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 
 
