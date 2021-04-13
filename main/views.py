@@ -52,6 +52,7 @@ def home(request, slug=None):
         'images_display_status': images_display_status,
         'tag': tag,
         'common_tags': common_tags,
+        'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 
 

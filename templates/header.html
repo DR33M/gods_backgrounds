@@ -1,7 +1,11 @@
 {% load static %}
 <header class="main-header m5px">
-    <a class="logo-link ml15px" href="/">GodsFon</a>
-    <a class="header__account mlA mr15px" href="{% url 'accounts:account' %}">
-        <div class="account__image small" style="background-image: url({{ user.profile.photo.url }});"></div>
+    <a class="logo-link ml10px" href="/">GodsFon</a>
+    <a class="account-info flex jc ac mlA mr10px" href="{% url 'accounts:account' %}">
+        {% if user.profile.photo %}
+            <img class="avatar" src="{{ user.profile.photo.url }}" />
+        {% else %}
+            <img class="avatar" src="{% static 'img/goose.jpg' %}" />
+        {% endif %}
     </a>
 </header>

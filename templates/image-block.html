@@ -2,22 +2,25 @@
 
 
 {% for image in images %}
-    <div class="image-block mb20px">
+    <div class="image-item flex jc ac m5px">
         {% if status %}
-            {% if image.status == image.Status.APPROVED %}
-                <div class="image__status image__status--moderated">Approved</div>
-            {% else %}
-                <div class="image__status image__status--add">On moderation</div>
+            {% if image.status != image.Status.APPROVED %}
+                <span class="image-status moderation">On moderation</span>
             {% endif %}
         {% endif %}
-        <a class="image-link" href="{{ image.get_absolute_url }}">
-            <div class="preview-image-small" style="background-image: url({{ image.preview_image.url }});"></div>
-        </a>
-        <div class="author-panel">
-            <a class="image__account ml2per" href="{% url 'accounts:account' image.author %}">
-                <div class="account__image small" style="background-image: url({{ image.author.profile.photo.url }});"></div>
-                <span class="account__nickname">{{ image.author.first_name }} {{ image.author.last_name }}</span>
+        <img class="image-preview" src="{{ image.preview_image.url }}" />
+{#        <a class="image-link" href="{{ image.get_absolute_url }}">#}
+{#            <div class="image-preview" style="background-image: url('{{ image.preview_image.url }}')"></div>#}
+{#        </a>#}
+        <section class="image__author-panel p10px">
+            <a class="author__account-link" href="{% url 'accounts:account' image.author %}">
+                {% if profile_form.photo %}
+                    <img class="avatar" src="{{ image.author.profile.photo.url }}" alt="{{ image.author.profile.photo }}"/>
+                {% else %}
+                    <img class="avatar" src="{% static 'img/goose.jpg' %}" alt="Default goose"/>
+                {% endif %}
+                <span class="full-name ml5px">{{ image.author.first_name }} {{ image.author.last_name }}</span>
             </a>
-        </div>
+        </section>
     </div>
 {% endfor %}

@@ -30,10 +30,11 @@ class EditTagsForm(forms.ModelForm):
 class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = Image
-        fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags', 'author', 'status',)
+        fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags',)
         widgets = {
+            'image': forms.FileInput(attrs={'id': 'input-image'}),
             'tags': autocomplete.TaggitSelect2(url='main:tags-autocomplete', attrs={
-                'required': True, 'data-placeholder': 'A comma-separated list of tags.', 'class': 'settings-input p10px'
+                'required': True, 'data-placeholder': 'A comma-separated list of tags.', 'class': 'settings-input'
             })
         }
 
@@ -45,20 +46,20 @@ class ImageUploadForm(forms.ModelForm):
             image_file = PIL_Image.open(cd['image'])
             try:
                 if cd['image'].size > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
-                    raise forms.ValidationError('Maximum size is %d MB' % settings.IMAGE_MAXIMUM_FILESIZE_IN_MB)
+                    self.add_error('image', forms.ValidationError('Maximum size is %d MB' % settings.IMAGE_MAXIMUM_FILESIZE_IN_MB))
             except AttributeError:
                 pass
 
             width, height = get_image_dimensions(cd['image'])
             if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
-                raise forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION)
+                self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
 
             if not cd.get('image_hash'):
                 # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
                 cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
 
             if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).count() > 0:
-                raise forms.ValidationError('Image already exists')
+                self.add_error('image', forms.ValidationError('Image already exists'))
 
         return cd
 

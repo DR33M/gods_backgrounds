@@ -77,10 +77,11 @@ class Image(models.Model):
         super().save()
 
         image_file = PIL_Image.open(self.image)
-        if image_file.height > settings.IMAGE_PREVIEW_HEIGHT or image_file.width > settings.IMAGE_PREVIEW_HEIGHT:
-            ratio = image_file.width / image_file.height
-            output_size = (settings.IMAGE_PREVIEW_HEIGHT, round(ratio * settings.IMAGE_PREVIEW_HEIGHT))
-            image_file.thumbnail(output_size)
+        if image_file.width > settings.IMAGE_PREVIEW_WIDTH:
+            ratio = image_file.height / image_file.width
+            output_size = (settings.IMAGE_PREVIEW_WIDTH, round(ratio * settings.IMAGE_PREVIEW_WIDTH))
+            logger.error(output_size)
+            image_file = image_file.resize(output_size)
             image_file.save(self.preview_image.path)
 
         image_colors, pixel_count = extcolors.extract_from_image(image_file)

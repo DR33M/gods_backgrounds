@@ -12,6 +12,24 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'autocomplete': 'off'}))
 
 
+class NewPasswordForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repeat password'}))
+
+    def clean_password2(self):
+        cd = self.cleaned_data
+        if not cd['password2']:
+            raise forms.ValidationError('Incorrect data')
+        if cd['password'] != cd['password2']:
+            raise forms.ValidationError('Passwords don\'t match')
+
+        validation_info = validate_password(cd['password'])
+        if validation_info:
+            self.add_error('password', validation_info)
+
+        return cd['password2']
+
+
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repeat password'}))
@@ -68,18 +86,18 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserEditForm(forms.ModelForm):
-    old_password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'class': 'settings-input p10px'}))
-    new_password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'class': 'settings-input p10px'}))
+    old_password = forms.CharField(required=False, widget=forms.PasswordInput())
+    new_password = forms.CharField(required=False, widget=forms.PasswordInput())
 
     class Meta:
         model = User
         fields = ('first_name', 'last_name')
         widgets = {
             'first_name': forms.TextInput(attrs={
-                'required': True, 'placeholder': 'First name', 'class': 'settings-input p10px'
+                'required': True, 'placeholder': 'First name'
             }),
             'last_name': forms.TextInput(attrs={
-                'required': True, 'placeholder': 'Last name', 'class': 'settings-input p10px'
+                'required': True, 'placeholder': 'Last name'
             }),
         }
 
@@ -140,7 +158,7 @@ class EmailForm(forms.ModelForm):
 
         if not email:
             raise forms.ValidationError('Incorrect data')
-        if not self.instance.email == email:
+        if self.instance.email and not self.instance.email == email:
             if User.objects.filter(email=email).exists():
                 raise forms.ValidationError("User with this email address exists")
 
@@ -152,5 +170,5 @@ class ProfileEditForm(forms.ModelForm):
         model = Profile
         fields = ('photo',)
         widgets = {
-            'photo': forms.FileInput(),
+            'photo': forms.FileInput(attrs={'id': 'input-image'}),
         }

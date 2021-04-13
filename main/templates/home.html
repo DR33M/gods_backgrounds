@@ -8,40 +8,49 @@
 
 
 {% block content %}
-    <section class="images-search mt50px">
-        <form action="{% url 'main:home' %}" method="GET">
-            <input name="search" class="images-search__input p14px" type="text" placeholder="Something.."/>
-            <button class="images_search__find mr5px">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-                </svg>
-            </button>
+    <section class="image-search-section mt50px">
+        <form method="GET" class="image-search__form">
+            <label class="rounded-input-container flex js ac">
+                <input name="search" class=" p14px" type="text" placeholder="Something.."/>
+                <button class="button ml5px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                    </svg>
+                </button>
+            </label>
         </form>
     </section>
-    <section class="main tags-panel mt15px">
+    <section class="tags-list mt15px">
         {% for tag in common_tags %}
-            <a href="{% url "main:images_list_by_tag" tag.slug %}"><span class="mr5px">{{ tag }}</span></a>
+            <a href="{% url "main:images_list_by_tag" tag.slug %}">
+                <span class="mr5px">{{ tag }}</span>
+            </a>
         {% endfor %}
     </section>
-    <section class="images-section mt50px">
-        {% if tag %}
-            <h2>Posts tagged with "{{ tag.name }}"</h2>
-        {% endif %}
+    {% if tag %}
+        <h1>Posts tagged with "{{ tag.name }}"</h1>
+    {% endif %}
+    <section class="images-section flex jc ac mt25px">
         <section class="sorting-section">
-            <div class="sort-list">
-                <button class="sort-item p10px active">date</button>
-                <button class="sort-item p10px">downloads</button>
-                <button class="sort-item p10px">rating</button>
-            </div>
+            <ul class="sort-list fr">
+                <li class="sort-item active p10px"><button class="button">date</button></li>
+                <li class="sort-item p10px"><button class="button">downloads</button></li>
+                <li class="sort-item p10px"><button class="button">rating</button></li>
+            </ul>
         </section>
         {% if images_list %}
-            <section class="images">
+            <section class="images-list flex js as mt5px">
+                {% for column in columns %}
+                    <li class="image-column"></li>
+                {% endfor %}
                 {% include "image-block.html" with images=images_list status=images_display_status %}
             </section>
             {% include "pagination.html" with page=images_list %}
         {% else %}
-            <h2 class="auth-form__title p16px">There are no images available.</h2>
+            <h1 class="p16px">There are no images available.</h1>
         {% endif %}
-
     </section>
 {% endblock content %}
+{% block js %}
+    <script src="{% static 'js/image_columns.js' %}"></script>
+{% endblock %}
