@@ -34,10 +34,13 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'accounts',
-
+    'taggit',
+    'social_django',
     'dal',
     'dal_select2',
+
+    'main.apps.MainConfig',
+    'accounts',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,12 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'taggit',
-    'social_django',
-
-
-    'main.apps.MainConfig',
 ]
 
 MIDDLEWARE = [
@@ -173,8 +170,9 @@ EMAIL_HOST_PASSWORD = 'd48a53540f7826'
 EMAIL_PORT = '2525'
 
 
-IMAGE_PREVIEW_HEIGHT = 500
+IMAGE_PREVIEW_WIDTH = 500
 IMAGE_MAXIMUM_FILESIZE_IN_MB = 5
 IMAGE_MINIMUM_DIMENSION = (500, 500)
 IMAGE_MAXIMUM_COUNT_PER_PAGE = 12
 IMAGE_MINIMUM_TAGS = 3
+IMAGE_COLUMNS = 4

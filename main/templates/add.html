@@ -7,47 +7,34 @@
 {% endblock title %}
 
 {% block content %}
-    {% if image_form.errors %}
-            {% for field in image_form %}
-                {% for error in field.errors %}
-                    <span class="auth-formsubtitle">{{ error|escape }}</span>
-                {% endfor %}
-            {% endfor %}
-            {% for error in image_form.non_field_errors %}
-                <span class="auth-formsubtitle">{{ error|escape }}</span>
-            {% endfor %}
-        {% endif %}
-    <section class="add-images">
-        <div class="top-content mt15px">
-            <h1 class="add-images__title settings-title">Upload your photo</h1>
-        </div>
+    <section class="add-images-section">
         <form class="add-images__form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="inputs auth-form__inputs">
-                <div class="avatar">
-                    <div class="top-content">
-                        <span class="add-images__option-title settings__option-title">Image</span>
-                    </div>
-                    {{ image_form.errors.image }}
-                    <div class="bottom-content mt5px">
-                        {{ image_form.image }}
-                    </div>
-                </div>
-                <div class="tags">
-                    <div class="top-content">
-                        <span class="add-images__option-title settings__option-title">Tags</span>
-                    </div>
-                    {{ image_form.errors.tags }}
-                    <div class="bottom-content mt5px">
-                        {{ image_form.tags }}
-                    </div>
-                </div>
-                <input class="button button--blue mt15px" type="submit" value="Enter">
+            <h1 class="add-images-title">Upload your photo</h1>
+            {{ image_form.errors.image|escape }}
+            <div class="card-images mt25px">
+                <img class="card-image-back input-image-preview" src="" />
+                <img class="card-image input-image-preview" src="" />
             </div>
+            <label class="custom-file-upload mt25px">
+                {{ image_form.image }}
+                <span class="button button--blue middle p10px">Upload</span>
+            </label>
+            <div class="tags mt25px">
+                <div class="top-content">
+                    <h1 class="add-images-title">.. then you need tags</h1>
+                </div>
+                {{ image_form.errors.tags }}
+                <div class="bottom-content mt25px">
+                    {{ image_form.tags }}
+                </div>
+            </div>
+            <button class="button button--blue middle mt15px" type="submit">Enter</button>
         </form>
     </section>
 {% endblock content %}
 
 {% block js %}
+    <script src="{% static 'js/view_uploaded_image.js' %}"></script>
     {{ image_form.media }}
 {% endblock %}

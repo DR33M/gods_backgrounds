@@ -19,7 +19,7 @@
         </div>
     </header>
     <section class="auth">
-        <div class="auth-form">
+        <div class="auth-form flex jc">
             <div class="auth-form__title">
                 Добро пожаловать обратно в Goodfon!
             </div>
@@ -28,7 +28,7 @@
             {% endif %}
             <form action="/auth/login" method="post">
                 {% csrf_token %}
-                <div class="inputs auth-form__inputs">
+                <div class="auth-form__inputs flex jc">
                     <div class="inputs__item">
                         {{ form.email }}
                     </div>

@@ -54,7 +54,8 @@ def home(request, slug=None):
         'images_display_status': images_display_status,
         'tag': tag,
         'common_tags': Image.tags.most_common()[:10],
-        'order': 'asc' if order == 'desc' else 'desc'
+        'order': 'asc' if order == 'desc' else 'desc',
+        'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 
 
@@ -80,7 +81,8 @@ def detailed_image_view(request, slug):
         'colors': colors,
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
-        'form': form
+        'form': form,
+        'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 
 

@@ -24,19 +24,23 @@ class Messages:
         email.send()
 
     @staticmethod
-    def new_email(request, to_email):
-        user = request.user
+    def send_message(request, user, message_template, field):
+        if request.is_secure:
+            protocol = 'http'
+        else:
+            protocol = 'https'
+
         current_site = get_current_site(request)
-        mail_subject = 'Confirm your new email address'
-        message = render_to_string('acc_new_email.html', {
-            'user': user,
+        mail_subject = 'Confirm action'
+        message = render_to_string(message_template, {
+            'protocol': protocol,
             'domain': current_site.domain,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': default_token_generator.make_token(user),
-            'email': to_email,
+            'field': field,
         })
 
         email = EmailMessage(
-            mail_subject, message, to=[to_email]
+            mail_subject, message, to=[user.email]
         )
         email.send()
