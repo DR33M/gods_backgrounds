@@ -13,5 +13,5 @@ urlpatterns = [
 
     path('tags-autocomplete/', views.TagsAutocomplete.as_view(), name='tags-autocomplete'),
 
-    path('', views.home, name="home")
+    path('', views.home, name="home"),
 ]

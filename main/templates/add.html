@@ -7,6 +7,16 @@
 {% endblock title %}
 
 {% block content %}
+    {% if image_form.errors %}
+            {% for field in image_form %}
+                {% for error in field.errors %}
+                    <span class="auth-formsubtitle">{{ error|escape }}</span>
+                {% endfor %}
+            {% endfor %}
+            {% for error in image_form.non_field_errors %}
+                <span class="auth-formsubtitle">{{ error|escape }}</span>
+            {% endfor %}
+        {% endif %}
     <section class="add-images">
         <div class="top-content mt15px">
             <h1 class="add-images__title settings-title">Upload your photo</h1>

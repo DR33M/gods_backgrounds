@@ -30,7 +30,7 @@ class EditTagsForm(forms.ModelForm):
 class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = Image
-        fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags', 'author', 'status',)
+        fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags',)
         widgets = {
             'tags': autocomplete.TaggitSelect2(url='main:tags-autocomplete', attrs={
                 'required': True, 'data-placeholder': 'A comma-separated list of tags.', 'class': 'settings-input p10px'
@@ -53,11 +53,10 @@ class ImageUploadForm(forms.ModelForm):
             if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 raise forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION)
 
-            if not cd.get('image_hash'):
-                # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
-                cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
+            # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
+            cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
 
-            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).count() > 0:
+            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=self.cleaned_data['image']).count() > 0:
                 raise forms.ValidationError('Image already exists')
 
         return cd

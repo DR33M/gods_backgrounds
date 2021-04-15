@@ -27,8 +27,11 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
 
 
 def home(request, slug=None):
-    images_list = Image.objects.order_by('-created_at')
-    common_tags = Image.tags.most_common()[:10]
+    search_query = request.GET.get('search', '')
+    order = request.GET.get('order', 'desc')
+
+    images_list = Image.objects.order_by('-created_at' if order == 'desc' else 'created_at')
+
     images_display_status = True
     tag = None
 
@@ -36,7 +39,6 @@ def home(request, slug=None):
         tag = get_object_or_404(Tag, slug=slug)
         images_list = images_list.filter(tags__in=[tag])
 
-    search_query = request.GET.get('search', '')
     if search_query:
         images_list = images_list.filter(tags__name__iexact=search_query)
 
@@ -51,7 +53,8 @@ def home(request, slug=None):
         'images_list': page_obj,
         'images_display_status': images_display_status,
         'tag': tag,
-        'common_tags': common_tags,
+        'common_tags': Image.tags.most_common()[:10],
+        'order': 'asc' if order == 'desc' else 'desc'
     })
 
 

@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load templatehelpers %}
 
 {% block title %}
     Index
 {% endblock title %}
+
 
 
 {% block content %}
@@ -29,9 +31,7 @@
         {% endif %}
         <section class="sorting-section">
             <div class="sort-list">
-                <button class="sort-item p10px active">date</button>
-                <button class="sort-item p10px">downloads</button>
-                <button class="sort-item p10px">rating</button>
+                <a href="{% relative_url order 'order' request.GET.urlencode %}" class="sort-item p10px {% if order == 'desc' %}active{% endif %}">date</a>
             </div>
         </section>
         {% if images_list %}
@@ -42,6 +42,5 @@
         {% else %}
             <h2 class="auth-form__title p16px">There are no images available.</h2>
         {% endif %}
-
     </section>
 {% endblock content %}
