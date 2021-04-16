@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +59,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 ROOT_URLCONF = 'goodfon.urls'
 
@@ -90,6 +98,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        'TIMEOUT': 60,#60 * 60 * 24,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
     }
 }
 
@@ -171,8 +189,15 @@ EMAIL_PORT = '2525'
 
 
 IMAGE_PREVIEW_WIDTH = 500
-IMAGE_MAXIMUM_FILESIZE_IN_MB = 5
+IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
 IMAGE_MINIMUM_DIMENSION = (500, 500)
-IMAGE_MAXIMUM_COUNT_PER_PAGE = 12
+IMAGE_MAXIMUM_COUNT_PER_PAGE = 24
 IMAGE_MINIMUM_TAGS = 3
 IMAGE_COLUMNS = 4
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]

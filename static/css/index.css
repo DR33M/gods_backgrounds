@@ -42,6 +42,7 @@
 .js { justify-content: start; }
 .jc { justify-content: center; }
 .je { justify-content: flex-end; }
+.jsb { justify-content: space-between; }
 .ac { align-items: center; }
 .fr { flex-direction: row; }
 
@@ -59,11 +60,11 @@ h1, h2, h3 {
 }
 h2 { font-size: 2rem; }
 h3 { font-size: 1.8rem; }
-ul, ol { display: flex; }
 img {
     display: block;
     position: relative;
     max-height: 100%;
+    width: 100%;
     max-width: 100%;
     object-fit: cover;
 }
@@ -72,8 +73,6 @@ img {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: unset;
-    border: unset;
     border-radius: 2px;
 }
 .button:hover { cursor: pointer; }
@@ -185,16 +184,16 @@ input[type="file"] {
     position: relative;
 }
 .card-image-back {
-    max-height: 50vh;
-    border-radius: 10px;
     position: absolute;
+    width: 30vh;
+    border-radius: 10px;
     transform: rotateZ(10deg);
     z-index: 0;
     opacity: 0.5;
 }
 .card-image {
     position: relative;
-    max-height: 50vh;
+    width: 30vh;
     border-radius: 10px;
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
     z-index: 1;
@@ -278,16 +277,27 @@ input[type="file"] {
     /*background-size: cover;*/
     /*max-width: 100%;*/
 }
-.image__author-panel {
+.image__panel {
     width: 100%;
     position: absolute;
     left: 0;
     bottom: 0;
-    background: linear-gradient(to top, RGBA(255,255,255, .3), transparent);
+    background: linear-gradient(to top, RGBA(255,255,255, .25), transparent);
 }
 .author__account-link {
     display: flex;
     align-items: center;
+}
+.image__options {
+    display: none;
+}
+.rating-button, .download-button {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: RGBA(255,255,255,.6);
+}
+.rating-button:hover, .download-button:hover {
+    fill: RGBA(255,255,255,.8);
 }
 
 .pagination {
@@ -314,18 +324,24 @@ input[type="file"] {
     width: 100%;
 }
 .image-detail__image {
-    max-width: 1000px;
-    max-height: 60vh;
-    height: 60vh;
+    max-width: 50vh;
     position: relative;
     background: RGBA(0,0,0, .025);
     box-shadow: 0 0 0 rgb(0 0 0 / 25%), 0 5px 6px rgb(0 0 0 / 22%);
+}
+.top-image-options.rating-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    height: 3rem;
+    width: 3rem;
+    z-index: 1;
 }
 .image-detail__image > img {
     border-radius: 4px;
     box-shadow: 0 0 0 rgb(0 0 0 / 25%), 0 5px 6px rgb(0 0 0 / 22%);
 }
-.image-detail__image > .flex {
+.bottom-image-options {
     position: absolute;
     width: 100%;
     bottom: 1rem;
@@ -521,4 +537,11 @@ input[type="file"] {
 }
 .main-footer > * {
     margin: 0 .1rem;
+}
+
+
+/*CSS selectors addicted */
+/*image-block.html*/
+.image-item:hover > .image__panel > .image__options {
+    display: flex;
 }

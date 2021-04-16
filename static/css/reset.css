@@ -28,5 +28,7 @@ a {
     text-decoration: unset;
 }
 input, button, textarea, select {
+    background: unset;
+    border: unset;
     font: inherit;
 }

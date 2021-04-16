@@ -50,7 +50,7 @@ class ImageUploadForm(forms.ModelForm):
             except AttributeError:
                 pass
 
-            width, height = get_image_dimensions(cd['image'])
+            width, height = image_file.width, image_file.height
             if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
 
