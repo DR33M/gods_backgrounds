@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load templatehelpers %}
 
 {% block title %}
     Index
 {% endblock title %}
-
 
 {% block content %}
     <section class="image-search-section mt50px">
@@ -30,16 +30,16 @@
     {% if tag %}
         <h1>Posts tagged with "{{ tag.name }}"</h1>
     {% endif %}
-    <section class="images-section flex jc ac mt25px">
+    <section class="images-section flex jc ac mt50px">
         <section class="sorting-section">
-            <ul class="sort-list flex fr">
-                <li class="sort-item active p10px"><button class="button">date</button></li>
-                <li class="sort-item p10px"><button class="button">downloads</button></li>
-                <li class="sort-item p10px"><button class="button">rating</button></li>
-            </ul>
+            <div class="sort-list">
+                <a href="{% relative_url order 'order' request.GET.urlencode %}" class="sort-item p10px {% if order == 'desc' %}active{% endif %}">date</a>
+                <a href="{% relative_url order 'order' request.GET.urlencode %}" class="sort-item p10px {% if order == 'desc' %}active{% endif %}">downloads</a>
+                <a href="{% relative_url order 'order' request.GET.urlencode %}" class="sort-item p10px {% if order == 'desc' %}active{% endif %}">rating</a>
+            </div>
         </section>
         {% if images_list %}
-            <ul class="images-list flex js as mt5px">
+            <ul class="images-list flex js as mt15px">
                 {% for column in columns %}
                     <li class="image-column"></li>
                 {% endfor %}
@@ -53,4 +53,5 @@
 {% endblock content %}
 {% block js %}
     <script src="{% static 'js/image_columns.js' %}"></script>
+    <script src="{% static 'js/ajax-rating.js' %}"></script>
 {% endblock %}

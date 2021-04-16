@@ -10,4 +10,3 @@ class ImageAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Colors)
-

@@ -8,7 +8,7 @@
 
 {% block content %}
     <section class="image-search-section mt50px">
-        <form action="{% url 'accounts:account' username=user %}" method="GET" class="image-search__form">
+        <form action="{% url 'main:cabinet' username=user %}" method="GET" class="image-search__form">
             <label class="rounded-input-container flex js ac">
                 <input name="search" class="p14px" type="text" placeholder="Something of your photos.." />
                 <button class="button ml5px">
