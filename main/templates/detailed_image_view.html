@@ -73,7 +73,7 @@
                 <div class="colors-panel flex js ac mt15px">
                     <span class="colors-span">Colors:</span>
                     {% for color in colors %}
-                        <a class="color ml5px" href="" style="background: {{ color.color }}"></a>
+                        <a class="color ml5px" href="" style="background: {{ color.hex }}"></a>
                     {% endfor %}
                 </div>
             </div>
@@ -91,7 +91,8 @@
 {% endblock content %}
 
 {% block js %}
-    <script src="{% static 'js/image_columns.js' %}"></script>
-    <script src="{% static 'js/ajax-rating.js' %}"></script>
+    <script src="{% static 'js/modules/functions/image_columns.js' %}"></script>
+    <script src="{% static 'js/modules/classes/ImageApi.js' %}"></script>
+    <script src="{% static 'js/detailed_image_view.js' %}"></script>
     {{ form.media }}
 {% endblock %}

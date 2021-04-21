@@ -84,7 +84,7 @@
                     {% for column in columns %}
                         <li class="image-column"></li>
                     {% endfor %}
-                    {% include "image-block.html" with images=images_list status=images_display_status %}
+                    {% include "image-block.html" with images=images_list %}
                  </ul>
                 {% include "pagination.html" with page=images_list %}
             {% else %}
@@ -94,5 +94,7 @@
     {% endif %}
 {% endblock content %}
 {% block js %}
-    <script src="{% static 'js/image_columns.js' %}"></script>
+    <script src="{% static 'js/modules/functions/image_columns.js' %}"></script>
+    <script src="{% static 'js/modules/classes/ImageApi.js' %}"></script>
+    <script src="{% static 'js/cabinet.js' %}"></script>
 {% endblock %}

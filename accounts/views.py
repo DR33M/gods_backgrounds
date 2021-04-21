@@ -44,7 +44,7 @@ def confirm_fork(request, user, field):
             else:
                 data = {'password_form': password_form}
         else:
-            data = {'password_form': NewPasswordForm }
+            data = {'password_form': NewPasswordForm}
 
     if not template:
         return HttpResponseRedirect('main:cabinet')
@@ -66,7 +66,7 @@ def sign_in(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponseRedirect('accounts/')
+                    return HttpResponseRedirect('/')
                 else:
                     message = 'Disabled account'
             else:

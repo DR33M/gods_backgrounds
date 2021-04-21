@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'main'
@@ -18,5 +18,5 @@ urlpatterns = [
     path('cabinet/', views.cabinet, name='cabinet'),
     path('cabinet/<username>', views.cabinet, name='cabinet'),
 
-    path('rating/<pk>/<vote>', views.rating, name='rating'),
+    path('api/', include('main.api.urls', namespace='api')),
 ]

@@ -57,7 +57,7 @@ class ImageUploadForm(forms.ModelForm):
             # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
             cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
 
-            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=self.cleaned_data['image']).count() > 0:
+            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
 
         return cd

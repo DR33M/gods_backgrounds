@@ -1,7 +1,8 @@
+import json
+from io import StringIO
+
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.cache import cache
-from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
@@ -16,9 +17,7 @@ from utils.user import is_moderator
 
 from .models import Image
 from .forms import ImageUploadForm, EditTagsForm
-import logging
-
-logger = logging.getLogger(__name__)
+from .utils import sort
 
 
 class TagsAutocomplete(autocomplete.Select2QuerySetView):
@@ -29,52 +28,20 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
-def rating(request, pk, vote):
-    user_pk = str(request.user.pk)
-    image_rating = cache.get('image_' + str(pk))
-
-    if not image_rating:
-        new_rating = str(int(vote))
+def home(request):
+    if request.GET.get('key'):
+        key = json.load(StringIO(request.GET.get('key', default='')))
+        kwargs = sort.in_list('tags__name', key)
+        images_list = sort.get_images(kwargs, '-tags__name')
     else:
-        new_rating = str(int(image_rating) + int(vote))
-        voter = cache.get('image_voter' + user_pk)
-        if not request.user.is_authenticated or user_pk == voter:
-            return HttpResponse('Already voted')
-
-    cache.set('image_voter' + user_pk, str(vote))
-    cache.set('image_' + pk, new_rating)
-    return HttpResponse(new_rating)
-
-
-def home(request, slug=None):
-    search_query = request.GET.get('search', '')
-    order = request.GET.get('order', 'desc')
-
-    images_list = Image.objects.select_related('author').order_by('-created_at' if order == 'desc' else 'created_at')
-
-    images_display_status = True
-    tag = None
-
-    if slug:
-        tag = get_object_or_404(Tag, slug=slug)
-        images_list = images_list.filter(tags__in=[tag])
-
-    if search_query:
-        images_list = images_list.filter(tags__name__iexact=search_query)
-
-    if not tag and not search_query:
-        images_list = images_list.filter(status=Image.Status.APPROVED)
-        images_display_status = False
+        images_list = Image.objects.select_related('author').filter(status=Image.Status.MODERATION).order_by('-created_at')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'home.html', {
         'images_list': page_obj,
-        'images_display_status': images_display_status,
-        'tag': tag,
         'common_tags': Image.tags.most_common()[:10],
-        'order': 'asc' if order == 'desc' else 'desc',
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 

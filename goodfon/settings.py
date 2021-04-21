@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'taggit',
+    'taggit_serializer',
     'social_django',
     'dal',
     'dal_select2',
@@ -49,7 +50,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,12 +72,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
-}
 
 ROOT_URLCONF = 'goodfon.urls'
 
@@ -190,7 +195,7 @@ EMAIL_PORT = '2525'
 
 IMAGE_PREVIEW_WIDTH = 500
 IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
-IMAGE_MINIMUM_DIMENSION = (500, 500)
+IMAGE_MINIMUM_DIMENSION = (1024, 1024)
 IMAGE_MAXIMUM_COUNT_PER_PAGE = 24
 IMAGE_MINIMUM_TAGS = 3
 IMAGE_COLUMNS = 4

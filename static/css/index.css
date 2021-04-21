@@ -35,7 +35,7 @@
 .p08rem { padding: .8rem; }
 
 .dn {
-    display: none;
+    display: none !important;
 }
 
 .flex { display: flex; }
@@ -45,6 +45,7 @@
 .jsb { justify-content: space-between; }
 .ac { align-items: center; }
 .fr { flex-direction: row; }
+.fc { flex-direction: column; }
 
 .cw { color: white; }
 .cg { color: RGBA(0,0,0,.4); }
@@ -129,6 +130,13 @@ img {
     border-left: 1px solid black;
 }
 
+.down-arrow.active {
+    fill: #0064f9;
+}
+.down-arrow.disabled {
+    display: none;
+}
+
 input[type="file"] {
     display: none;
 }
@@ -160,8 +168,7 @@ input[type="file"] {
     z-index: 1;
 }
 
-
-.image-search__form {
+.image-search-section {
     display: flex;
     justify-content: center;
     width: 100%;
@@ -218,25 +225,50 @@ input[type="file"] {
 }
 
 .sorting-section {
-    display: flex;
-    justify-content: center;
     width: 100%;
 }
 .sort-list {
-    width: 90%;
+    width: 45%;
+    position: relative;
 }
-.sort-item {
-    margin: 0 0 5px 5px;
+.sort-text {
+    padding: .64rem;
     color: #5e5e5e;
     transition: .2s color ease;
 }
-.sort-item:hover {
+.sort-text:hover {
     cursor: pointer;
     color: #0064f9;
 }
-.sort-item.active {
+.sort-text.active {
+    padding: .64rem 0.1rem calc(.64rem - 2px) .1rem;
     border-bottom: 2px solid #0064f9;
     color: #0064f9;
+}
+.drop-list {
+    padding: 1rem;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    border-radius: 4px;
+    border: 1px solid rgba(26,26,26,.15);
+    background: #fff;
+    z-index: 2;
+}
+.screen.drop-list {
+    top: 3rem;
+    right: 0;
+}
+.screen-size-inputs {
+    border: 1px solid RGBA(0, 0, 0, 0.1);
+    border-radius: 6px;
+    width: 12rem;
+}
+.min-image-width, .min-image-height {
+    max-width: 4rem;
+}
+.screen-size-options {
+    width: 75%;
 }
 
 .images-section {
@@ -296,12 +328,15 @@ input[type="file"] {
 .image__options {
     display: none;
 }
-.rating-button, .download-button {
+.rating {
+    color: RGBA(255,255,255,.6);
+}
+.upvote-button, .download-button {
     width: 1.5rem;
     height: 1.5rem;
     fill: RGBA(255,255,255,.6);
 }
-.rating-button:hover, .download-button:hover {
+.upvote-button:hover, .download-button:hover {
     fill: RGBA(255,255,255,.8);
 }
 

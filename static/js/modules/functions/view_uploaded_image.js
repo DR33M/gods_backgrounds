@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+function uploadImageMain() {
     let imgInp = document.getElementById("input-image"),
         previews = document.getElementsByClassName("input-image-preview");
 
@@ -22,4 +22,4 @@ document.addEventListener("DOMContentLoaded", function () {
             reader.readAsDataURL(input.files[0]);
         }
     }
-})
+}
