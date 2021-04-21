@@ -21,14 +21,18 @@
         </form>
     </section>
     <section class="tags-list mt15px">
-        {% for tag in common_tags %}
+        {% get_tag_weight common_tags as tags %}
+        {% for tag in tags %}
             <a href="{% url "main:images_list_by_tag" tag.slug %}">
-                <span class="mr5px">{{ tag }}</span>
+                <span style="font-size: {{tag.weight|floatformat:0}}px;">{{ tag }}</span>
             </a>
         {% endfor %}
     </section>
     {% if tag %}
-        <h1>Posts tagged with "{{ tag.name }}"</h1>
+
+        <h1>Posts tagged with "{{ tag }}"{{ tag }}</h1>
+    {% elif color %}
+        <h1>Posts tagged with color "{{ color }}"</h1>
     {% endif %}
     <section class="images-section flex jc ac mt25px">
         <section class="sorting-section">
@@ -45,7 +49,7 @@
             </ul>
             {% include "pagination.html" with page=images_list %}
         {% else %}
-            <h1 class="p16px">There are no images available.</h1>
+            <h2 class="p16px">There are no images available.</h2>
         {% endif %}
     </section>
 {% endblock content %}

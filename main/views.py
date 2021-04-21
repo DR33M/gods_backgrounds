@@ -11,7 +11,7 @@ from taggit.models import Tag
 
 from utils.user import is_moderator
 
-from .models import Image
+from .models import Image, Colors
 from .forms import ImageUploadForm, EditTagsForm
 import logging
 
@@ -26,23 +26,26 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
-def home(request, slug=None):
-    search_query = request.GET.get('search', '')
+def home(request, slug=None, hex_color=None):
+    search_query = request.GET.get('search', None)
     order = request.GET.get('order', 'desc')
 
     images_list = Image.objects.order_by('-created_at' if order == 'desc' else 'created_at')
-
     images_display_status = True
-    tag = None
 
     if slug:
         tag = get_object_or_404(Tag, slug=slug)
-        images_list = images_list.filter(tags__in=[tag])
+        images_list = images_list.filter(tags=tag)
+
+    if hex_color:
+        color = get_object_or_404(Colors, color=hex_color)
+        images_list = images_list.filter(colors__similar_color=color.similar_color).distinct()
+        hex_color = color.similar_color
 
     if search_query:
         images_list = images_list.filter(tags__name__iexact=search_query)
 
-    if not tag and not search_query:
+    if not slug and not hex_color and not search_query:
         images_list = images_list.filter(status=Image.Status.APPROVED)
         images_display_status = False
 
@@ -52,8 +55,9 @@ def home(request, slug=None):
     return render(request, 'home.html', {
         'images_list': page_obj,
         'images_display_status': images_display_status,
-        'tag': tag,
-        'common_tags': Image.tags.most_common()[:10],
+        'tag': slug,
+        'color': hex_color,
+        'common_tags': Image.tags.most_common().order_by('name')[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'order': 'asc' if order == 'desc' else 'desc',
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
@@ -61,14 +65,12 @@ def home(request, slug=None):
 
 def detailed_image_view(request, slug):
     image = get_object_or_404(Image, slug=slug)
-    colors = image.colors.all()
     images_tags_ids = image.tags.values_list('id', flat=True)
     similar_images = Image.objects.filter(tags__in=images_tags_ids).exclude(id=image.id)
-    similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[:4]
+    similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[:settings.SIMILAR_IMAGES_COUNT]
     form = EditTagsForm(instance=image)
 
     if request.method == 'POST' and 'edit' in request.POST:
-        image = get_object_or_404(Image, slug=slug)
         form = EditTagsForm(data=request.POST, instance=image)
         if form.is_valid() and (request.user == image.author or is_moderator(request.user)):
             obj = form.save(commit=False)
@@ -78,7 +80,7 @@ def detailed_image_view(request, slug):
 
     return render(request, 'detailed_image_view.html', {
         'image': image,
-        'colors': colors,
+        'colors': image.colors.all(),
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
         'form': form,

@@ -60,7 +60,7 @@
                     <div class="tags-panel flex js ac">
                         {% for tag in image.tags.all %}
                             <div class="tag flex js ac mr5px">
-                                <a class="tag-name" href="{{ tag.s }}">{{ tag }}</a>
+                                <a class="tag-name" href="{% url "main:images_list_by_tag" tag.slug %}">{{ tag }}</a>
                             </div>
                         {% endfor %}
                     </div>
@@ -68,7 +68,7 @@
                 <div class="colors-panel flex js ac mt15px">
                     <span class="colors-span">Colors:</span>
                     {% for color in colors %}
-                        <a class="color ml5px" href="" style="background: {{ color.color }}"></a>
+                        <a class="color ml5px" href="{% url 'main:images_list_by_color' hex_color=color.color %}" style="background: {{ color.color }}"></a>
                     {% endfor %}
                 </div>
             </div>

@@ -210,7 +210,14 @@ input[type="file"] {
 .tags-list {
     display: flex;
     justify-content: center;
+    align-items: center;
     width: 100%;
+}
+.tags-list a {
+    margin-right: 10px;
+}
+.tags-list a:last-child {
+    margin-right: 0;
 }
 
 .sorting-section {
