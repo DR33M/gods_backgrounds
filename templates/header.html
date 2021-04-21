@@ -1,7 +1,7 @@
 {% load static %}
 <header class="main-header m5px">
     <a class="logo-link ml10px" href="/">GodsFon</a>
-    <a class="account-info flex jc ac mlA mr10px" href="{% url 'accounts:account' %}">
+    <a class="account-info flex jc ac mlA mr10px" href="{% url 'main:cabinet' %}">
         {% if user.profile.photo %}
             <img class="avatar" src="{{ user.profile.photo.url }}" />
         {% else %}

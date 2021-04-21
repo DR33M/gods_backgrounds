@@ -9,43 +9,74 @@
 
 {% block content %}
     <section class="image-search-section mt50px">
-        <form method="GET" class="image-search__form">
-            <label class="rounded-input-container flex js ac">
-                <input name="search" class=" p14px" type="text" placeholder="Something.."/>
-                <button class="button ml5px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-                    </svg>
-                </button>
-            </label>
-        </form>
+        <label class="rounded-input-container flex js ac">
+            <input id="search-input" name="search" class="p14px" type="text" placeholder="Something.."/>
+            <button class="button ml5px find-button" data-key-handler="search-input">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                </svg>
+            </button>
+        </label>
     </section>
     <section class="tags-list mt15px">
+    {% if common_tags %}
         {% get_tag_weight common_tags as tags %}
         {% for tag in tags %}
-            <a href="{% url "main:images_list_by_tag" tag.slug %}">
+            <a class="button tag-name mr5px find-button" href="{% url "main:home" %}?tags={{ tag.slug }}">
                 <span style="font-size: {{tag.weight|floatformat:0}}px;">{{ tag }}</span>
             </a>
         {% endfor %}
+    {% endif %}
     </section>
     {% if tag %}
-
-        <h1>Posts tagged with "{{ tag }}"{{ tag }}</h1>
-    {% elif color %}
-        <h1>Posts tagged with color "{{ color }}"</h1>
+        <h1 class="mt15px">Posts tagged with "{{ tag.name }}"</h1>
     {% endif %}
-    <section class="images-section flex jc ac mt25px">
-        <section class="sorting-section">
-            <div class="sort-list">
-                <a href="{% relative_url order 'order' request.GET.urlencode %}" class="sort-item p10px {% if order == 'desc' %}active{% endif %}">date</a>
+    {% if color %}
+        <h1 class="mt15px">Posts tagged with color "{{ color.similar_color }}"</h1>
+    {% endif %}
+    <section class="images-section flex jc ac mt50px">
+        <section class="sorting-section flex jc">
+            <div class="sort-list flex">
+                <button class="sort-item flex jc ac sort-date-button" data-order="">
+                    <span class="sort-text active ml5px">date</span>
+                    <svg class="down-arrow active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path></svg>
+                </button>
+                <button class="sort-item flex jc ac sort-downloads-button" data-order="" data-start="1" data-end="100">
+                    <span class="sort-text">downloads</span>
+                    <svg class="down-arrow disabled" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path></svg>
+                </button>
+                <button class="sort-item flex jc ac sort-rating-button" data-order="" data-start="1" data-end="100">
+                    <span class="sort-text">rating</span>
+                    <svg class="down-arrow disabled" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path></svg>
+                </button>
+            </div>
+            <div class="sort-list flex je ac" data-drop-list-id="drop-list-screen">
+                <span class="sort-item sort-text p10px">screen:</span>
+                <div class="sort-item flex fc">
+                    <button class="sort-text">all</button>
+                </div>
+                <div id="drop-list-screen" class="screen drop-list dn">
+                    <div class="screen-size-inputs flex jsb ac">
+                        <span id="width" class="min-image-width sort-text ml15px" contenteditable="true">1024</span>
+                        <span>x</span>
+                        <span id="height" class="min-image-height sort-text mr15px" contenteditable="true">1024</span>
+                    </div>
+                    <div class="flex">
+                        <div class="screen-size-options flex fc">
+                            <button class="sort-text mt15px">Desktop</button>
+                            <button class="sort-text mt5px">Phone</button>
+                        </div>
+                        <button class="button button--blue middle mt15px sort-screen-button" data-fields="width height">Find</button>
+                    </div>
+                </div>
             </div>
         </section>
         {% if images_list %}
-            <ul class="images-list flex js as mt5px">
+            <ul class="images-list flex js as mt15px">
                 {% for column in columns %}
                     <li class="image-column"></li>
                 {% endfor %}
-                {% include "image-block.html" with images=images_list status=images_display_status %}
+                {% include "image-block.html" with images=images_list %}
             </ul>
             {% include "pagination.html" with page=images_list %}
         {% else %}
@@ -54,5 +85,8 @@
     </section>
 {% endblock content %}
 {% block js %}
-    <script src="{% static 'js/image_columns.js' %}"></script>
+    <script src="{% static 'js/modules/functions/image_columns.js' %}"></script>
+    <script src="{% static 'js/modules/classes/ImageApi.js' %}"></script>
+    <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
 {% endblock %}

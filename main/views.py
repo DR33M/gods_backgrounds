@@ -1,8 +1,9 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
 
@@ -11,11 +12,9 @@ from taggit.models import Tag
 
 from utils.user import is_moderator
 
-from .models import Image, Colors
+from .models import Image, Color
 from .forms import ImageUploadForm, EditTagsForm
-import logging
-
-logger = logging.getLogger(__name__)
+from .utils import sort
 
 
 class TagsAutocomplete(autocomplete.Select2QuerySetView):
@@ -26,39 +25,30 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
-def home(request, slug=None, hex_color=None):
-    search_query = request.GET.get('search', None)
-    order = request.GET.get('order', 'desc')
+def home(request):
+    color = request.GET.get('color', None)
+    tags = request.GET.get('tags', None)
 
-    images_list = Image.objects.order_by('-created_at' if order == 'desc' else 'created_at')
-    images_display_status = True
+    if request.GET:
+        images_list = Image.objects.select_related('author').filter(status=Image.Status.MODERATION).order_by('-created_at')
+        if tags:
+            tags = tags.split(",")
+            kwargs = sort.in_list('tags__name', tags)
+            images_list = sort.get_images(kwargs, '-tags__name')
 
-    if slug:
-        tag = get_object_or_404(Tag, slug=slug)
-        images_list = images_list.filter(tags=tag)
-
-    if hex_color:
-        color = get_object_or_404(Colors, color=hex_color)
-        images_list = images_list.filter(colors__similar_color=color.similar_color).distinct()
-        hex_color = color.similar_color
-
-    if search_query:
-        images_list = images_list.filter(tags__name__iexact=search_query)
-
-    if not slug and not hex_color and not search_query:
-        images_list = images_list.filter(status=Image.Status.APPROVED)
-        images_display_status = False
+        if color:
+            color = get_object_or_404(Color, hex=color)
+            images_list = images_list.filter(colors__similar_color=color.similar_color).distinct()
+    else:
+        images_list = Image.objects.select_related('author').filter(status=Image.Status.APPROVED).order_by('-created_at')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'home.html', {
         'images_list': page_obj,
-        'images_display_status': images_display_status,
-        'tag': slug,
-        'color': hex_color,
+        'color': color,
         'common_tags': Image.tags.most_common().order_by('name')[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
-        'order': 'asc' if order == 'desc' else 'desc',
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 
@@ -84,6 +74,36 @@ def detailed_image_view(request, slug):
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
         'form': form,
+        'columns': range(0, settings.IMAGE_COLUMNS, 1)
+    })
+
+
+@login_required
+def cabinet(request, username=''):
+    if not username:
+        return HttpResponseRedirect(reverse('main:cabinet', kwargs={
+            'username': request.user.username
+        }))
+
+    user = request.user
+
+    if not request.user.username == username:
+        user = User.objects.get(username=username)
+
+    images_list = Image.objects.filter(author=user).select_related('author').order_by('-created_at')
+
+    search_query = request.GET.get('search', '')
+    if search_query:
+        images_list = images_list.filter(tags__name__iexact=search_query)
+
+    paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'cabinet.html', {
+        'user': user,
+        'images_list': page_obj,
+        'images_display_status': True,
+        'moderator': is_moderator(user),
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 

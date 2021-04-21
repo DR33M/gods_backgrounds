@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'taggit',
+    'taggit_serializer',
     'social_django',
     'dal',
     'dal_select2',
@@ -48,7 +49,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'goodfon.urls'
@@ -90,6 +103,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        'TIMEOUT': 60,#60 * 60 * 24,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
     }
 }
 
@@ -171,15 +194,16 @@ EMAIL_PORT = '2525'
 
 
 IMAGE_PREVIEW_WIDTH = 500
-IMAGE_MAXIMUM_FILESIZE_IN_MB = 5
-IMAGE_MINIMUM_DIMENSION = (500, 500)
-IMAGE_MAXIMUM_COUNT_PER_PAGE = 12
+IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
+IMAGE_MINIMUM_DIMENSION = (1024, 1024)
+IMAGE_MAXIMUM_COUNT_PER_PAGE = 24
 IMAGE_MINIMUM_TAGS = 3
 IMAGE_COLUMNS = 4
 IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 3.1
 SIMILAR_IMAGES_COUNT = 4
 DISPLAY_MOST_COMMON_TAGS_COUNT = 10
-
+TAGS_CLOUD_MAX = 40
+TAGS_CLOUD_MIN = 20
 
 COLORS = {
     '000000': 'black',
@@ -199,3 +223,10 @@ COLORS = {
     'ff00ff': 'magenta',
     '800080': 'purple'
 }
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]

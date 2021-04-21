@@ -1,17 +1,12 @@
-from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
 from django.shortcuts import render
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
-from django.conf import settings as config
 
-from main.models import Image
 from .mail import Messages
-from utils.user import is_moderator
 
 from .forms import LoginForm, UserRegistrationForm, UserEditForm, EmailForm, ProfileEditForm, NewPasswordForm
 import logging
@@ -20,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def confirm_fork(request, user, field):
-    template = 'account.html'
+    template = ''
     data = {}
 
     if field == 'activate':
@@ -51,6 +46,9 @@ def confirm_fork(request, user, field):
         else:
             data = {'password_form': NewPasswordForm}
 
+    if not template:
+        return HttpResponseRedirect('main:cabinet')
+
     return render(request, template, data)
 
 
@@ -68,7 +66,7 @@ def sign_in(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponseRedirect('accounts/')
+                    return HttpResponseRedirect('/')
                 else:
                     message = 'Disabled account'
             else:
@@ -142,36 +140,6 @@ def reset_password(request):
 
 def reset_password_done(request):
     return render(request, 'reset_password_done.html')
-
-
-@login_required
-def account(request, username=''):
-    if not username:
-        return HttpResponseRedirect(reverse('accounts:account', kwargs={
-            'username': request.user.username
-        }))
-
-    user = request.user
-
-    if not request.user.username == username:
-        user = User.objects.get(username=username)
-
-    images_list = Image.objects.filter(author=user).order_by('-created_at')
-
-    search_query = request.GET.get('search', '')
-    if search_query:
-        images_list = images_list.filter(tags__name__iexact=search_query)
-
-    paginator = Paginator(images_list, config.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'account.html', {
-        'user': user,
-        'images_list': page_obj,
-        'images_display_status': True,
-        'moderator': is_moderator(user),
-        'columns': range(0, config.IMAGE_COLUMNS, 1)
-    })
 
 
 @login_required

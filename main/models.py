@@ -1,5 +1,3 @@
-import logging
-
 import extcolors
 from PIL import Image as PIL_Image
 from django.conf import settings
@@ -10,28 +8,23 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from taggit.managers import TaggableManager
+from django.contrib.auth.models import User
 from unidecode import unidecode
-
-from utils.colors import convert_hex_color_to_name
-
-logger = logging.getLogger(__name__)
+from main.utils.colors import convert_hex_color_to_name
 
 
-class Colors(models.Model):
+class Color(models.Model):
     class Meta:
         verbose_name_plural = "Colors"
 
-    color = models.CharField(max_length=7, unique=True)
+    hex = models.CharField(max_length=7, unique=True)
     similar_color = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return self.color
+        return self.hex
 
 
 class Image(models.Model):
-    class Meta:
-        verbose_name_plural = "Images"
-
     class Status(models.IntegerChoices):
         MODERATION = 0
         APPROVED = 1
@@ -39,9 +32,19 @@ class Image(models.Model):
     image = models.ImageField(upload_to='images/%Y/%m/%d/full_size/')
     preview_image = models.ImageField(upload_to='images/%Y/%m/%d/preview_size/', blank=True)
     image_hash = models.CharField(max_length=255, blank=True)
-    colors = models.ManyToManyField(Colors, blank=True)
+
+    colors = models.ManyToManyField(Color, blank=True)
+
     tags = TaggableManager()
     slug = models.SlugField(unique=True, blank=True)
+
+    rating = models.IntegerField(default=0)
+    downloads = models.IntegerField(default=0)
+
+    width = models.IntegerField()
+    height = models.IntegerField()
+    ratio = models.IntegerField()
+
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,
                                   related_name="moderator_id", blank=True)
@@ -72,13 +75,14 @@ class Image(models.Model):
         self.preview_image.storage.delete(self.preview_image.path)
 
     def save(self):
+        image_file = PIL_Image.open(self.image)
+        self.height, self.width = image_file.height, image_file.width
+        self.ratio = ratio = image_file.height / image_file.width
+
         super().save()
 
-        image_file = PIL_Image.open(self.image)
         if image_file.width > settings.IMAGE_PREVIEW_WIDTH:
-            ratio = image_file.height / image_file.width
             output_size = (settings.IMAGE_PREVIEW_WIDTH, round(ratio * settings.IMAGE_PREVIEW_WIDTH))
-            logger.error(output_size)
             image_file = image_file.resize(output_size)
             image_file.save(self.preview_image.path)
 
@@ -90,11 +94,26 @@ class Image(models.Model):
             if (image_color[1] / pixel_count) * 100 > settings.IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS:
                 color = '#%02x%02x%02x' % image_color[0]
                 hex_colors.append(color)
-                if not Colors.objects.filter(color=color).exists():
-                    add_colors.append(Colors(color=color, similar_color=convert_hex_color_to_name(color)))
+                if not Color.objects.filter(hex=color).exists():
+                    add_colors.append(Color(hex=color, similar_color=convert_hex_color_to_name(color)))
 
-        Colors.objects.bulk_create(add_colors)
-        self.colors.add(*Colors.objects.filter(color__in=hex_colors))
+        Color.objects.bulk_create(add_colors)
+        self.colors.add(*Color.objects.filter(hex__in=hex_colors))
+
+
+class UserImage(models.Model):
+    class Vote(models.IntegerChoices):
+        DOWNVOTE = -1
+        DEFAULT = 0
+        UPVOTE = 1
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    vote = models.IntegerField(choices=Vote.choices, default=Vote.DEFAULT)
+    downloaded = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.user.pk)
 
 
 @receiver(m2m_changed, sender=Image.tags.through)

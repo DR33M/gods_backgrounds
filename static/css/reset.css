@@ -28,5 +28,10 @@ a {
     text-decoration: unset;
 }
 input, button, textarea, select {
+    padding: 0;
+    margin: 0;
+    text-align: start;
+    background: unset;
+    border: unset;
     font: inherit;
 }
