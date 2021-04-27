@@ -1,0 +1,9 @@
+<div class="messages mt25px">
+    {% if messages %}
+        <div class="messages__list">
+            {% for message in messages %}
+                <h2 class="messages__item cg {% if message.tags %} {{ message.tags }} {% endif %}">{{ message }}</h2>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

@@ -1,10 +1,14 @@
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.sessions.models import Session
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash, user_logged_out
+from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
+from main.models import Image
 
 from .mail import Messages
 
@@ -81,6 +85,23 @@ def sign_in(request):
 def sign_out(request):
     logout(request)
     return HttpResponseRedirect('login')
+
+
+@staff_member_required
+def delete_user(request, username):
+    next_redirect = request.POST.get('next', '/')
+    if request.POST:
+        try:
+            user = User.objects.get(username=username)
+            if not user.is_staff:
+                user.is_active = False
+                user.save()
+                Image.objects.filter(author_id=user.id).delete()
+                [s.delete() for s in Session.objects.all() if str(s.get_decoded().get('_auth_user_id')) == str(user.id)]
+                messages.add_message(request, messages.SUCCESS, 'You have successfully deleted this user.')
+        except User.DoesNotExist:
+            messages.add_message(request, messages.ERROR, 'User does not exist.')
+    return HttpResponseRedirect(next_redirect)
 
 
 def registration(request):

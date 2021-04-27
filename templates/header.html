@@ -1,11 +1,19 @@
 {% load static %}
 <header class="main-header m5px">
     <a class="logo-link ml10px" href="/">GodsFon</a>
-    <a class="account-info flex jc ac mlA mr10px" href="{% url 'main:cabinet' %}">
-        {% if user.profile.photo %}
+    {% if request.user.is_authenticated %}
+        <a class="account-info flex jc ac mlA mr10px" href="{% url 'main:cabinet' %}">
             <img class="avatar" src="{{ user.profile.photo.url }}" />
-        {% else %}
-            <img class="avatar" src="{% static 'img/goose.jpg' %}" />
-        {% endif %}
-    </a>
+        </a>
+    {% else %}
+        <div class="header__account flex jc ac mlA">
+            {% url 'accounts:login' as login_page %}
+            {% if request.get_full_path == login_page %}
+                <div class="mr10px">Don't have an account?</div>
+                <a class="account-info mr10px button small button--gray" href="{% url 'accounts:registration' %}">Sign up</a>
+            {% else %}
+                <a class="account-info mr10px button small button--gray" href="{% url 'accounts:login' %}">Sign in</a>
+            {% endif %}
+        </div>
+    {% endif %}
 </header>

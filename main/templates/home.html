@@ -35,6 +35,7 @@
         <h1 class="mt15px">Posts tagged with color "{{ color.similar_color }}"</h1>
     {% endif %}
     <section class="images-section flex jc ac mt50px">
+        {% include 'messages.html' with messages=messages %}
         <section class="sorting-section flex jc">
             <div class="sort-list flex">
                 <button class="sort-item flex jc ac sort-date" data-less-than="2022-12-31" data-more-than="2020-12-31" data-order="">

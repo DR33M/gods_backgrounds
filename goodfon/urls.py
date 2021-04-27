@@ -32,8 +32,8 @@ handler404 = views.page_not_found_error
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    # import debug_toolbar
-    # urlpatterns = [
-    #                   url(r'^__debug__/', include(debug_toolbar.urls)),
-    #               ] + urlpatterns
-    # SHOW_TOOLBAR_CALLBACK = True
+    import debug_toolbar
+    urlpatterns = [
+                      url(r'^__debug__/', include(debug_toolbar.urls)),
+                  ] + urlpatterns
+    SHOW_TOOLBAR_CALLBACK = True

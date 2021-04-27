@@ -35,7 +35,7 @@ def images(request):
         if query_dict:
             query = DictORM().make(query_dict)
 
-            images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at')
+            images_list = Image.objects.prefetch_related('author').filter(**query.kwargs).order_by('-created_at')
             if query.order_list:
                 images_list = images_list.order_by(*query.order_list)
 

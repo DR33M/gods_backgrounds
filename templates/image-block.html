@@ -13,11 +13,7 @@
         </a>
         <section class="image__panel flex ac jsb p10px">
             <a class="author__account-link" href="{% url 'main:cabinet' image.author %}">
-                {% if profile_form.photo %}
-                    <img class="avatar" src="{{ image.author.profile.photo.url }}" alt="{{ image.author.profile.photo }}"/>
-                {% else %}
-                    <img class="avatar" src="{% static 'img/goose.jpg' %}" alt="Default goose"/>
-                {% endif %}
+                <img class="avatar" src="{{ image.author.profile.photo.url }}" alt="{{ image.author.profile.photo }}"/>
                 <span class="full-name ml5px">{{ image.author.first_name }} {{ image.author.last_name }}</span>
             </a>
             <div class="image__options">

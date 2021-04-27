@@ -41,11 +41,18 @@ class ImageUploadForm(forms.ModelForm):
     def clean(self):
         super().clean()
         cd = self.cleaned_data
+        image = cd.get('image')
 
-        if cd.get('image'):
-            image_file = PIL_Image.open(cd['image'])
+        if image:
+            image_file = PIL_Image.open(image)
+            # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
+            cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
+
+            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=image).count() > 0:
+                self.add_error('image', forms.ValidationError('Image already exists'))
+
             try:
-                if cd['image'].size > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
+                if image.size > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
                     self.add_error('image', forms.ValidationError('Maximum size is %d MB' % settings.IMAGE_MAXIMUM_FILESIZE_IN_MB))
             except AttributeError:
                 pass
@@ -53,13 +60,6 @@ class ImageUploadForm(forms.ModelForm):
             width, height = image_file.width, image_file.height
             if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
-
-            # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
-            cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
-
-            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
-                self.add_error('image', forms.ValidationError('Image already exists'))
-
         return cd
 
     def clean_tags(self):

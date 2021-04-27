@@ -120,6 +120,41 @@ img {
     border-color: #a93a27;
 }
 
+.messages { width: 100%; }
+.messages__list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.messages__item {
+    padding: 12px;
+    width: 30%;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.messages__item:last-child { margin-bottom: 0; }
+/*.messages__item.error {*/
+/*    color: #79262e;*/
+/*    background-color: #fed9dd;*/
+/*    border-color: #f8a8b1;*/
+/*}*/
+/*.messages__item.info {*/
+/*    color: #4e50b7;*/
+/*    background-color: #cbdeff;*/
+/*    border-color: #a8dbff;*/
+/*}*/
+/*.messages__item.success {*/
+/*    color: #176520;*/
+/*    background-color: #a4ffaf;*/
+/*    border: 1px solid #45b152;*/
+/*}*/
+/*.messages__item.warning {*/
+/*    color: #756226;*/
+/*    background-color: #fbeda7;*/
+/*    border: 1px solid #feff92;*/
+/*}*/
+
 .panel {
     box-shadow: 0 0 0 rgb(0 0 0 / 25%), 0 5px 6px rgb(0 0 0 / 22%);
     border-radius: 4px;
