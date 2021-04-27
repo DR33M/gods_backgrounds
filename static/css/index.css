@@ -38,6 +38,10 @@
     display: none !important;
 }
 
+.rotate180 {
+    transform: rotateX(180deg);
+}
+
 .flex { display: flex; }
 .js { justify-content: start; }
 .jc { justify-content: center; }
@@ -335,7 +339,7 @@ input[type="file"] {
 .image__options {
     display: none;
 }
-.rating {
+.rating, .downloads {
     color: RGBA(255,255,255,.6);
 }
 .upvote-button, .download-button {

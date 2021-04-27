@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
+    #'debug_toolbar',
     'rest_framework',
 ]
 
@@ -70,7 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'goodfon.urls'
@@ -202,8 +202,8 @@ IMAGE_COLUMNS = 4
 IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 3.1
 SIMILAR_IMAGES_COUNT = 4
 DISPLAY_MOST_COMMON_TAGS_COUNT = 10
-TAGS_CLOUD_MAX = 40
-TAGS_CLOUD_MIN = 20
+TAGS_CLOUD_MAX = 24
+TAGS_CLOUD_MIN = 16
 
 COLORS = {
     '000000': 'black',

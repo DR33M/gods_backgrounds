@@ -43,7 +43,7 @@ class Image(models.Model):
 
     width = models.IntegerField()
     height = models.IntegerField()
-    ratio = models.IntegerField()
+    ratio = models.FloatField()
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,

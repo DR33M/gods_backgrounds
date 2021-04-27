@@ -1,3 +1,7 @@
+import json
+from io import StringIO
+from urllib.parse import urlparse
+
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -14,7 +18,11 @@ from utils.user import is_moderator
 
 from .models import Image, Color
 from .forms import ImageUploadForm, EditTagsForm
-from .utils import sort
+from .utils.DictORM import DictORM
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TagsAutocomplete(autocomplete.Select2QuerySetView):
@@ -26,28 +34,29 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
 
 
 def home(request):
-    color = request.GET.get('color', None)
-    tags = request.GET.get('tags', None)
+    query = request.GET.get('q')
 
-    if request.GET:
-        images_list = Image.objects.select_related('author').filter(status=Image.Status.MODERATION).order_by('-created_at')
-        if tags:
-            tags = tags.split(",")
-            kwargs = sort.in_list('tags__name', tags)
-            images_list = sort.get_images(kwargs, '-tags__name')
-
-        if color:
-            color = get_object_or_404(Color, hex=color)
-            images_list = images_list.filter(colors__similar_color=color.similar_color).distinct()
+    if query:
+        try:
+            query_dict = json.load(StringIO(urlparse(query).path))
+        except json.decoder.JSONDecodeError:
+            # return error page
+            pass
     else:
-        images_list = Image.objects.select_related('author').filter(status=Image.Status.APPROVED).order_by('-created_at')
+        query_dict = {'in': {'status': [Image.Status.APPROVED]}}
+
+    query = DictORM().make(query_dict)
+
+    images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at')
+    if query.order_list:
+        images_list = images_list.order_by(*query.order_list)
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'home.html', {
         'images_list': page_obj,
-        'color': color,
+        #'color': color,
         'common_tags': Image.tags.most_common().order_by('name')[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })

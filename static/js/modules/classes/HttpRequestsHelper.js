@@ -1,6 +1,9 @@
 class HttpRequestsHelper {
     xhr = new XMLHttpRequest();
 
+    HTTP_200_OK = 200
+    HTTP_202_ACCEPTED = 202
+
     content_type = 'application/json; charset=utf-8'
     X_CSRF_Token = getCookie('csrftoken')
 
@@ -15,11 +18,12 @@ class HttpRequestsHelper {
         xhr.open(params.method, params.path, params.async);
         this.set_request_readers();
 
-        if (params.json_body)
-            xhr.send(params.json_body);
-        else xhr.send();
-
         if (params.onload)
             xhr.onload = params.onload
+
+        if (params.body)
+            xhr.send(params.body);
+        else xhr.send();
+
     }
 }
