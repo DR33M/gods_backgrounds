@@ -1,11 +1,12 @@
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
+from django.contrib import messages
 
 from dal import autocomplete
 from taggit.models import Tag
@@ -30,7 +31,7 @@ def home(request):
     tags = request.GET.get('tags', None)
 
     if request.GET:
-        images_list = Image.objects.select_related('author').filter(status=Image.Status.MODERATION).order_by('-created_at')
+        images_list = Image.objects.prefetch_related('author').filter(status=Image.Status.MODERATION).order_by('-created_at')
         if tags:
             tags = tags.split(",")
             kwargs = sort.in_list('tags__name', tags)
@@ -40,7 +41,7 @@ def home(request):
             color = get_object_or_404(Color, hex=color)
             images_list = images_list.filter(colors__similar_color=color.similar_color).distinct()
     else:
-        images_list = Image.objects.select_related('author').filter(status=Image.Status.APPROVED).order_by('-created_at')
+        images_list = Image.objects.prefetch_related('author').filter(status=Image.Status.APPROVED).order_by('-created_at')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page'))
@@ -49,14 +50,15 @@ def home(request):
         'images_list': page_obj,
         'color': color,
         'common_tags': Image.tags.most_common().order_by('name')[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
-        'columns': range(0, settings.IMAGE_COLUMNS, 1)
+        'columns': range(0, settings.IMAGE_COLUMNS, 1),
+        'messages': messages.get_messages(request),
     })
 
 
 def detailed_image_view(request, slug):
     image = get_object_or_404(Image, slug=slug)
     images_tags_ids = image.tags.values_list('id', flat=True)
-    similar_images = Image.objects.filter(tags__in=images_tags_ids).exclude(id=image.id)
+    similar_images = Image.objects.filter(tags__in=images_tags_ids).prefetch_related('author').exclude(id=image.id)
     similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[:settings.SIMILAR_IMAGES_COUNT]
     form = EditTagsForm(instance=image)
 
@@ -90,7 +92,7 @@ def cabinet(request, username=''):
     if not request.user.username == username:
         user = User.objects.get(username=username)
 
-    images_list = Image.objects.filter(author=user).select_related('author').order_by('-created_at')
+    images_list = Image.objects.filter(author=user).prefetch_related('author').order_by('-created_at')
 
     search_query = request.GET.get('search', '')
     if search_query:
@@ -104,7 +106,49 @@ def cabinet(request, username=''):
         'images_list': page_obj,
         'images_display_status': True,
         'moderator': is_moderator(user),
-        'columns': range(0, settings.IMAGE_COLUMNS, 1)
+        'columns': range(0, settings.IMAGE_COLUMNS, 1),
+        'messages': messages.get_messages(request),
+    })
+
+
+@user_passes_test(is_moderator)
+def moderator_panel(request):
+    user = request.user
+
+    try:
+        image = Image.objects.get(moderator_id=user.id, status=Image.Status.MODERATION)
+    except Image.DoesNotExist:
+        image = Image.objects.filter(moderator_id=None, status=Image.Status.MODERATION).prefetch_related('author').first()
+
+        if not image:
+            messages.add_message(request, messages.ERROR, 'No more pictures for moderation.')
+            return redirect('main:cabinet')
+
+        image.moderator_id = user.id
+        image.save()
+
+    form = EditTagsForm(instance=image)
+    if request.method == 'POST':
+        if 'end-work' in request.POST:
+            image.moderator_id = None
+            image.save()
+            messages.add_message(request, messages.SUCCESS, 'You have successfully completed your job.')
+            return redirect('main:cabinet')
+        if 'edit' in request.POST:
+            form = EditTagsForm(data=request.POST, instance=image)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.status = Image.Status.APPROVED
+                obj.save()
+                form.save_m2m()
+                messages.add_message(request, messages.SUCCESS, 'Image has been approved.')
+        return HttpResponseRedirect(reverse('main:moderator-panel'))
+
+    return render(request, 'moderator-panel.html', {
+        'image': image,
+        'colors': image.colors.all(),
+        'form': form,
+        'messages': messages.get_messages(request),
     })
 
 
@@ -128,11 +172,13 @@ def add_image(request):
 
 @login_required
 def delete_image(request, slug):
+    next_redirect = request.POST.get('next', '/')
     if request.method == 'POST' and 'delete' in request.POST:
         image = get_object_or_404(Image, slug=slug)
         if request.user == image.author or is_moderator(request.user):
             image.delete()
-    return redirect('main:home')
+            messages.add_message(request, messages.SUCCESS, 'The image has been deleted.')
+    return HttpResponseRedirect(next_redirect)
 
 
 def user_agreements(request):

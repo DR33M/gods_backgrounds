@@ -88,13 +88,15 @@ class Image(models.Model):
 
         image_colors, pixel_count = extcolors.extract_from_image(image_file)
 
+        colors = Color.objects.all().values_list('hex', flat=True)
+
         hex_colors = []
         add_colors = []
         for image_color in image_colors:
             if (image_color[1] / pixel_count) * 100 > settings.IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS:
                 color = '#%02x%02x%02x' % image_color[0]
                 hex_colors.append(color)
-                if not Color.objects.filter(hex=color).exists():
+                if color not in colors:
                     add_colors.append(Color(hex=color, similar_color=convert_hex_color_to_name(color)))
 
         Color.objects.bulk_create(add_colors)

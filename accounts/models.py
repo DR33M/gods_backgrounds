@@ -9,7 +9,7 @@ from django.utils.http import urlsafe_base64_encode
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to='users/%Y/%m/%d', blank=True)
+    photo = models.ImageField(upload_to='users/%Y/%m/%d', default=f'users/default.jpg', blank=True)
 
     def __str__(self):
         return 'Profile for user {}'.format(self.user.first_name)
