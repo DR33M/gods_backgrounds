@@ -20,6 +20,7 @@ from utils.user import is_moderator
 from .models import Image, Color
 from .forms import ImageUploadForm, EditTagsForm
 from .utils.DictORM import DictORM
+from .decorators import check_recaptcha
 
 import logging
 
@@ -162,11 +163,12 @@ def moderator_panel(request):
     })
 
 
+@check_recaptcha
 @login_required
 def add_image(request):
     if request.method == 'POST':
         image_form = ImageUploadForm(data=request.POST, files=request.FILES)
-        if image_form.is_valid():
+        if request.recaptcha_is_valid and image_form.is_valid():
             image = image_form.save(commit=False)
             image.author = request.user
             image.save()

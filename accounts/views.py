@@ -8,6 +8,8 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
+
+from main.decorators import check_recaptcha
 from main.models import Image
 
 from .mail import Messages
@@ -56,6 +58,7 @@ def confirm_fork(request, user, field):
     return render(request, template, data)
 
 
+@check_recaptcha
 def sign_in(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('/')
@@ -64,7 +67,7 @@ def sign_in(request):
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        if form.is_valid():
+        if request.recaptcha_is_valid and form.is_valid():
             cd = form.cleaned_data
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
@@ -104,13 +107,14 @@ def delete_user(request, username):
     return HttpResponseRedirect(next_redirect)
 
 
+@check_recaptcha
 def registration(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('/')
 
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
-        if user_form.is_valid():
+        if request.recaptcha_is_valid and user_form.is_valid():
             user = user_form.save(commit=False)
             user.set_password(user_form.cleaned_data['password'])
             user.save()
@@ -142,11 +146,12 @@ def confirm(request, uidb64, token, field=''):
         return HttpResponse('Activation link is invalid!')
 
 
+@check_recaptcha
 def reset_password(request):
     message = ''
     if request.POST:
         email_form = EmailForm(data=request.POST)
-        if email_form.is_valid():
+        if request.recaptcha_is_valid and email_form.is_valid():
             try:
                 user = User.objects.get(email=email_form.cleaned_data['email'])
                 Messages.send_message(request, user, 'acc_password_reset.html', 'password')
