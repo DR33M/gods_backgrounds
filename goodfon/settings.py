@@ -75,6 +75,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'goodfon.urls'
+SITE_TITLE = 'GodFon'
 
 TEMPLATES = [
     {
@@ -89,6 +90,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'goodfon.context_processors.site_title_processor',
             ],
         },
     },
