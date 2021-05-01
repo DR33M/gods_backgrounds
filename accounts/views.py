@@ -3,8 +3,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.sessions.models import Session
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib.auth import login, logout, authenticate, update_session_auth_hash, user_logged_out
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
@@ -12,7 +12,7 @@ from django.utils.http import urlsafe_base64_decode
 from main.decorators import check_recaptcha
 from main.models import Image
 
-from .mail import Messages
+from .mail import Messages as Mail
 
 from .forms import LoginForm, UserRegistrationForm, UserEditForm, EmailForm, ProfileEditForm, NewPasswordForm
 import logging
@@ -63,8 +63,6 @@ def sign_in(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('/')
 
-    message = ''
-
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if request.recaptcha_is_valid and form.is_valid():
@@ -75,13 +73,13 @@ def sign_in(request):
                     login(request, user)
                     return HttpResponseRedirect('/')
                 else:
-                    message = 'Disabled account'
+                    messages.add_message(request, messages.ERROR, 'Disabled account.')
             else:
-                message = 'Invalid email or password'
+                messages.add_message(request, messages.ERROR, 'Invalid email or password.')
     else:
         form = LoginForm()
 
-    return render(request, 'login.html', {'form': form, 'message': message})
+    return render(request, 'login.html', {'form': form, 'messages': messages.get_messages(request)})
 
 
 @login_required
@@ -119,10 +117,11 @@ def registration(request):
             user.set_password(user_form.cleaned_data['password'])
             user.save()
 
-            Messages.send_message(request, user, 'acc_active_email.html', 'activate')
+            Mail.send_message(request, user, 'acc_active_email.html', 'activate')
+            messages.add_message(request, messages.SUCCESS, 'Please confirm your email address to complete the registration.')
 
             return render(request, 'registration.html', {
-                'message': 'Please confirm your email address to complete the registration'
+                'messages': messages.get_messages(request)
             })
     else:
         user_form = UserRegistrationForm()
@@ -148,20 +147,22 @@ def confirm(request, uidb64, token, field=''):
 
 @check_recaptcha
 def reset_password(request):
-    message = ''
     if request.POST:
         email_form = EmailForm(data=request.POST)
         if request.recaptcha_is_valid and email_form.is_valid():
             try:
                 user = User.objects.get(email=email_form.cleaned_data['email'])
-                Messages.send_message(request, user, 'acc_password_reset.html', 'password')
+                Mail.send_message(request, user, 'acc_password_reset.html', 'password')
                 return render(request, 'reset_password_sent.html')
             except User.DoesNotExist:
-                message = 'Email address doesn\'t exist'
+                messages.add_message(request, messages.ERROR, 'Email address doesn\'t exist.')
     else:
         email_form = EmailForm
 
-    return render(request, 'reset_password_form.html', {'email_form': email_form, 'message': message})
+    return render(request, 'reset_password_form.html', {
+        'email_form': email_form,
+        'messages': messages.get_messages(request)
+    })
 
 
 def reset_password_done(request):
@@ -170,12 +171,11 @@ def reset_password_done(request):
 
 @login_required
 def settings(request):
-    message = ''
     if request.POST:
         if 'change_email' in request.POST:
-            Messages.send_message(request, request.user, 'acc_new_email.html', 'email')
-            message = 'Check your mail'
-            return render(request, 'settings.html', {'message': message})
+            Mail.send_message(request, request.user, 'acc_new_email.html', 'email')
+            messages.add_message(request, messages.SUCCESS, 'Check your mail.')
+            return render(request, 'settings.html', {'messages': messages.get_messages(request)})
         else:
             user_form = UserEditForm(instance=request.user, data=request.POST)
             profile_form = ProfileEditForm(instance=request.user.profile, data=request.POST, files=request.FILES)
@@ -195,5 +195,5 @@ def settings(request):
         'user': request.user,
         'user_form': user_form,
         'profile_form': profile_form,
-        'message': message
+        'messages': messages.get_messages(request)
     })

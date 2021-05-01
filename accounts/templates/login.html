@@ -9,9 +9,8 @@
 {% block content %}
     <section class="auth-section flex jc ac mt25px">
         <h1 class="mt25px">Welcome Back To Godsfon</h1>
-        {% include "messages.html" with messages=messages %}
-        {% if message %}
-            <h2 class="cg mt15px">{{ message }}</h2>
+        {% if messages %}
+            {% include 'messages.html' with messages=messages %}
         {% endif %}
         <form action="{% url 'accounts:login' %}" method="post" class="auth-form flex jc mt25px">
             {% csrf_token %}

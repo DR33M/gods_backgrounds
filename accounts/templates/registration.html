@@ -8,9 +8,8 @@
 
 {% block content %}
     <section class="auth-section flex jc ac">
-        {% include "messages.html" with messages=messages %}
-        {% if message %}
-            <h1 class="mt50px">{{ message }}</h1>
+        {% if messages %}
+            {% include "messages.html" with messages=messages %}
         {% else %}
             <h1>Welcome to Godsfon</h1>
             {% if user_form.errors %}
