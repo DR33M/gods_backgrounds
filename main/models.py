@@ -1,3 +1,5 @@
+import os
+
 import extcolors
 from PIL import Image as PIL_Image
 from django.conf import settings

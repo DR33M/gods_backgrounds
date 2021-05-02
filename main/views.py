@@ -1,4 +1,6 @@
 import json
+import mimetypes
+import os
 from io import StringIO
 from urllib.parse import urlparse
 
@@ -191,6 +193,17 @@ def delete_image(request, slug):
             image.delete()
             messages.add_message(request, messages.SUCCESS, 'The image has been deleted.')
     return HttpResponseRedirect(next_redirect)
+
+
+def download_image(request, slug):
+    image = get_object_or_404(Image, slug=slug)
+    image_url = settings.MEDIA_ROOT + str(image)[7:]
+    image_extension = os.path.splitext(image.image.name)[1]
+    file = open(image_url, "rb").read()
+    content_type = mimetypes.guess_type(image_url)[0]
+    response = HttpResponse(file, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename={image.slug + image_extension}'
+    return response
 
 
 def user_agreements(request):

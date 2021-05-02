@@ -46,7 +46,7 @@
                 <img src="{{ image }}">
                 <div class="flex jc bottom-image-options">
                     <button class="button button--white mr15px">Report</button>
-                    <button class="button download button--blue middle">Download</button>
+                    <a href="{% url 'main:download_image' slug=image.slug %}" class="button download button--blue middle">Download</a>
                     <button class="button button--white ml15px">Get license</button>
                 </div>
             </div>
