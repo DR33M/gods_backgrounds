@@ -62,7 +62,7 @@ def home(request):
     return render(request, 'home.html', {
         'images_list': page_obj,
         #'color': color,
-        'common_tags': Image.tags.most_common().order_by('name')[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
+        'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'columns': range(0, settings.IMAGE_COLUMNS, 1),
         'messages': messages.get_messages(request),
     })
