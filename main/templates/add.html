@@ -8,7 +8,6 @@
 
 {% block content %}
     <section class="add-images-section">
-        {% include "messages.html" with messages=messages %}
         <form class="add-images__form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <h1 class="add-images-title">Upload your photo</h1>
@@ -30,7 +29,6 @@
                     {{ image_form.tags }}
                 </div>
             </div>
-            <div class="mt15px g-recaptcha" data-sitekey="6Lecnb0aAAAAAHafnFtb-7NZUQj0GYOEmB8Fh6lS"></div>
             <button class="button button--blue middle mt15px" type="submit">Enter</button>
         </form>
     </section>
@@ -39,6 +37,5 @@
 {% block js %}
     <script src="{% static 'js/modules/functions/view_uploaded_image.js' %}"></script>
     <script src="{% static 'js/add_image.js' %}"></script>
-    <script src='https://www.google.com/recaptcha/api.js'></script>
     {{ image_form.media }}
 {% endblock %}

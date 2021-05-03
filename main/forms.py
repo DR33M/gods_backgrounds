@@ -2,6 +2,7 @@ from PIL import Image as PIL_Image
 import imagehash
 from django import forms
 from django.conf import settings
+from django.core.files.images import get_image_dimensions
 from dal import autocomplete
 from .models import Image
 import logging
@@ -9,15 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class FormCleanTags(forms.ModelForm):
-    def clean_tags(self):
-        tags = self.cleaned_data.get('tags')
-        if len(tags) < settings.IMAGE_MINIMUM_TAGS:
-            raise forms.ValidationError('There must be at least %d tags' % settings.IMAGE_MINIMUM_TAGS)
-        return tags
-
-
-class EditTagsForm(FormCleanTags):
+class EditTagsForm(forms.ModelForm):
     class Meta:
         model = Image
         fields = ('tags',)
@@ -27,8 +20,14 @@ class EditTagsForm(FormCleanTags):
             })
         }
 
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags')
+        if len(tags) < settings.IMAGE_MINIMUM_TAGS:
+            raise forms.ValidationError('There must be at least %d tags' % settings.IMAGE_MINIMUM_TAGS)
+        return tags
 
-class ImageUploadForm(FormCleanTags):
+
+class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = Image
         fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags',)
@@ -62,3 +61,9 @@ class ImageUploadForm(FormCleanTags):
             if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
         return cd
+
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags')
+        if len(tags) < settings.IMAGE_MINIMUM_TAGS:
+            raise forms.ValidationError('There must be at least %d tags' % settings.IMAGE_MINIMUM_TAGS)
+        return tags

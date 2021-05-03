@@ -7,7 +7,6 @@ urlpatterns = [
     path('add/', views.add_image, name='add_image'),
     path('detail/<slug>/', views.detailed_image_view, name="detailed_image_view"),
     path('detail/<slug>/delete', views.delete_image, name="delete_image"),
-    path('download/<slug>/', views.download_image, name="download_image"),
     path('user_agreements/', views.user_agreements, name="user_agreements"),
 
     path('tags-autocomplete/', views.TagsAutocomplete.as_view(), name='tags-autocomplete'),
