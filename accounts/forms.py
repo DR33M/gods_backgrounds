@@ -7,12 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class LoginForm(forms.Form):
-    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'autocomplete': 'off'}))
-
-
-class NewPasswordForm(forms.Form):
+class FormCleanPasswords(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repeat password'}))
 
@@ -30,19 +25,7 @@ class NewPasswordForm(forms.Form):
         return cd['password2']
 
 
-class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repeat password'}))
-
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'email')
-        widgets = {
-            'first_name': forms.TextInput(attrs={'required': True, 'placeholder': 'First name'}),
-            'last_name': forms.TextInput(attrs={'required': True, 'placeholder': 'Last name'}),
-            'email': forms.TextInput(attrs={'required': True, 'placeholder': 'Email'}),
-        }
-
+class FormCleanFullName(forms.ModelForm):
     def clean_first_name(self):
         first_name = self.cleaned_data['first_name']
         if not first_name:
@@ -61,6 +44,28 @@ class UserRegistrationForm(forms.ModelForm):
 
         return last_name
 
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Email'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'autocomplete': 'off'}))
+
+
+class NewPasswordForm(FormCleanPasswords):
+    class Meta:
+        model = User
+        fields = ('password', 'password2')
+
+
+class UserRegistrationForm(FormCleanPasswords, FormCleanFullName):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+        widgets = {
+            'first_name': forms.TextInput(attrs={'required': True, 'placeholder': 'First name'}),
+            'last_name': forms.TextInput(attrs={'required': True, 'placeholder': 'Last name'}),
+            'email': forms.TextInput(attrs={'required': True, 'placeholder': 'Email'}),
+        }
+
     def clean_email(self):
         email = self.cleaned_data['email']
 
@@ -71,21 +76,8 @@ class UserRegistrationForm(forms.ModelForm):
 
         return email
 
-    def clean_password2(self):
-        cd = self.cleaned_data
-        if not cd['password2']:
-            raise forms.ValidationError('Incorrect data')
-        if cd['password'] != cd['password2']:
-            raise forms.ValidationError('Passwords don\'t match')
 
-        validation_info = validate_password(cd['password'])
-        if validation_info:
-            self.add_error('password', validation_info)
-
-        return cd['password2']
-
-
-class UserEditForm(forms.ModelForm):
+class UserEditForm(FormCleanFullName):
     old_password = forms.CharField(required=False, widget=forms.PasswordInput())
     new_password = forms.CharField(required=False, widget=forms.PasswordInput())
 
@@ -100,26 +92,6 @@ class UserEditForm(forms.ModelForm):
                 'required': True, 'placeholder': 'Last name'
             }),
         }
-
-    def clean_first_name(self):
-        first_name = self.cleaned_data['first_name']
-
-        if not first_name:
-            raise forms.ValidationError('Incorrect data')
-        if len(first_name) > 20:
-            raise forms.ValidationError('First name is too long')
-
-        return first_name
-
-    def clean_last_name(self):
-        last_name = self.cleaned_data['last_name']
-
-        if not last_name:
-            raise forms.ValidationError('Incorrect data')
-        if len(last_name) > 30:
-            raise forms.ValidationError('Last name is too long')
-
-        return last_name
 
     def clean_old_password(self):
         cd = self.cleaned_data

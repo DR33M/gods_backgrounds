@@ -35,6 +35,7 @@ def get_tag_weight(queryset):
 
     weight = get_weight(min(num_times), max(num_times))
 
+    queryset = sorted(queryset, key=lambda o: o.name)
     for tag in queryset:
         tag.weight = weight(tag.num_times)
 

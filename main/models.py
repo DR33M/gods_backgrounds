@@ -1,3 +1,5 @@
+import os
+
 import extcolors
 from PIL import Image as PIL_Image, ImageSequence
 from django.conf import settings
@@ -79,7 +81,7 @@ class Image(models.Model):
         return self.image.url
 
     def get_slug(self):
-        self.slug = slugify('-'.join([unidecode(str(a)) for a in self.tags.all()]))
+        self.slug = slugify('-'.join([unidecode(str(a)) for a in sorted(self.tags.all())]))
         try:
             image = Image.objects.get(slug=self.slug)
             self.slug += "-" + str(self.id)

@@ -8,10 +8,10 @@
 
 {% block content %}
     <section class="auth-section flex jc ac">
-        {% if message %}
-            <h1 class="mt50px">{{ message }}</h1>
+        {% if messages %}
+            {% include "messages.html" with messages=messages %}
         {% else %}
-            <h1>Welcome to Godsfon</h1>
+            <h1>Welcome to {{ SITE_TITLE }}</h1>
             {% if user_form.errors %}
                 {% for field in user_form %}
                     {% for error in field.errors %}
@@ -42,6 +42,7 @@
                     <div class="sqr-input-container mt15px">
                         {{ user_form.password2 }}
                     </div>
+                    <div class="mt15px g-recaptcha" data-sitekey="6Lecnb0aAAAAAHafnFtb-7NZUQj0GYOEmB8Fh6lS"></div>
                     <button class="auth-form__enter-btn button button--green p06rem mt15px" type="submit">Sign up</button>
                 </div>
                 <h3 class="auth-form__or cg mt15px">OR</h3>
@@ -55,3 +56,6 @@
         {% endif %}
     </section>
 {% endblock content %}
+{% block js %}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+{% endblock %}

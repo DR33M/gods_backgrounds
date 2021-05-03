@@ -7,12 +7,12 @@
 {% endblock title %}
 
 {% block content %}
-{% if message %}
-    <h1 class="cg mt50px">{{ message }}</h1>
-{% else %}
+    {% if messages %}
+        {% include 'messages.html' with messages=messages %}
+    {% else %}
     <form id="change-email" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input class="dn" type="text" name="change_email" value="1" />
+        <input class="dn" type="text" name="change_email" value="1"/>
     </form>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -31,9 +31,9 @@
                 </div>
                 <div class="bottom-content mt5px">
                     {% if profile_form.instance.photo %}
-                        <img class="avatar big input-image-preview mb20px" src="{{ profile_form.instance.photo.url }}" />
+                        <img class="avatar big input-image-preview mb20px" src="{{ profile_form.instance.photo.url }}"/>
                     {% else %}
-                        <img class="avatar big input-image-preview mb20px" src="{% static 'img/goose.jpg' %}" />
+                        <img class="avatar big input-image-preview mb20px" src="{% static 'img/goose.jpg' %}"/>
                     {% endif %}
                     <label class="custom-file-upload">
                         {% if profile_form.photo %}
@@ -52,7 +52,9 @@
                     </div>
                     <div class="bottom-content disabled-field">
                         <div class="disabled-field__message flex je ac">
-                            <button class="button button--gray small mr5px" form="change-email" type="submit">Change email</button>
+                            <button class="button button--gray small mr5px" form="change-email" type="submit">Change
+                                email
+                            </button>
                         </div>
                         <span class="blurred">{{ user.email }}</span>
                     </div>
