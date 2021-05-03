@@ -6,8 +6,8 @@ from django.contrib import admin
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
     form = ImageUploadForm
-    fields = ('title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating', 'ratio', 'downloads', 'author', 'followers', 'moderator', 'status')
-    list_display = ('pk','slug', 'rating', 'downloads', 'author', 'moderator', 'status', 'created_at', 'updated_at')
+    fields = ('title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating', 'width', 'height', 'ratio', 'downloads', 'author', 'followers', 'moderator', 'status')
+    list_display = ('pk', 'slug', 'rating', 'downloads', 'author', 'moderator', 'status', 'created_at', 'updated_at')
     list_filter = ('status', 'created_at', 'updated_at')
     search_fields = ('slug', 'tags__name',)
     ordering = ('status', 'updated_at')

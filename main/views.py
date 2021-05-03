@@ -1,3 +1,4 @@
+import copy
 import json
 import mimetypes
 import os
@@ -22,6 +23,7 @@ from taggit.models import Tag
 from utils.user import is_moderator
 
 from .models import Color, Image, ImageFollowers, Report
+from .service import ImageService
 from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
 from utils.mail import Messages as Mail
@@ -198,22 +200,26 @@ def moderator_panel(request):
     })
 
 
-@check_recaptcha
+# @check_recaptcha
 @login_required
 def add_image(request):
     if request.method == 'POST':
-        image_form = ImageUploadForm(data=request.POST, files=request.FILES)
-        if request.recaptcha_is_valid and image_form.is_valid():
+        image_service = ImageService(copy.deepcopy(request.FILES.get('image')))
+        image_form = ImageUploadForm(service=image_service, data=request.POST, files=request.FILES)
+        #if request.recaptcha_is_valid and image_form.is_valid():
+        if image_form.is_valid():
             image = image_form.save(commit=False)
             image.author = request.user
             image.save()
+            image_service.resize_preview_image(image)
+            image_service.add_colors(image)
             image_form.save_m2m()
             return redirect('main:detailed_image_view', slug=image.slug)
     else:
         image_form = ImageUploadForm()
 
     return render(request, 'add.html', {
-        'image_form': image_form,
+        'image_form': image_form or None,
     })
 
 

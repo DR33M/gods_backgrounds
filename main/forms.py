@@ -17,16 +17,6 @@ class ReportForm(forms.ModelForm):
             'body': forms.Textarea(attrs={'class': 'report-description'}),
         }
 
-    # def clean(self):
-    #     cd = self.cleaned_data
-    #     logger.error(self.data)
-    #     super().clean()
-    #
-    #     # if True:
-    #     #     cd['user'] = request.user
-    #     #     cd['image'] = report.image
-    #     return cd
-
 
 class FormCleanTags(forms.ModelForm):
     def clean_tags(self):
@@ -48,9 +38,17 @@ class EditTagsForm(FormCleanTags):
 
 
 class ImageUploadForm(FormCleanTags):
+    def __init__(self, service=None, *args, **kwargs):
+        super(ImageUploadForm, self).__init__(*args, **kwargs)
+        if service:
+            self.image_hash = service.get_hash()
+            self.width, self.height = service.get_resolution()
+            self.size = service.get_size()
+            self.ratio = service.get_ratio()
+
     class Meta:
         model = Image
-        fields = ('title', 'image', 'preview_image', 'image_hash', 'size', 'ratio', 'colors', 'tags',)
+        fields = ('title', 'image', 'tags',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Photo title'}),
             'image': forms.FileInput(attrs={'id': 'input-image'}),
@@ -65,18 +63,7 @@ class ImageUploadForm(FormCleanTags):
         image = cd.get('image')
 
         if image:
-            image_file = PIL_Image.open(image)
-            # Bytes to MB
-            cd['size'] = round((image.size / 1024 / 1024), 2)
-            cd['ratio'] = round((image_file.width / image_file.height), 2)
-
-            if image_file.format == 'WEBP' or image_file.format == 'GIF':
-                self.add_error('image', forms.ValidationError('Only images'))
-
-            # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
-            cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
-
-            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=image).count() > 0:
+            if Image.objects.filter(image_hash=self.image_hash).exclude(image__iexact=image).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:
@@ -85,7 +72,7 @@ class ImageUploadForm(FormCleanTags):
             except AttributeError:
                 pass
 
-            width, height = image_file.width, image_file.height
-            if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
+            if self.width < settings.IMAGE_MINIMUM_DIMENSION[0] or self.height < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
+
         return cd
