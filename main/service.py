@@ -1,4 +1,3 @@
-import io
 import extcolors
 import imagehash
 from PIL import Image as PIL_Image
@@ -33,6 +32,10 @@ class ImageService:
         # Bytes to MB
         self.data['size'] = round((self.file.size / 1024 / 1024), 2)
         return self.data['size']
+
+    def get_extension(self):
+        self.data['extension'] = self.image_file.format
+        return self.data['extension']
 
     def set(self, image):
         image.image_hash = self.get_hash()

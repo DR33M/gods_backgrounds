@@ -52,7 +52,6 @@ class Image(models.Model):
     image = models.ImageField(upload_to='images/%Y/%m/%d/full_size/')
     preview_image = models.ImageField(upload_to='images/%Y/%m/%d/preview_size/', blank=True)
     image_hash = models.CharField(max_length=255, blank=True)
-    size = models.CharField(max_length=255, blank=True)
 
     colors = models.ManyToManyField(Color, blank=True)
 
@@ -62,9 +61,11 @@ class Image(models.Model):
     rating = models.IntegerField(default=0)
     downloads = models.IntegerField(default=0)
 
-    width = models.IntegerField(default=0)
-    height = models.IntegerField(default=0)
-    ratio = models.FloatField(default=0)
+    width = models.IntegerField(default=0, blank=True)
+    height = models.IntegerField(default=0, blank=True)
+    ratio = models.FloatField(default=0, blank=True)
+    size = models.CharField(max_length=255, blank=True)
+    extension = models.CharField(max_length=255, blank=True)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,

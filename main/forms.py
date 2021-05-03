@@ -1,9 +1,12 @@
+import copy
 from PIL import Image as PIL_Image
 import imagehash
 from django import forms
 from django.conf import settings
 from dal import autocomplete
+
 from .models import Image, Report
+from .service import ImageService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -38,17 +41,15 @@ class EditTagsForm(FormCleanTags):
 
 
 class ImageUploadForm(FormCleanTags):
-    def __init__(self, service=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.service = None
+        if 'files' in kwargs and 'image' in kwargs['files']:
+            self.service = ImageService(copy.deepcopy(kwargs['files']['image']))
         super(ImageUploadForm, self).__init__(*args, **kwargs)
-        if service:
-            self.image_hash = service.get_hash()
-            self.width, self.height = service.get_resolution()
-            self.size = service.get_size()
-            self.ratio = service.get_ratio()
 
     class Meta:
         model = Image
-        fields = ('title', 'image', 'tags',)
+        fields = ('title', 'image', 'preview_image', 'image_hash', 'size',  'width',  'height',  'extension', 'ratio', 'tags',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Photo title'}),
             'image': forms.FileInput(attrs={'id': 'input-image'}),
@@ -60,19 +61,23 @@ class ImageUploadForm(FormCleanTags):
     def clean(self):
         super().clean()
         cd = self.cleaned_data
-        image = cd.get('image')
+        if self.service:
+            cd['image_hash'] = self.service.get_hash()
+            cd['width'], cd['height'] = self.service.get_resolution()
+            cd['size'] = self.service.get_size()
+            cd['ratio'] = self.service.get_ratio()
+            cd['extension'] = self.service.get_extension()
 
-        if image:
-            if Image.objects.filter(image_hash=self.image_hash).exclude(image__iexact=image).count() > 0:
+            if Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:
-                if image.size > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
+                if cd['size'] > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
                     self.add_error('image', forms.ValidationError('Maximum size is %d MB' % settings.IMAGE_MAXIMUM_FILESIZE_IN_MB))
             except AttributeError:
                 pass
 
-            if self.width < settings.IMAGE_MINIMUM_DIMENSION[0] or self.height < settings.IMAGE_MINIMUM_DIMENSION[1]:
+            if cd['width'] < settings.IMAGE_MINIMUM_DIMENSION[0] or cd['height'] < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
 
         return cd
