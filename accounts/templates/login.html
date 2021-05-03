@@ -9,8 +9,8 @@
 {% block content %}
     <section class="auth-section flex jc ac mt25px">
         <h1 class="mt25px">Welcome Back To Godsfon</h1>
-        {% if message %}
-            <h2 class="cg mt15px">{{ message }}</h2>
+        {% if messages %}
+            {% include 'messages.html' with messages=messages %}
         {% endif %}
         <form action="{% url 'accounts:login' %}" method="post" class="auth-form flex jc mt25px">
             {% csrf_token %}
@@ -31,6 +31,7 @@
                 <div class="sqr-input-container mt15px">
                     {{ form.password }}
                 </div>
+                <div class="mt15px g-recaptcha" data-sitekey="6Lecnb0aAAAAAHafnFtb-7NZUQj0GYOEmB8Fh6lS"></div>
                 <button class="auth-form__enter-btn button button--green p06rem mt15px" type="submit">Enter</button>
             </div>
             <h3 class="auth-form__or cg mt15px">OR</h3>
@@ -44,3 +45,6 @@
         <a class="cg mt15px" href="{% url "accounts:reset_password" %}">Forgot password?</a>
     </section>
 {% endblock content %}
+{% block js %}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+{% endblock %}

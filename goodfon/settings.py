@@ -75,6 +75,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'goodfon.urls'
+SITE_TITLE = 'GodFon'
 
 TEMPLATES = [
     {
@@ -89,6 +90,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'goodfon.context_processors.site_title_processor',
             ],
         },
     },
@@ -189,8 +191,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 TAGGIT_CASE_INSENSITIVE = True
 
 EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = '7d13b29f6abc2d'
-EMAIL_HOST_PASSWORD = 'd48a53540f7826'
+EMAIL_HOST_USER = '3ba048c6deada2'
+EMAIL_HOST_PASSWORD = '67589f75607117'
 EMAIL_PORT = '2525'
 
 
@@ -203,7 +205,7 @@ IMAGE_COLUMNS = 4
 IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 1
 SIMILAR_IMAGES_COUNT = 4
 DISPLAY_MOST_COMMON_TAGS_COUNT = 10
-TAGS_CLOUD_MAX = 24
+TAGS_CLOUD_MAX = 40
 TAGS_CLOUD_MIN = 16
 
 COLORS = {
@@ -231,3 +233,5 @@ REDIS_PORT = 6379
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+GOOGLE_RECAPTCHA_SECRET_KEY = '6Lecnb0aAAAAAAo5nFN9FA2-lMuZcebcUE3p0jY2'

@@ -1,4 +1,6 @@
 import json
+import mimetypes
+import os
 from io import StringIO
 from urllib.parse import urlparse
 
@@ -20,6 +22,7 @@ from utils.user import is_moderator
 from .models import Image, Color
 from .forms import ImageUploadForm, EditTagsForm
 from .utils.DictORM import DictORM
+from .decorators import check_recaptcha
 
 import logging
 
@@ -59,7 +62,7 @@ def home(request):
     return render(request, 'home.html', {
         'images_list': page_obj,
         #'color': color,
-        'common_tags': Image.tags.most_common().order_by('name')[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
+        'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'columns': range(0, settings.IMAGE_COLUMNS, 1),
         'messages': messages.get_messages(request),
     })
@@ -162,11 +165,12 @@ def moderator_panel(request):
     })
 
 
+@check_recaptcha
 @login_required
 def add_image(request):
     if request.method == 'POST':
         image_form = ImageUploadForm(data=request.POST, files=request.FILES)
-        if image_form.is_valid():
+        if request.recaptcha_is_valid and image_form.is_valid():
             image = image_form.save(commit=False)
             image.author = request.user
             image.save()
@@ -189,6 +193,17 @@ def delete_image(request, slug):
             image.delete()
             messages.add_message(request, messages.SUCCESS, 'The image has been deleted.')
     return HttpResponseRedirect(next_redirect)
+
+
+def download_image(request, slug):
+    image = get_object_or_404(Image, slug=slug)
+    image_url = settings.MEDIA_ROOT + str(image)[7:]
+    image_extension = os.path.splitext(image.image.name)[1]
+    file = open(image_url, "rb").read()
+    content_type = mimetypes.guess_type(image_url)[0]
+    response = HttpResponse(file, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename={image.slug + image_extension}'
+    return response
 
 
 def user_agreements(request):
