@@ -7,6 +7,7 @@
 {% endblock title %}
 
 {% block content %}
+    {% include 'header.html' %}
     <section class="add-images-section">
         {% include "messages.html" with messages=messages %}
         <form class="add-images__form" method="post" enctype="multipart/form-data">
@@ -22,11 +23,18 @@
                 <span class="button button--blue middle p10px">Upload</span>
             </label>
             <div class="tags mt25px">
-                <div class="top-content">
-                    <h1 class="add-images-title">.. then you need tags</h1>
+                <div>
+                    <h1 class="add-images-title">.. then you need name</h1>
+                </div>
+                {{ image_form.errors.title }}
+                <div class="image-title rounded-input-container mt5px">
+                    {{ image_form.title }}
+                </div>
+                <div class="mt25px">
+                    <h1 class="add-images-title">.. and tags</h1>
                 </div>
                 {{ image_form.errors.tags }}
-                <div class="bottom-content mt25px">
+                <div class="mt5px">
                     {{ image_form.tags }}
                 </div>
             </div>
@@ -34,11 +42,12 @@
             <button class="button button--blue middle mt15px" type="submit">Enter</button>
         </form>
     </section>
+    {% include 'footer.html' %}
 {% endblock content %}
 
 {% block js %}
     <script src="{% static 'js/modules/functions/view_uploaded_image.js' %}"></script>
-    <script src="{% static 'js/add_image.js' %}"></script>
+    <script src="{% static 'js/pages/main/add_image.js' %}"></script>
     <script src='https://www.google.com/recaptcha/api.js'></script>
     {{ image_form.media }}
 {% endblock %}

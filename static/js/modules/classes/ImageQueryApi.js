@@ -1,8 +1,9 @@
-class ImageSortApi {
+class ImageQueryApi {
     async = true
     http_request_path = '/api'
 
     abstract_query = {
+        'where': {},
         'in': {},
         'more_than': {},
         'less_than': {},
@@ -16,12 +17,28 @@ class ImageSortApi {
     query_path = ''
 
     operations = {
+        'where': function (self, el, option) {
+            if (el.dataset.keysHandler) {
+                let value = self.get_keys(el.dataset.keysHandler)
+                if (value) {
+                    value = self.format_value(el, value)
+                    value.sort(function(a, b){
+                        if(a < b) return -1
+                        if(a > b) return 1
+                        return 0
+                    })
+                    value = value.join('-')
+                    self.set_field('where', option, value)
+                    self.starting_query.where = self.query['where']
+                }
+            }
+        },
         'in': function (self, el, option) {
             if (el.dataset.keysHandler) {
                 let value = self.get_keys(el.dataset.keysHandler)
                 if (value) {
-                    let tags = self.format_value(el, value)
-                    self.set_field('in', option, tags)
+                    value = self.format_value(el, value)
+                    self.set_field('in', option, value)
                     self.starting_query.in = self.query['in']
                 }
             }
@@ -42,7 +59,7 @@ class ImageSortApi {
             if (el.dataset.order) {
                 let order = self.format_value(el, el.dataset.order)
                 self.set_field('order', option, order)
-            } else self.set_field('order', option, '')
+            } else self.set_field('order', option, ' ')
         },
     }
 
@@ -50,17 +67,17 @@ class ImageSortApi {
     method = 'GET'
     tag = {
         operations: [
-            this.operations["in"],
+            this.operations["where"],
         ],
-        fields: ['tags__slug',],
-        listening_element: '.sort-in',
+        fields: ['slug',],
+        listening_element: '.q-where',
     }
     color = {
         operations: [
-            this.operations["in"],
+            this.operations["where"],
         ],
         fields: ['color',],
-        listening_element: '.sort-in',
+        listening_element: '.q-where',
     }
     date = {
         operations: [
@@ -69,30 +86,30 @@ class ImageSortApi {
             this.operations["order"]
         ],
         fields: ['created_at',],
-        listening_element: '.sort-date',
+        listening_element: '.q-date',
         order: 'created_at'
     }
     downloads = {
         operations: [this.operations["order"]],
         fields: ['downloads',],
-        listening_element: '.sort-downloads',
+        listening_element: '.q-downloads',
         order: 'downloads'
     }
     rating = {
         operations: [this.operations["order"]],
         fields: ['rating',],
-        listening_element: '.sort-rating',
+        listening_element: '.q-rating',
         order: 'rating'
     }
     screen = {
         operations: [this.operations["more_than"]],
         fields: ['width', 'height',],
-        listening_element: '.sort-screen',
+        listening_element: '.q-screen',
     }
     ratio = {
         operations: [this.operations["more_than"], this.operations["less_than"]],
         fields: ['ratio',],
-        listening_element: '.sort-ratio',
+        listening_element: '.q-ratio',
     }
 
     constructor() {
@@ -102,7 +119,7 @@ class ImageSortApi {
             try {
                 this.starting_query = JSON.parse(decodeURIComponent(data))
             } catch (e) {
-                console.log(e + ' You are dumb')
+                console.log(e + ', you are dumb')
             }
     }
 
@@ -123,7 +140,16 @@ class ImageSortApi {
             value = key_handler.innerHTML
 
         if (typeof value === 'string') {
-            value = value.split(',')
+            let tmp = value.split(',')
+            value = []
+
+            for (let i = 0; i < tmp.length; i++) {
+                tmp[i] = tmp[i].toLowerCase()
+                tmp[i] = tmp[i].replace(/([a-zA-Z0-9])\s([a-zA-Z0-9])/g, "$1-$2")
+                tmp[i] = tmp[i].replace(/\s/g, '')
+                if (tmp[i] && !tmp[i].match(/[\!\#\$\%\&\'\*\+\/\=\\\?\^\_\`\{\|\}\~\"\,\:\;\<\>\@\[\]]+/g))
+                    value.push(tmp[i])
+            }
         }
 
         return value
@@ -144,8 +170,8 @@ class ImageSortApi {
     choose_operation(el, option) {
         let els = []
 
-        if (el.dataset.sortRedirect) {
-            let elsClasses = el.dataset.sortRedirect.split(' ')
+        if (el.dataset.qRedirect) {
+            let elsClasses = el.dataset.qRedirect.split(' ')
 
             for (let i = 0; i < elsClasses.length; i++)
                 els.push(document.getElementsByClassName(elsClasses[i])[0])
@@ -175,36 +201,45 @@ class ImageSortApi {
 
         return result
     }
-    delete_empty() {
-        for (let key in this.query) {
-            if (Object.keys(this.query[key]).length === 0) {
-                this.query[key] = false
-                delete this.query[key]
+    delete_empty(obj) {
+        if (Object.keys(obj).length)
+            for (let key in obj) {
+                if (typeof obj[key] === 'object')
+                     this.delete_empty(obj[key])
+
+                if (!Object.keys(obj[key]).length) {
+                    obj[key] = false
+                    delete obj[key]
+                }
             }
-        }
+
+        return obj
     }
     merge_queries() {
         for (let key in this.starting_query)
             this.query[key] = this.starting_query[key]
     }
     set_search_parameters(el, option) {
-        this.query = JSON.parse(JSON.stringify(this.abstract_query));
+        this.query = JSON.parse(JSON.stringify(this.abstract_query))
         this.merge_queries()
         this.choose_operation(el, option)
+        this.query = this.delete_empty(this.query)
 
         this.encoded_query = encodeURI(JSON.stringify(this.query))
         this.query_path = this.query_header + this.encoded_query
     }
     get_params(el, option) {
         this.set_search_parameters(el, option)
-        this.delete_empty()
         console.log(this.query)
-        return {
-            method: this.method,
-            path: this.http_request_path + this.path + this.query_path,
-            async: this.async,
-            onload: this.onload
-        }
+        if (Object.keys(this.query).length)
+            return {
+                method: this.method,
+                path: this.http_request_path + this.path + this.query_path,
+                async: this.async,
+                onload: this.onload
+            }
+
+        return false
     }
 
     listener_logic(e) {

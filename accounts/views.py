@@ -29,16 +29,16 @@ def confirm_fork(request, user, field):
         user.save()
         return HttpResponseRedirect('login')
     elif field == 'email':
-        template = 'reset_password.html'
+        template = 'new_email.html'
         if request.POST:
             email_form = EmailForm(instance=user, data=request.POST)
-            if email_form.is_valid() and not email_form.cleaned_data['email'] == request.user.email:
+            if email_form.is_valid():
                 user.email = email_form.cleaned_data['email']
                 user.save()
                 return HttpResponseRedirect('settings')
         else:
-            data = {'email_form': EmailForm(instance=user)}
-            template = 'new_email.html'
+            email_form = EmailForm(instance=user)
+        data = {'email_form': email_form}
     elif field == 'password':
         template = 'reset_password.html'
         if request.POST:
@@ -117,7 +117,7 @@ def registration(request):
             user.set_password(user_form.cleaned_data['password'])
             user.save()
 
-            Mail.send_message(request, user, 'acc_active_email.html', 'activate')
+            Mail.activate(request, user, 'acc_active_email.html', 'activate')
             messages.add_message(request, messages.SUCCESS, 'Please confirm your email address to complete the registration.')
 
             return render(request, 'registration.html', {
@@ -152,7 +152,7 @@ def reset_password(request):
         if request.recaptcha_is_valid and email_form.is_valid():
             try:
                 user = User.objects.get(email=email_form.cleaned_data['email'])
-                Mail.send_message(request, user, 'acc_password_reset.html', 'password')
+                Mail.activate(request, user, 'acc_password_reset.html', 'password')
                 return render(request, 'reset_password_sent.html')
             except User.DoesNotExist:
                 messages.add_message(request, messages.ERROR, 'Email address doesn\'t exist.')
@@ -173,7 +173,7 @@ def reset_password_done(request):
 def settings(request):
     if request.POST:
         if 'change_email' in request.POST:
-            Mail.send_message(request, request.user, 'acc_new_email.html', 'email')
+            Mail.activate(request, request.user, 'acc_new_email.html', 'email')
             messages.add_message(request, messages.SUCCESS, 'Check your mail.')
             return render(request, 'settings.html', {'messages': messages.get_messages(request)})
         else:

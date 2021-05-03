@@ -1,7 +1,12 @@
+import re
 import json
 from io import StringIO
 from urllib.parse import urlparse
+
 from django.core.cache import cache
+from django.core import validators
+from django.core import exceptions
+from django.db.models import Prefetch
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,7 +15,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import ImagesSerializer
 
-from ..models import UserImage, Image
+from ..models import ImageFollowers, Image
 
 from ..utils.DictORM import DictORM
 
@@ -23,48 +28,67 @@ logger = logging.getLogger(__name__)
 @permission_classes([AllowAny])
 def images(request):
     query = request.GET.get('q')
-    response = {'status': status.HTTP_200_OK}
 
     if query:
-        query_dict = {}
         try:
             query_dict = json.load(StringIO(urlparse(query).path))
         except json.decoder.JSONDecodeError:
-            response['status'] = status.HTTP_400_BAD_REQUEST
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        if query_dict:
-            query = DictORM().make(query_dict)
+        query = DictORM().make(query_dict)
 
-            images_list = Image.objects.prefetch_related('author').filter(**query.kwargs).order_by('-created_at')
+        try:
+            images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
+                Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
+            ).distinct()
             if query.order_list:
                 images_list = images_list.order_by(*query.order_list)
+        except (validators.ValidationError, exceptions.FieldError):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            if images_list:
-                images_list = ImagesSerializer(images_list, many=True)
-                response = {'data': images_list.data, 'status': status.HTTP_200_OK}
-            else:
-                response['status'] = status.HTTP_404_NOT_FOUND
+        logger.error(query.kwargs)
+        if images_list:
+            images_list = ImagesSerializer(images_list, many=True)
+            return Response(data=images_list.data, status=status.HTTP_200_OK)
 
-    return Response(**response)
+    return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def rating(request, image_pk=''):
     image = Image.objects.get(pk=image_pk)
-    if image:
-        if 'vote' in request.data:
-            if not UserImage.objects.filter(user_id=request.user.pk, image_id=image.pk).exclude(vote=UserImage.Vote.DEFAULT).exists():
-                vote = int(request.data['vote'])
-                image.rating = image.rating + vote
-                image.save()
+    vote = int(request.data['vote']) or None
 
-                UserImage(user=request.user, image=image, vote=vote).save()
-                return Response(image.rating, status=status.HTTP_202_ACCEPTED)
+    if image:
+        if vote == -1 or vote == 1:
+            try:
+                follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image_pk,))
+            except ImageFollowers.DoesNotExist:
+                follower = ImageFollowers.objects.create(user=request.user)
+                image.followers.add(follower)
+
+            previous_vote = follower.vote
+
+            if follower.vote + vote > ImageFollowers.Vote.UPVOTE:
+                follower.vote = ImageFollowers.Vote.DOWNVOTE
+                vote = -2
+            elif follower.vote + vote < ImageFollowers.Vote.DOWNVOTE:
+                follower.vote = ImageFollowers.Vote.UPVOTE
+                vote = 2
             else:
-                return Response(image.rating, status=status.HTTP_208_ALREADY_REPORTED)
-    else:
-        return Response(status.HTTP_400_BAD_REQUEST)
+                follower.vote = follower.vote + vote
+
+            follower.save()
+            if follower.vote == ImageFollowers.Vote.DEFAULT:
+                image.rating = image.rating - previous_vote
+            else:
+                image.rating = image.rating + vote
+
+            image.save()
+
+            return Response(data={'count': image.rating, 'vote': follower.vote}, status=status.HTTP_202_ACCEPTED)
+    return Response(status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -72,11 +96,21 @@ def rating(request, image_pk=''):
 def downloads(request, image_pk=''):
     image = Image.objects.get(pk=image_pk)
 
-    if image and not UserImage.objects.filter(user_id=request.user.pk, image_id=image.pk, downloaded=True).exists():
-        image.downloads = image.downloads + 1
-        image.save()
+    if image:
+        downloaded = False
+        try:
+            follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image.pk,))
+            downloaded = follower.downloaded
+            if not follower.downloaded:
+                follower.downloaded = True
+                follower.save()
+        except ImageFollowers.DoesNotExist:
+            ImageFollowers.objects.create(user=request.user, image=image, downloaded=True)
+            image.followers.add(ImageFollowers)
 
-        UserImage(user=request.user, image=image, downloaded=True).save()
-        return Response(image.rating, status=status.HTTP_202_ACCEPTED)
-    else:
-        return Response(image.rating, status=status.HTTP_208_ALREADY_REPORTED)
+        if not downloaded:
+            image.downloads = image.downloads + 1
+            image.save()
+
+        return Response(data=image.downloads, status=status.HTTP_202_ACCEPTED)
+    return Response(status.HTTP_400_BAD_REQUEST)
