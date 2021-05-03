@@ -35,3 +35,9 @@ input, button, textarea, select {
     border: unset;
     font: inherit;
 }
+
+button,
+button:active,
+button:focus {
+    outline: none;
+}

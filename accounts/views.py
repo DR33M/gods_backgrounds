@@ -3,14 +3,14 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.sessions.models import Session
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib.auth import login, logout, authenticate, update_session_auth_hash, user_logged_out
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
 from main.models import Image
 
-from .mail import Messages
+from utils.mail import Messages
 
 from .forms import LoginForm, UserRegistrationForm, UserEditForm, EmailForm, ProfileEditForm, NewPasswordForm
 import logging
@@ -27,16 +27,16 @@ def confirm_fork(request, user, field):
         user.save()
         return HttpResponseRedirect('login')
     elif field == 'email':
-        template = 'reset_password.html'
+        template = 'new_email.html'
         if request.POST:
             email_form = EmailForm(instance=user, data=request.POST)
-            if email_form.is_valid() and not email_form.cleaned_data['email'] == request.user.email:
+            if email_form.is_valid():
                 user.email = email_form.cleaned_data['email']
                 user.save()
                 return HttpResponseRedirect('settings')
         else:
-            data = {'email_form': EmailForm(instance=user)}
-            template = 'new_email.html'
+            email_form = EmailForm(instance=user)
+        data = {'email_form': email_form}
     elif field == 'password':
         template = 'reset_password.html'
         if request.POST:
@@ -115,7 +115,7 @@ def registration(request):
             user.set_password(user_form.cleaned_data['password'])
             user.save()
 
-            Messages.send_message(request, user, 'acc_active_email.html', 'activate')
+            Messages.activate(request, user, 'acc_active_email.html', 'activate')
 
             return render(request, 'registration.html', {
                 'message': 'Please confirm your email address to complete the registration'
@@ -149,7 +149,7 @@ def reset_password(request):
         if email_form.is_valid():
             try:
                 user = User.objects.get(email=email_form.cleaned_data['email'])
-                Messages.send_message(request, user, 'acc_password_reset.html', 'password')
+                Messages.activate(request, user, 'acc_password_reset.html', 'password')
                 return render(request, 'reset_password_sent.html')
             except User.DoesNotExist:
                 message = 'Email address doesn\'t exist'
@@ -168,7 +168,7 @@ def settings(request):
     message = ''
     if request.POST:
         if 'change_email' in request.POST:
-            Messages.send_message(request, request.user, 'acc_new_email.html', 'email')
+            Messages.activate(request, request.user, 'acc_new_email.html', 'email')
             message = 'Check your mail'
             return render(request, 'settings.html', {'message': message})
         else:

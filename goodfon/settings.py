@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
+    #'debug_toolbar',
     'rest_framework',
 ]
 
@@ -60,6 +60,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 12
 }
 
 MIDDLEWARE = [
@@ -70,7 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'main.middleware.ModeratorOnWorkMiddleware',
 ]
 
@@ -204,7 +206,7 @@ IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 1
 SIMILAR_IMAGES_COUNT = 4
 DISPLAY_MOST_COMMON_TAGS_COUNT = 10
 TAGS_CLOUD_MAX = 24
-TAGS_CLOUD_MIN = 16
+TAGS_CLOUD_MIN = 12
 
 COLORS = {
     '000000': 'black',
@@ -231,3 +233,5 @@ REDIS_PORT = 6379
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+REPORT_EMAIL = 'utorrentfilibusters@gmail.com'

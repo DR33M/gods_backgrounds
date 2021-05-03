@@ -2,12 +2,31 @@ from PIL import Image as PIL_Image
 import imagehash
 from django import forms
 from django.conf import settings
-from django.core.files.images import get_image_dimensions
 from dal import autocomplete
-from .models import Image
+from .models import Image, Report
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ('title', 'body')
+        widgets = {
+            'body': forms.Textarea(attrs={'class': 'report-description'}),
+        }
+
+    # def clean(self):
+    #     cd = self.cleaned_data
+    #     logger.error(self.data)
+    #     super().clean()
+    #
+    #     # if True:
+    #     #     cd['user'] = request.user
+    #     #     cd['image'] = report.image
+    #     return cd
+
 
 
 class EditTagsForm(forms.ModelForm):
@@ -30,8 +49,9 @@ class EditTagsForm(forms.ModelForm):
 class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = Image
-        fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags',)
+        fields = ('title', 'image', 'preview_image', 'image_hash', 'size', 'ratio', 'colors', 'tags',)
         widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Photo title'}),
             'image': forms.FileInput(attrs={'id': 'input-image'}),
             'tags': autocomplete.TaggitSelect2(url='main:tags-autocomplete', attrs={
                 'required': True, 'data-placeholder': 'A comma-separated list of tags.', 'class': 'settings-input'
@@ -45,6 +65,13 @@ class ImageUploadForm(forms.ModelForm):
 
         if image:
             image_file = PIL_Image.open(image)
+            # Bytes to MB
+            cd['size'] = round((image.size / 1024 / 1024), 2)
+            cd['ratio'] = round((image_file.width / image_file.height), 2)
+
+            if image_file.format == 'WEBP' or image_file.format == 'GIF':
+                self.add_error('image', forms.ValidationError('Only images'))
+
             # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
             cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
 

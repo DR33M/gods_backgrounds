@@ -1,5 +1,5 @@
 import extcolors
-from PIL import Image as PIL_Image
+from PIL import Image as PIL_Image, ImageSequence
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
@@ -11,6 +11,10 @@ from taggit.managers import TaggableManager
 from django.contrib.auth.models import User
 from unidecode import unidecode
 from main.utils.colors import convert_hex_color_to_name
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Color(models.Model):
@@ -24,14 +28,31 @@ class Color(models.Model):
         return self.hex
 
 
+class ImageFollowers(models.Model):
+    class Vote(models.IntegerChoices):
+        DOWNVOTE = -1
+        DEFAULT = 0
+        UPVOTE = 1
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    vote = models.IntegerField(choices=Vote.choices, default=Vote.DEFAULT)
+    downloaded = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
+
+
 class Image(models.Model):
     class Status(models.IntegerChoices):
         MODERATION = 0
         APPROVED = 1
 
+    title = models.CharField(max_length=50, blank=True)
+
     image = models.ImageField(upload_to='images/%Y/%m/%d/full_size/')
     preview_image = models.ImageField(upload_to='images/%Y/%m/%d/preview_size/', blank=True)
     image_hash = models.CharField(max_length=255, blank=True)
+    size = models.CharField(max_length=255, blank=True)
 
     colors = models.ManyToManyField(Color, blank=True)
 
@@ -43,11 +64,12 @@ class Image(models.Model):
 
     width = models.IntegerField()
     height = models.IntegerField()
-    ratio = models.FloatField()
+    ratio = models.FloatField(blank=True)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,
                                   related_name="moderator_id", blank=True)
+    followers = models.ManyToManyField(ImageFollowers, blank=True, related_name='image')
     status = models.IntegerField(choices=Status.choices, default=Status.MODERATION)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -77,12 +99,17 @@ class Image(models.Model):
     def save(self):
         image_file = PIL_Image.open(self.image)
         self.height, self.width = image_file.height, image_file.width
-        self.ratio = ratio = image_file.height / image_file.width
-
+        height_ratio = image_file.height / image_file.width
         super().save()
 
         if image_file.width > settings.IMAGE_PREVIEW_WIDTH:
-            output_size = (settings.IMAGE_PREVIEW_WIDTH, round(ratio * settings.IMAGE_PREVIEW_WIDTH))
+            output_size = (settings.IMAGE_PREVIEW_WIDTH, round(height_ratio * settings.IMAGE_PREVIEW_WIDTH))
+            # if image_file.format == 'WEBP' or image_file.format == 'GIF':
+            #     resized = []
+            #     for frame in ImageSequence.Iterator(image_file):
+            #         resized.append(frame.copy())
+            #     image_file.save(self.preview_image.path, save_all=True, append_images=resized[1:])
+            # else:
             image_file = image_file.resize(output_size)
             image_file.save(self.preview_image.path)
 
@@ -103,19 +130,14 @@ class Image(models.Model):
         self.colors.add(*Color.objects.filter(hex__in=hex_colors))
 
 
-class UserImage(models.Model):
-    class Vote(models.IntegerChoices):
-        DOWNVOTE = -1
-        DEFAULT = 0
-        UPVOTE = 1
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class Report(models.Model):
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.CASCADE)
-    vote = models.IntegerField(choices=Vote.choices, default=Vote.DEFAULT)
-    downloaded = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.user.pk)
+        return self.title
 
 
 @receiver(m2m_changed, sender=Image.tags.through)

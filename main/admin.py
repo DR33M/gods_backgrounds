@@ -1,13 +1,13 @@
-from .models import Image, Color, UserImage
-from .forms import ImageUploadForm
+from .models import Image, Color, ImageFollowers, Report
+from .forms import ImageUploadForm, ReportForm
 from django.contrib import admin
 
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
     form = ImageUploadForm
-    fields = ('image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating', 'downloads', 'author', 'moderator', 'status')
-    list_display = ('image', 'slug', 'rating', 'downloads', 'author', 'moderator', 'status', 'created_at', 'updated_at')
+    fields = ('title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating', 'ratio', 'downloads', 'author', 'followers', 'moderator', 'status')
+    list_display = ('pk','slug', 'rating', 'downloads', 'author', 'moderator', 'status', 'created_at', 'updated_at')
     list_filter = ('status', 'created_at', 'updated_at')
     search_fields = ('slug', 'tags__name',)
     ordering = ('status', 'updated_at')
@@ -23,5 +23,13 @@ class ImageAdmin(admin.ModelAdmin):
     moderate_images.short_description = 'Moderate selected images'
 
 
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    form = ReportForm
+    list_display = ('title', 'image_id', 'user')
+    list_filter = ('title', 'image_id', 'user')
+    ordering = ('title', 'image_id', 'user')
+
+
 admin.site.register(Color)
-admin.site.register(UserImage)
+admin.site.register(ImageFollowers)

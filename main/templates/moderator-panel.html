@@ -7,6 +7,7 @@
 {% endblock title %}
 
 {% block content %}
+    {% include 'header.html' %}
     {% include "messages.html" with messages=messages %}
     <section class="image-detail mt50px">
         <div class="flex jc">
@@ -72,6 +73,7 @@
             </div>
         </div>
     </section>
+    {% include 'footer.html' %}
 {% endblock content %}
 {% block js %}
     {{ form.media }}

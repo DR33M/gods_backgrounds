@@ -7,37 +7,35 @@ class ImagePutApi {
     rating = {
         method: 'PUT',
         operation: 'rating',
-        listening_element: '.upvote-button',
+        listening_element: '.rating-button',
         disabled: 'voted',
-        body: JSON.stringify({vote: 1}),
+        upvote: 'upvote',
+        vote: 1,
         onload: function () {}
     }
     downloads = {
         method: 'GET',
         operation: 'downloads',
-        listening_element: '.download-button',
+        listening_element: '.download',
         disabled: 'downloaded',
         onload: function () {}
     }
 
+
     get_api_path(operation, image_pk='') {
         if (operation && image_pk)
-            return this.prefix + '/' + operation  + '/' +  image_pk + '/';
+            return this.prefix + '/' + operation + '/' + image_pk + '/';
     }
     set_image_pk(el) {
         this.image_pk = el.dataset.pk
 
         return Boolean(this.image_pk);
     }
-    update_counter(el) {
+    update_counter(el, count) {
         let counter = document.getElementById(el.dataset.counter)
 
-        if (counter) {
-            let value = counter.innerText
-            if (value)
-                counter.innerText = Number(value) + 1
-            else counter.innerText = 1
-        }
+        if (counter)
+            counter.innerText = count
     }
     get_params(el, option) {
         if (!el.classList.contains(option.disabled))
@@ -49,9 +47,7 @@ class ImagePutApi {
                     onload: option.onload
                 }
 
-                if (option.body)
-                    params['body'] = option.body
-
+                params['body'] = JSON.stringify({vote: option.vote})
                 return params
             }
         return false

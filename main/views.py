@@ -2,11 +2,13 @@ import json
 from io import StringIO
 from urllib.parse import urlparse
 
+from django.core import validators
+from django.core import exceptions
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
@@ -17,9 +19,10 @@ from taggit.models import Tag
 
 from utils.user import is_moderator
 
-from .models import Image, Color
-from .forms import ImageUploadForm, EditTagsForm
+from .models import Color, Image, ImageFollowers
+from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
+from utils.mail import Messages
 
 import logging
 
@@ -36,22 +39,25 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
 
 def home(request):
     query = request.GET.get('q')
-    query_dict = {}
 
     if query:
         try:
             query_dict = json.load(StringIO(urlparse(query).path))
         except json.decoder.JSONDecodeError:
-            # return error page
-            pass
+            return HttpResponseRedirect('/')
     else:
         query_dict = {'in': {'status': [Image.Status.APPROVED]}}
 
     query = DictORM().make(query_dict)
 
-    images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at')
-    if query.order_list:
-        images_list = images_list.order_by(*query.order_list)
+    try:
+        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
+            Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
+        ).distinct()
+        if query.order_list:
+            images_list = images_list.order_by(*query.order_list)
+    except (validators.ValidationError, exceptions.FieldError):
+        return HttpResponseRedirect('/')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page'))
@@ -69,16 +75,39 @@ def detailed_image_view(request, slug):
     image = get_object_or_404(Image, slug=slug)
     images_tags_ids = image.tags.values_list('id', flat=True)
     similar_images = Image.objects.select_related('author').filter(tags__in=images_tags_ids).exclude(id=image.id)
-    similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[:settings.SIMILAR_IMAGES_COUNT]
+    similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[
+                     :settings.SIMILAR_IMAGES_COUNT]
     form = EditTagsForm(instance=image)
+    report_form = ReportForm()
 
-    if request.method == 'POST' and 'edit' in request.POST:
-        form = EditTagsForm(data=request.POST, instance=image)
-        if form.is_valid() and (request.user == image.author or is_moderator(request.user)):
-            obj = form.save(commit=False)
-            obj.save()
-            form.save_m2m()
-            return HttpResponseRedirect(reverse('main:detailed_image_view', kwargs={'slug': obj.slug}))
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            form = EditTagsForm(data=request.POST, instance=image)
+            if form.is_valid() and (request.user == image.author or is_moderator(request.user)):
+                obj = form.save(commit=False)
+                obj.save()
+                form.save_m2m()
+                return HttpResponseRedirect(reverse('main:detailed_image_view', kwargs={'slug': obj.slug}))
+
+        report_form = ReportForm(data=request.POST)
+        if report_form.is_valid():
+            report = report_form.save(commit=False)
+            report.user = request.user
+            report.image = image
+            report.save()
+
+            message = str(
+                'Full name: ' + request.user.first_name + ' ' +
+                request.user.last_name + '\n' +
+                report.body
+            )
+
+            Messages.simple_message(
+                report.title,
+                message,
+                request.user.email,
+                [settings.REPORT_EMAIL]
+            )
 
     return render(request, 'detailed_image_view.html', {
         'image': image,
@@ -86,6 +115,7 @@ def detailed_image_view(request, slug):
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
         'form': form,
+        'report_from': report_form or ReportForm(),
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 

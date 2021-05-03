@@ -158,8 +158,10 @@ class EmailForm(forms.ModelForm):
 
         if not email:
             raise forms.ValidationError('Incorrect data')
-        if self.instance.email and not self.instance.email == email:
-            if User.objects.filter(email=email).exists():
+        if self.instance.email:
+            if self.instance.email == email:
+                raise forms.ValidationError('It is your email address')
+            elif User.objects.filter(email=email).exists():
                 raise forms.ValidationError("User with this email address exists")
 
         return email
