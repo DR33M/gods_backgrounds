@@ -12,7 +12,7 @@ from django.utils.http import urlsafe_base64_decode
 from main.decorators import check_recaptcha
 from main.models import Image
 
-from .mail import Messages as Mail
+from utils.mail import Messages as Mail
 
 from .forms import LoginForm, UserRegistrationForm, UserEditForm, EmailForm, ProfileEditForm, NewPasswordForm
 import logging

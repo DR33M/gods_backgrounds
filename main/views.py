@@ -21,10 +21,10 @@ from taggit.models import Tag
 
 from utils.user import is_moderator
 
-from .models import Color, Image, ImageFollowers
+from .models import Color, Image, ImageFollowers, Report
 from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
-from utils.mail import Messages
+from utils.mail import Messages as Mail
 from .decorators import check_recaptcha
 
 import logging
@@ -93,24 +93,27 @@ def detailed_image_view(request, slug):
                 return HttpResponseRedirect(reverse('main:detailed_image_view', kwargs={'slug': obj.slug}))
 
         report_form = ReportForm(data=request.POST)
-        if report_form.is_valid():
-            report = report_form.save(commit=False)
-            report.user = request.user
-            report.image = image
-            report.save()
+        if not Report.objects.filter(image_id=image.pk, user_id=request.user.pk).exists():
+            if report_form.is_valid():
+                report = report_form.save(commit=False)
+                report.user = request.user
+                report.image = image
+                report.save()
 
-            message = str(
-                'Full name: ' + request.user.first_name + ' ' +
-                request.user.last_name + '\n' +
-                report.body
-            )
-
-            Messages.simple_message(
-                report.title,
-                message,
-                request.user.email,
-                [settings.REPORT_EMAIL]
-            )
+                message = str(
+                    'Full name: ' + request.user.first_name + ' ' +
+                    request.user.last_name + '\n' +
+                    report.body
+                )
+                Mail.simple_message(
+                    report.title,
+                    message,
+                    request.user.email,
+                    [settings.REPORT_EMAIL]
+                )
+                messages.add_message(request, messages.SUCCESS, 'Report sent')
+        else:
+            messages.add_message(request, messages.ERROR, 'Report already sent')
 
     return render(request, 'detailed_image_view.html', {
         'image': image,
@@ -118,7 +121,7 @@ def detailed_image_view(request, slug):
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
         'form': form,
-        'report_from': report_form or ReportForm(),
+        'report_form': report_form,
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 

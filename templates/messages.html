@@ -2,7 +2,7 @@
     <div class="messages mt25px">
             <div class="messages__list">
                 {% for message in messages %}
-                    <h2 class="messages__item cg {% if message.tags %} {{ message.tags }} {% endif %}">{{ message }}</h2>
+                    <h2 class="messages__item {% if message.tags %} {{ message.tags }} {% endif %}">{{ message }}</h2>
                 {% endfor %}
             </div>
     </div>
