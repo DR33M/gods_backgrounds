@@ -1,3 +1,5 @@
+import os
+
 from unidecode import unidecode
 from taggit.managers import TaggableManager
 
@@ -91,8 +93,8 @@ class Image(models.Model):
 
     def delete(self, *args, **kwargs):
         super(Image, self).delete(*args, **kwargs)
-        self.image.storage.delete(self.image.path)
-        self.preview_image.storage.delete(self.preview_image.path)
+        os.remove(self.image.path)
+        os.remove(self.preview_image.path)
 
 
 class Report(models.Model):
