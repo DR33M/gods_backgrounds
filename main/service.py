@@ -1,6 +1,6 @@
 import extcolors
 import imagehash
-from PIL import Image as PIL_Image
+from PIL import Image as PIL_Image, ImageSequence
 from django.conf import settings
 
 from .models import Color
@@ -37,11 +37,14 @@ class ImageService:
         self.data['extension'] = self.image_file.format
         return self.data['extension']
 
-    def set(self, image):
-        image.image_hash = self.get_hash()
-        image.width, image.height = self.get_resolution()
-        image.size = self.get_size()
-        image.ratio = self.get_ratio()
+    def is_animated(self):
+        index = 0
+        for frame in ImageSequence.Iterator(self.image_file):
+            index += 1
+            if index > 1:
+                return True
+
+        return False
 
     def add_colors(self, image):
         image_colors, pixel_count = extcolors.extract_from_image(self.image_file)

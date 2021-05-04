@@ -1,6 +1,4 @@
 import copy
-from PIL import Image as PIL_Image
-import imagehash
 from django import forms
 from django.conf import settings
 from dal import autocomplete
@@ -67,6 +65,9 @@ class ImageUploadForm(FormCleanTags):
             cd['size'] = self.service.get_size()
             cd['ratio'] = self.service.get_ratio()
             cd['extension'] = self.service.get_extension()
+
+            if self.service.is_animated():
+                self.add_error('image', forms.ValidationError('Only images'))
 
             if Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
