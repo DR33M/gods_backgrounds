@@ -16,8 +16,9 @@
         {% block content %}{% endblock %}
 
         <script src="{% static 'js/modules/libs/jquery-3.6.0.min.js' %}"></script>
-        <script src="{% static 'js/modules/functions/cookie.js' %}"></script>
+        <script src="{% static 'js/modules/functions/html_document_helper.js' %}"></script>
         <script src="{% static 'js/modules/classes/HttpRequestsHelper.js' %}"></script>
+        <script src="{% static 'js/modules/classes/GlobalApi.js' %}"></script>
         {% block js %}{% endblock %}
     </body>
 </html>

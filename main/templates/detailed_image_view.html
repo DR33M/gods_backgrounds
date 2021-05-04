@@ -12,7 +12,7 @@
             {% include 'messages.html' with messages=messages %}
         </div>
     {% else %}
-        <div class="report-wrapper dn modal-window" data-window="report-wrapper">
+        <div class="report-wrapper dn modal-window big" data-window="report-wrapper">
             <h1 class="cw">Report</h1>
             <form class="report-form mt15px" method="post">
                 {% csrf_token %}
@@ -205,10 +205,10 @@
 {% endblock content %}
 
 {% block js %}
+    <script src="{% static 'js/modules/classes/ImagePatch.js' %}"></script>
     <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
-    <script src="{% static 'js/modules/classes/ImagePutApi.js' %}"></script>
+    <script src="{% static 'js/modules/functions/image_patch.js' %}"></script>
     <script src="{% static 'js/modules/functions/sort.js' %}"></script>
-    <script src="{% static 'js/modules/functions/image_put.js' %}"></script>
     <script src="{% static 'js/pages/main/detailed_image_view.js' %}"></script>
     {{ form.media }}
 {% endblock %}

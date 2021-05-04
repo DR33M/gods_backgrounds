@@ -8,13 +8,23 @@ class UserActions {
 
     modal_window_class = 'modal-window'
 
+    show(el) {
+        if (el)
+            el.classList.remove(this.display_switch)
+    }
+    hide(el) {
+        if (el)
+            el.classList.add(this.display_switch)
+    }
     toggle_visibility(el) {
         if (el)
             el.classList.toggle(this.display_switch)
     }
 
-    drop_list(e) {
-        if ((this.currEl = e.target.closest('[' + this.data_drop_list_id + ']')) && !e.target.closest('.' + this.drop_list_class)) {
+    drop_list(el) {
+        this.currEl = el
+
+        if ((this.currEl = this.currEl.closest('[' + this.data_drop_list_id + ']')) && !this.currEl.closest('.' + this.drop_list_class)) {
             if (this.currEl) {
                 let drop_list_el = document.getElementById(this.currEl.dataset.dropListId)
                 this.toggle_visibility(drop_list_el)
@@ -22,11 +32,25 @@ class UserActions {
         }
     }
 
-    modal_window(e) {
-        this.currEl = e.target
+    modal_window(el) {
+        this.currEl = el
 
-        if (e.target.classList.contains(this.modal_window_class))
-            if (this.currEl && this.currEl.dataset.window)
+        if (this.currEl.classList.contains(this.modal_window_class))
+            if (this.currEl.dataset.window)
                 this.toggle_visibility(document.getElementsByClassName(this.currEl.dataset.window)[0])
+    }
+    open(el) {
+        this.currEl = el
+
+        if (this.currEl.classList.contains(this.modal_window_class))
+            if (this.currEl.dataset.window)
+                this.show(document.getElementsByClassName(this.currEl.dataset.window)[0])
+    }
+    close(el) {
+        this.currEl = el
+
+        if (this.currEl.classList.contains(this.modal_window_class))
+            if (this.currEl.dataset.window)
+                this.hide(document.getElementsByClassName(this.currEl.dataset.window)[0])
     }
 }
