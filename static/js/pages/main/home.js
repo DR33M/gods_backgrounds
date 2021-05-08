@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let pagination = new Pagination()
     let image_view = new ImageView(user_actions, number_of_columns, image_get, image_patch)
 
-    let request, params, elements
+    let request, params
     let search_query = get_search_params()
     let initial_query = null
 
@@ -18,25 +18,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let img_get_onchange = function () {
         set_search_params(global_api.last_path)
-        image_view.onchange(request, elements)
+        image_view.onchange(request)
+        pagination.first()
         pagination.onchange(request, image_view.response_text['total_pages'])
     }
+    let img_pagination_onchange = function () {
+        set_search_params(global_api.last_path)
+        if (pagination.onchange(request, image_view.response_text['total_pages']))
+            image_view.html.arrange(pagination.response_text['images'])
+    }
     let img_patch_onchange = function () {
-        image_view.onchange(request, elements)
+        image_view.onchange(request)
     }
 
     document.body.addEventListener('click', function (e) {
-        if ((elements = image_get.listen(e.target, initial_query)) && Object.keys(elements).length) {
+        if (image_get.listen(e.target, initial_query) && Object.keys(image_get.listening_elements).length) {
             params = global_api.get(image_get.request)
             params.onchange = img_get_onchange
-        } else if ((elements = image_patch.listen(e.target)) && Object.keys(elements).length) {
+        } else if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length) {
             params = global_api.patch(image_patch.request, image_patch.data)
             params.onchange = img_patch_onchange
         } else if ((pagination.listen(e.target))) {
-            image_get.request['page_name'] = 'page'
-            image_get.request['page'] =  pagination.page
+            if (!image_get.request.paths['table'])
+                image_get.request.paths['table'] = image_get.default_table
+            image_get.request.queries['page'] = pagination.page
+
             params = global_api.get(image_get.request)
-            params.onchange = img_get_onchange
+            params.onchange = img_pagination_onchange
         } else params = null
 
         if (params) {

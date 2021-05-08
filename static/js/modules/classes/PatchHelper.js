@@ -2,6 +2,8 @@ class PatchHelper {
     request = {}
     data = ''
 
+    listening_elements = {}
+
     options = {
         rating: {
             table: 'image',
@@ -24,15 +26,17 @@ class PatchHelper {
     }
     prepare() {
         this.request = {
-            table: this.option.table,
-            field: this.option.field,
-            pk: this.pk
+            paths: {
+                table: this.option.table,
+                field: this.option.field,
+                pk: this.pk
+            },
         }
         if (this.el.dataset.data)
             this.data = this.el.dataset.data
     }
     listen(el) {
-        let listening_elements = {}
+        let is_patch = false
 
         for (let key in this.options)
             if ((this.el = el.closest(this.options[key].listen))) {
@@ -44,10 +48,11 @@ class PatchHelper {
                     //console.log(this.path)
                     //console.log(this.data)
 
-                    listening_elements[key] = this.el
+                    this.listening_elements[key] = this.el
+                    is_patch = true
                 }
             }
 
-        return listening_elements
+        return this.listening_elements
     }
 }

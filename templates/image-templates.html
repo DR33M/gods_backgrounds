@@ -42,7 +42,8 @@
     </section>
 </div>
 <script>
-    let total_pages =  {{ total_pages }};
-    let number_of_columns =  {{ number_of_columns }};
-    let images_list = JSON.parse('{{ images_list|safe }}');
+    {% if number_of_columns and images_list %}
+        let number_of_columns =  {{ number_of_columns }};
+        let images_list = JSON.parse('{{ images_list|safe }}');
+    {% endif %}
 </script>

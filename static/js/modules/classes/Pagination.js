@@ -1,6 +1,8 @@
 class Pagination {
     class_selector = '.'
 
+    response_text = {}
+
     page = 1
     total_pages = 0
     first_page = 1
@@ -66,25 +68,37 @@ class Pagination {
             this.html.last.el.classList.add(this.class_names.disabled)
         else this.html.last.el.classList.remove(this.class_names.disabled)
     }
-    first(self) {
+    first(self=null) {
+        if (!self)
+            self = this
+
         self.page = self.first_page
         self.update_html()
     }
-    previous(self) {
+    previous(self=null) {
+        if (!self)
+            self = this
+
         if (self.page - self.step < self.first_page)
             return
 
         self.page = self.page - self.step
         self.update_html()
     }
-    next(self) {
+    next(self=null) {
+        if (!self)
+            self = this
+
         if (self.page + self.step > self.last_page)
             return
 
         self.page = self.page + self.step
         self.update_html()
     }
-    last(self) {
+    last(self=null) {
+        if (!self)
+            self = this
+        
         self.page = self.last_page
         self.update_html()
     }
@@ -93,10 +107,12 @@ class Pagination {
             this.total_pages = this.last_page = Number(total_pages)
     }
     onchange(request, total_pages) {
-        if (request.xhr.readyState === 4) {
+        if (request.xhr.readyState === 4 && request.xhr.status === request.HTTP_200_OK) {
+            this.response_text = JSON.parse(request.xhr.responseText)
             this.update_total_pages(total_pages)
             this.update_html()
-        }
+            return true
+        } else return false
     }
     listen(el) {
         for (let key in this.html) {

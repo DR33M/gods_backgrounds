@@ -334,7 +334,7 @@ class ImageHTML {
         if (image_data['id']) {
             this.image.download_button.el.setAttribute('href', image_data['image'])
             this.image.download_button.el.setAttribute('href', image_data['image'])
-            this.image.download_button.el.setAttribute('download', image_data['slug'] + '.' + image_data['extension'])
+            this.image.download_button.el.setAttribute('download', image_data['title'] + '.' + image_data['extension'])
             this.image.download_button.el.setAttribute('data-counter', 'downloads_' + image_data['id'])
         } else {
             if (!this.image.download_button.default['href'])
@@ -396,8 +396,10 @@ class ImageView {
         this.search = new SearchHTML()
         this.sorting = new SortingHTML()
         this.filter = new FilterHTML()
-        this.image_get = image_get
-        this.image_patch = image_patch
+        if (image_get)
+            this.image_get = image_get
+        if (image_patch)
+            this.image_patch = image_patch
 
         this.not_found = document.getElementsByClassName('not-found')[0]
     }
@@ -411,36 +413,36 @@ class ImageView {
             this.request = request
             this.elements = elements
 
-            for (let key in elements) {
-                if (request.xhr.status === request.HTTP_200_OK) {
-                    this.html.arrange(this.response_text['images'])
+            if (request.xhr.status === request.HTTP_200_OK) {
+                this.html.arrange(this.response_text['images'])
 
+                for (let key in this.image_get.listening_elements)
                     switch (this.image_get.options[key]) {
                         case this.image_get.options['created_at']:
-                            this.sorting.change_order(elements[key])
+                            this.sorting.change_order(this.image_get.listening_elements[key])
                             break
                         case this.image_get.options['downloads']:
-                            this.sorting.change_order(elements[key])
+                            this.sorting.change_order(this.image_get.listening_elements[key])
                             break
                         case this.image_get.options['rating']:
-                            this.sorting.change_order(elements[key])
+                            this.sorting.change_order(this.image_get.listening_elements[key])
                             break
                         case this.image_get.options['ratio']:
-                            this.filter.change_ratio(elements[key])
+                            this.filter.change_ratio(this.image_get.listening_elements[key])
                             break;
                     }
-                } else if (request.xhr.status === request.HTTP_202_ACCEPTED) {
+            } else if (request.xhr.status === request.HTTP_202_ACCEPTED) {
+                for (let key in this.image_patch.listening_elements)
                     switch (this.image_patch.options[key]) {
                         case this.image_patch.options['rating']:
-                            this.update.rating(elements[key], this.response_text['vote'])
-                            this.update.counter(elements[key], this.response_text['count'])
+                            this.update.rating(this.image_patch.listening_elements[key], this.response_text['vote'])
+                            this.update.counter(this.image_patch.listening_elements[key], this.response_text['count'])
                             break
                         case this.image_patch.options['downloads']:
-                            this.update.downloads(elements[key])
-                            this.update.counter(elements[key], this.response_text['count'])
+                            this.update.downloads(this.image_patch.listening_elements[key])
+                            this.update.counter(this.image_patch.listening_elements[key], this.response_text['count'])
                             break
                     }
-                }
             }
          }
     }

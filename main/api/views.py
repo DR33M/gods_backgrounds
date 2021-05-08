@@ -38,7 +38,6 @@ def images(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         query = DictORM().make(query_dict)
-        logger.error(query.kwargs)
         try:
             images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
                 Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
@@ -47,13 +46,17 @@ def images(request):
                 images_list = images_list.order_by(*query.order_list)
         except (validators.ValidationError, exceptions.FieldError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        images_list = Image.objects.select_related('author').order_by('-created_at').prefetch_related(
+            Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
+        ).distinct()
 
-        if images_list:
-            paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-            images_list = paginator.get_page(request.GET.get('page'))
+    if images_list:
+        paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
+        images_list = paginator.get_page(request.GET.get('page'))
 
-            images_list = ImagesSerializer(images_list, many=True)
-            return Response(data={'images': images_list.data, 'total_pages': paginator.num_pages}, status=status.HTTP_200_OK)
+        images_list = ImagesSerializer(images_list, many=True)
+        return Response(data={'images': images_list.data, 'total_pages': paginator.num_pages}, status=status.HTTP_200_OK)
 
     return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -62,6 +65,7 @@ def images(request):
 @permission_classes([IsAuthenticated])
 @throttle_classes([UserRateThrottle])
 def rating(request, image_pk=''):
+    logger.error(request.data)
     vote = int(request.data) or None
     if vote == -1 or vote == 1:
         try:

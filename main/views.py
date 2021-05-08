@@ -75,10 +75,10 @@ def home(request):
 
     return render(request, 'home.html', {
         'images_list': images_list.content.decode(),
-        'total_pages':paginator.num_pages,
+        'number_of_columns': settings.IMAGE_COLUMNS,
+        'total_pages': paginator.num_pages,
         #'color': color,
         'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
-        'number_of_columns': settings.IMAGE_COLUMNS,
         'messages': messages.get_messages(request),
     })
 
@@ -89,6 +89,8 @@ def detailed_image_view(request, slug):
     similar_images = Image.objects.select_related('author').filter(tags__in=images_tags_ids).exclude(id=image.id)
     similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[
                      :settings.SIMILAR_IMAGES_COUNT]
+    similar_images = ImagesSerializer(similar_images, many=True)
+    similar_images = JsonResponse(similar_images.data, safe=False)
     form = EditTagsForm(instance=image)
     report_form = ReportForm()
 
@@ -127,11 +129,11 @@ def detailed_image_view(request, slug):
     return render(request, 'detailed_image_view.html', {
         'image': image,
         'colors': image.colors.all(),
-        'similar_images': similar_images,
         'moderator': is_moderator(request.user),
         'form': form,
         'report_form': report_form,
-        'columns': range(0, settings.IMAGE_COLUMNS, 1)
+        'images_list': similar_images.content.decode(),
+        'number_of_columns': settings.IMAGE_COLUMNS,
     })
 
 
@@ -154,15 +156,19 @@ def cabinet(request, username=''):
         images_list = images_list.filter(tags__name__iexact=search_query)
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-    page_obj = paginator.get_page(request.GET.get('page'))
+    images_list = paginator.get_page(request.GET.get('page'))
+
+    images_list = ImagesSerializer(images_list, many=True)
+    images_list = JsonResponse(images_list.data, safe=False)
 
     return render(request, 'cabinet.html', {
         'user': user,
-        'images_list': page_obj,
         'images_display_status': True,
         'moderator': is_moderator(user),
-        'columns': range(0, settings.IMAGE_COLUMNS, 1),
         'messages': messages.get_messages(request),
+        'images_list': images_list.content.decode(),
+        'number_of_columns': settings.IMAGE_COLUMNS,
+        'total_pages': paginator.num_pages,
     })
 
 

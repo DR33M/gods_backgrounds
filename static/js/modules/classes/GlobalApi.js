@@ -4,6 +4,7 @@ class GlobalApi {
         get: 'GET',
         patch: 'PATCH',
     }
+    current_method = ''
 
     prefix = '/api'
 
@@ -17,25 +18,30 @@ class GlobalApi {
         return this.async
     }
     get_path(request=null) {
-        let path = ''
+        let path = []
+
         if (request) {
-            path += '/' + request.table
-            if (request.field) {
-                path += '/' + request.field
-                path += '/' + request.pk
-                path += '/'
-            } else if (request.query_name) {
-                path += '/?'
-                path += request.query_name + '=' + encodeURI(JSON.stringify(request.query))
+            for (let key in request.paths) {
+                path.push('/')
+                path.push(request.paths[key])
             }
-            if (request.page_name)
-                path += '&' + request.page_name + '=' + request.page
+            if (this.current_method === this.methods.get) {
+                path.push('/?')
+                let keys = Object.keys(request.queries)
+                for (let i = 0; i < keys.length; i++) {
+                    path.push((i !== 0 ? '&' : '') + keys[i])
+                    path.push('=')
+                    path.push(encodeURI(JSON.stringify(request.queries[keys[i]])))
+                }
+            } else if (this.current_method === this.methods.patch) {
+                path.push('/')
+            }
         }
 
-        this.last_path = path
-        this.last_full_path = path = this.prefix + path
+        this.last_path = path.join('')
+        this.last_full_path = path = this.prefix + this.last_path
 
-        console.log(path)
+        //console.log(path)
 
         return path
     }
@@ -50,17 +56,17 @@ class GlobalApi {
     get(request) {
         this.params = {}
 
-        this.params.method = this.methods.get
+        this.params.method = this.current_method = this.methods.get
         this.params.async = this.get_async()
         this.params.path = this.get_path(request)
 
-        console.log(this.params)
+        console.log(request)
         return this.last_params = this.params
     }
     patch(path, data) {
         this.params = {}
 
-        this.params.method = this.methods.patch
+        this.params.method = this.current_method = this.methods.patch
         this.params.async = this.get_async()
         this.params.path = this.get_path(path)
         this.params.data = this.get_data(data)

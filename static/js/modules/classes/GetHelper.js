@@ -6,7 +6,10 @@ class GetHelper {
         all: '*'
     }
 
-    request = {}
+    request = {
+        paths: {},
+        queries: {}
+    }
 
     initial_query = {}
     query = {}
@@ -20,6 +23,10 @@ class GetHelper {
         moreThan: 'more_than',
         order: 'order'
     }
+
+    listening_elements = {}
+
+    default_table = 'image'
     
     options = {
         tags: {
@@ -176,15 +183,15 @@ class GetHelper {
         this.cleaning()
 
         console.log(this.query)
-        if (Object.keys(this.query).length)
-            this.request = {
-                table: this.option.table,
-                query_name: this.query_name,
-                query: this.query
+        if (Object.keys(this.query).length) {
+            this.request['paths'] = {
+                table: (this.option.table? this.option.table : this.default_table)
             }
+            this.request['queries'][this.query_name] = this.query
+        }
     }
     listen(el, initial_query=null) {
-        let listening_elements = {}
+        let is_get = false
 
         for (let key in this.options) {
             //console.log(this.selector + this.options[key].listen)
@@ -195,10 +202,11 @@ class GetHelper {
                 this.make_unwanted_queries()
                 this.prepare()
 
-                listening_elements[key] = this.el
+                this.listening_elements[key] = this.el
+                is_get = true
             }
         }
 
-        return listening_elements
+        return is_get
     }
 }

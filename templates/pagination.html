@@ -1,9 +1,9 @@
 {% load templatehelpers %}
 
 <section class="pagination flex jc ac mt50px">
-    <button class="button button--gray middle">
+    <button class="button button--gray">
         <span class="choices pages-first">First</span>
-        <span class="vertical-line ml50px mr50px"></span>
+        <span class="vertical-line"></span>
         <span class="choices pages-previous">Previous</span>
     </button>
     <div class="pagination__page">
@@ -11,9 +11,14 @@
         <span> out of a </span>
         <span class="pages-total">1</span>
     </div>
-    <button class="button button--gray middle">
+    <button class="button button--gray">
         <span class="choices pages-next">Next</span>
-        <span class="vertical-line ml50px mr50px"></span>
+        <span class="vertical-line"></span>
         <span class="choices pages-last">Last</span>
     </button>
 </section>
+<script>
+    {% if total_pages %}
+        let total_pages =  {{ total_pages }};
+    {% endif %}
+</script>

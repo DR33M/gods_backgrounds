@@ -81,7 +81,7 @@
         </section>
         {% if images_list %}
             <ul class="images-list flex js as mt15px"></ul>
-            {% include "pagination.html" with page=images_list %}
+            {% include "pagination.html" with total_pages=total_pages %}
         {% else %}
             <h2 class="p16px">There are no images available.</h2>
         {% endif %}
