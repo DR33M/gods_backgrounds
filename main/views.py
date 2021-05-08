@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from django.core import validators
 from django.core import exceptions
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
@@ -16,6 +17,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
+
 
 from dal import autocomplete
 from taggit.models import Tag
@@ -27,6 +29,8 @@ from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
 from utils.mail import Messages as Mail
 from .decorators import check_recaptcha
+
+from .api.serializers import ImagesSerializer
 
 import logging
 
@@ -64,13 +68,17 @@ def home(request):
         return HttpResponseRedirect('/')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-    page_obj = paginator.get_page(request.GET.get('page'))
+    images_list = paginator.get_page(request.GET.get('page'))
+
+    images_list = ImagesSerializer(images_list, many=True)
+    images_list = JsonResponse(images_list.data, safe=False)
 
     return render(request, 'home.html', {
-        'images_list': page_obj,
+        'images_list': images_list.content.decode(),
+        'total_pages':paginator.num_pages,
         #'color': color,
         'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
-        'columns': range(0, settings.IMAGE_COLUMNS, 1),
+        'number_of_columns': settings.IMAGE_COLUMNS,
         'messages': messages.get_messages(request),
     })
 

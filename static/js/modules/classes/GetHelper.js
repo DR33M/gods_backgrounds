@@ -66,7 +66,6 @@ class GetHelper {
 
     el = {}
     option = {}
-    selected_options = {}
     operation_key = ''
     value = ''
 

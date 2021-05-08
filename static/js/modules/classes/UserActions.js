@@ -2,11 +2,8 @@ class UserActions {
     currEl = {}
 
     display_switch = 'dn'
-
-    drop_list_class = 'drop-list'
-    data_drop_list_id = 'data-drop-list-id'
-
-    modal_window_class = 'modal-window'
+    modal_window_class = '.modal-window'
+    el_visibility_class = '.el-visibility'
 
     show(el) {
         if (el)
@@ -21,36 +18,26 @@ class UserActions {
             el.classList.toggle(this.display_switch)
     }
 
-    drop_list(el) {
-        this.currEl = el
-
-        if ((this.currEl = this.currEl.closest('[' + this.data_drop_list_id + ']')) && !this.currEl.closest('.' + this.drop_list_class)) {
-            if (this.currEl) {
-                let drop_list_el = document.getElementById(this.currEl.dataset.dropListId)
-                this.toggle_visibility(drop_list_el)
-            }
-        }
-    }
-
     modal_window(el) {
         this.currEl = el
 
-        if (this.currEl.classList.contains(this.modal_window_class))
-            if (this.currEl.dataset.window)
-                this.toggle_visibility(document.getElementsByClassName(this.currEl.dataset.window)[0])
+        if ((this.currEl = this.currEl.closest(this.modal_window_class))) {
+            if (this.currEl.dataset.window) {
+                this.window = document.querySelector(this.currEl.dataset.window)
+                if (this.window.dataset.dontCloseIf && el.closest(this.window.dataset.dontCloseIf)) {
+                    return
+                }
+                this.toggle_visibility(this.window)
+            }
+        } else if (this.window) {
+            this.hide(this.window)
+        }
     }
-    open(el) {
+    el_visibility(el) {
         this.currEl = el
 
-        if (this.currEl.classList.contains(this.modal_window_class))
-            if (this.currEl.dataset.window)
-                this.show(document.getElementsByClassName(this.currEl.dataset.window)[0])
-    }
-    close(el) {
-        this.currEl = el
-
-        if (this.currEl.classList.contains(this.modal_window_class))
-            if (this.currEl.dataset.window)
-                this.hide(document.getElementsByClassName(this.currEl.dataset.window)[0])
+        if ((this.currEl = this.currEl.closest(this.el_visibility_class)))
+            if (this.currEl.dataset.el)
+                this.toggle_visibility(document.querySelector(this.currEl.dataset.el))
     }
 }

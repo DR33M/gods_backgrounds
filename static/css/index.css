@@ -379,6 +379,9 @@ input[type="file"] {    display: none;
 .pagination__page {
     margin: 0 40px;
 }
+.choices.disabled {
+    opacity: .5;
+}
 
 .image-detail {
     position: relative;

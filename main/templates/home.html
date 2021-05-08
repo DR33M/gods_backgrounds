@@ -8,14 +8,15 @@
 {% endblock title %}
 
 {% block content %}
-    <div class="not-found modal-window big dn" data-window="not-found">
+    {% include "image-templates.html" with number_of_columns=number_of_columns images_list=images_list %}
+    <div class="not-found modal-window big dn" data-window=".not-found">
         <h1 class="cw">Not found</h1>
     </div>
     {% include 'header.html' %}
     <section class="image-search-section mt50px">
         <div class="flex jc ac search-input-container">
-            <span class="search-placeholder cg">Something..</span>
-            <span class="rounded-input search-input p14px modal-window" data-where="" data-window="search-placeholder" contenteditable="true"></span>
+            <span class="search-placeholder cg">Something separated by commas..</span>
+            <span class="rounded-input search-input p14px el-visibility" data-where="" data-el=".search-placeholder" contenteditable="true"></span>
             <button class="button ml5px find-button qTags" data-q-tags="search-input">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
@@ -56,12 +57,12 @@
                     <svg class="sort-down-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path></svg>
                 </button>
             </div>
-            <div class="filter-list flex je ac" data-drop-list-id="drop-list-screen">
+            <div class="filter-list flex je ac modal-window" data-window=".screen.drop-list">
                 <span class="filter-item filter-text p10px">screen:</span>
                 <div class="filter-item flex fc">
                     <button id="screen-filter-name" class="filter-text">all</button>
                 </div>
-                <div id="drop-list-screen" class="screen drop-list dn">
+                <div class="screen drop-list dn" data-dont-close-if=".screen.drop-list">
                     <div class="screen-size-inputs flex jsb ac">
                         <span class="min-image-width filter-text ml15px" contenteditable="true" data-more-than="self">1024</span>
                         <span>x</span>
@@ -79,12 +80,7 @@
             </div>
         </section>
         {% if images_list %}
-            <ul class="images-list flex js as mt15px">
-                {% for column in columns %}
-                    <li class="image-column"></li>
-                {% endfor %}
-                {% include "image-block.html" with images=images_list %}
-            </ul>
+            <ul class="images-list flex js as mt15px"></ul>
             {% include "pagination.html" with page=images_list %}
         {% else %}
             <h2 class="p16px">There are no images available.</h2>
@@ -96,7 +92,7 @@
     <script src="{% static 'js/modules/classes/GetHelper.js' %}"></script>
     <script src="{% static 'js/modules/classes/PatchHelper.js' %}"></script>
     <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
-    <script src="{% static 'js/modules/functions/image_sort.js' %}"></script>
-    <script src="{% static 'js/modules/functions/image_patch.js' %}"></script>
+    <script src="{% static 'js/modules/classes/Pagination.js' %}"></script>
+    <script src="{% static 'js/modules/classes/ImageView.js' %}"></script>
     <script src="{% static 'js/pages/main/home.js' %}"></script>
 {% endblock %}

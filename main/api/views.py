@@ -49,11 +49,11 @@ def images(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if images_list:
-            #paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-            #images_list = paginator.get_page(request.GET.get('page'))
+            paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
+            images_list = paginator.get_page(request.GET.get('page'))
 
             images_list = ImagesSerializer(images_list, many=True)
-            return Response(data=images_list.data, status=status.HTTP_200_OK)
+            return Response(data={'images': images_list.data, 'total_pages': paginator.num_pages}, status=status.HTTP_200_OK)
 
     return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -127,5 +127,5 @@ def downloads(request, image_pk=''):
                 image.downloads = image.downloads + 1
                 image.save()
 
-            return Response(data=image.downloads, status=status.HTTP_202_ACCEPTED)
+            return Response(data={'count': image.downloads}, status=status.HTTP_202_ACCEPTED)
     return Response(status=status.HTTP_400_BAD_REQUEST)

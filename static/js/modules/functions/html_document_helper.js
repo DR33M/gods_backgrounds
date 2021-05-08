@@ -4,8 +4,29 @@ function get_cookie(name) {
   ));
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }
-function set_search_params() {
-    //window.history.replaceState(null, null, sort.query_path)
+function set_search_params(path) {
+    window.history.replaceState(null, null, path)
+}
+function insert_search_param(key, value) {
+    key = encodeURIComponent(key)
+    value = encodeURIComponent(value)
+
+    let kvp = window.location.search.substr(1).split('&')
+    let i=0
+
+    for(; i < kvp.length; i++) {
+        if (kvp[i].startsWith(key + '=')) {
+            let pair = kvp[i].split('=')
+            pair[1] = value
+            kvp[i] = pair.join('=')
+            break
+        }
+    }
+
+    if(i >= kvp.length){
+        kvp[kvp.length] = [key,value].join('=')
+    }
+    window.history.replaceState(null, null, '/?' + kvp.join('&'))
 }
 function get_search_params() {
     if (!window.location.search)

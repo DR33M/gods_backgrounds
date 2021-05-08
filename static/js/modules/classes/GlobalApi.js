@@ -7,13 +7,18 @@ class GlobalApi {
 
     prefix = '/api'
 
+    params = {}
+
+    last_full_path = ''
+    last_path = ''
+    last_params = {}
+
     get_async() {
         return this.async
     }
     get_path(request=null) {
         let path = ''
         if (request) {
-            path += this.prefix
             path += '/' + request.table
             if (request.field) {
                 path += '/' + request.field
@@ -23,7 +28,14 @@ class GlobalApi {
                 path += '/?'
                 path += request.query_name + '=' + encodeURI(JSON.stringify(request.query))
             }
+            if (request.page_name)
+                path += '&' + request.page_name + '=' + request.page
         }
+
+        this.last_path = path
+        this.last_full_path = path = this.prefix + path
+
+        console.log(path)
 
         return path
     }
@@ -35,25 +47,25 @@ class GlobalApi {
     }
 
 
-    get(path) {
-        let params = {}
+    get(request) {
+        this.params = {}
 
-        params.method = this.methods.get
-        params.async = this.get_async()
-        params.path = this.get_path(path)
+        this.params.method = this.methods.get
+        this.params.async = this.get_async()
+        this.params.path = this.get_path(request)
 
-        console.log(params)
-        return params
+        console.log(this.params)
+        return this.last_params = this.params
     }
     patch(path, data) {
-        let params = {}
+        this.params = {}
 
-        params.method = this.methods.patch
-        params.async = this.get_async()
-        params.path = this.get_path(path)
-        params.data = this.get_data(data)
+        this.params.method = this.methods.patch
+        this.params.async = this.get_async()
+        this.params.path = this.get_path(path)
+        this.params.data = this.get_data(data)
 
-        console.log(params)
-        return params
+        console.log(this.params)
+        return this.last_params = this.params
     }
 }
