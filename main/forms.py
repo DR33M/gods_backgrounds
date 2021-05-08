@@ -1,9 +1,10 @@
-from PIL import Image as PIL_Image
-import imagehash
+import copy
 from django import forms
 from django.conf import settings
 from dal import autocomplete
+
 from .models import Image, Report
+from .service import ImageService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,16 +17,6 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'class': 'report-description'}),
         }
-
-    # def clean(self):
-    #     cd = self.cleaned_data
-    #     logger.error(self.data)
-    #     super().clean()
-    #
-    #     # if True:
-    #     #     cd['user'] = request.user
-    #     #     cd['image'] = report.image
-    #     return cd
 
 
 class FormCleanTags(forms.ModelForm):
@@ -48,9 +39,15 @@ class EditTagsForm(FormCleanTags):
 
 
 class ImageUploadForm(FormCleanTags):
+    def __init__(self, *args, **kwargs):
+        self.service = None
+        if 'files' in kwargs and 'image' in kwargs['files']:
+            self.service = ImageService(copy.deepcopy(kwargs['files']['image']))
+        super(ImageUploadForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Image
-        fields = ('title', 'image', 'preview_image', 'image_hash', 'size', 'ratio', 'colors', 'tags',)
+        fields = ('title', 'image', 'preview_image', 'image_hash', 'size',  'width',  'height',  'extension', 'ratio', 'tags',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Photo title'}),
             'image': forms.FileInput(attrs={'id': 'input-image'}),
@@ -62,30 +59,26 @@ class ImageUploadForm(FormCleanTags):
     def clean(self):
         super().clean()
         cd = self.cleaned_data
-        image = cd.get('image')
+        if self.service:
+            cd['image_hash'] = self.service.get_hash()
+            cd['width'], cd['height'] = self.service.get_resolution()
+            cd['size'] = self.service.get_size()
+            cd['ratio'] = self.service.get_ratio()
+            cd['extension'] = self.service.get_extension()
 
-        if image:
-            image_file = PIL_Image.open(image)
-            # Bytes to MB
-            cd['size'] = round((image.size / 1024 / 1024), 2)
-            cd['ratio'] = round((image_file.width / image_file.height), 2)
-
-            if image_file.format == 'WEBP' or image_file.format == 'GIF':
+            if self.service.is_animated():
                 self.add_error('image', forms.ValidationError('Only images'))
 
-            # don't ask me how it work, i don't know, author of this shit-code: utorrentfilibusters@gmail.com
-            cd['image_hash'] = imagehash.phash(image_file, 31).__str__()
-
-            if Image.objects.filter(image_hash=self.cleaned_data['image_hash']).exclude(image__iexact=image).count() > 0:
+            if Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:
-                if image.size > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
+                if cd['size'] > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
                     self.add_error('image', forms.ValidationError('Maximum size is %d MB' % settings.IMAGE_MAXIMUM_FILESIZE_IN_MB))
             except AttributeError:
                 pass
 
-            width, height = image_file.width, image_file.height
-            if width < settings.IMAGE_MINIMUM_DIMENSION[0] or height < settings.IMAGE_MINIMUM_DIMENSION[1]:
+            if cd['width'] < settings.IMAGE_MINIMUM_DIMENSION[0] or cd['height'] < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
+
         return cd

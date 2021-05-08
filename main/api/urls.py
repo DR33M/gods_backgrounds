@@ -4,10 +4,10 @@ from . import views
 app_name = 'main_api'
 
 urlpatterns = [
-    path('images/', views.images),
+    path('image/', views.images),
 
-    path('rating/<image_pk>/', views.rating),
-    path('downloads/<image_pk>/', views.downloads),
+    path('image/rating/<image_pk>/', views.rating),
+    path('image/downloads/<image_pk>/', views.downloads),
 ]
 
 

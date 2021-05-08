@@ -1,3 +1,4 @@
+import copy
 import json
 import mimetypes
 import os
@@ -7,6 +8,7 @@ from urllib.parse import urlparse
 from django.core import validators
 from django.core import exceptions
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
@@ -16,16 +18,19 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
 
+
 from dal import autocomplete
 from taggit.models import Tag
 
 from utils.user import is_moderator
 
-from .models import Color, Image, ImageFollowers
+from .models import Color, Image, ImageFollowers, Report
 from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
-from utils.mail import Messages
+from utils.mail import Messages as Mail
 from .decorators import check_recaptcha
+
+from .api.serializers import ImagesSerializer
 
 import logging
 
@@ -63,13 +68,17 @@ def home(request):
         return HttpResponseRedirect('/')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-    page_obj = paginator.get_page(request.GET.get('page'))
+    images_list = paginator.get_page(request.GET.get('page'))
+
+    images_list = ImagesSerializer(images_list, many=True)
+    images_list = JsonResponse(images_list.data, safe=False)
 
     return render(request, 'home.html', {
-        'images_list': page_obj,
+        'images_list': images_list.content.decode(),
+        'total_pages':paginator.num_pages,
         #'color': color,
         'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
-        'columns': range(0, settings.IMAGE_COLUMNS, 1),
+        'number_of_columns': settings.IMAGE_COLUMNS,
         'messages': messages.get_messages(request),
     })
 
@@ -93,24 +102,27 @@ def detailed_image_view(request, slug):
                 return HttpResponseRedirect(reverse('main:detailed_image_view', kwargs={'slug': obj.slug}))
 
         report_form = ReportForm(data=request.POST)
-        if report_form.is_valid():
-            report = report_form.save(commit=False)
-            report.user = request.user
-            report.image = image
-            report.save()
+        if not Report.objects.filter(image_id=image.pk, user_id=request.user.pk).exists():
+            if report_form.is_valid():
+                report = report_form.save(commit=False)
+                report.user = request.user
+                report.image = image
+                report.save()
 
-            message = str(
-                'Full name: ' + request.user.first_name + ' ' +
-                request.user.last_name + '\n' +
-                report.body
-            )
-
-            Messages.simple_message(
-                report.title,
-                message,
-                request.user.email,
-                [settings.REPORT_EMAIL]
-            )
+                message = str(
+                    'Full name: ' + request.user.first_name + ' ' +
+                    request.user.last_name + '\n' +
+                    report.body
+                )
+                Mail.simple_message(
+                    report.title,
+                    message,
+                    request.user.email,
+                    [settings.REPORT_EMAIL]
+                )
+                messages.add_message(request, messages.SUCCESS, 'Report sent')
+        else:
+            messages.add_message(request, messages.ERROR, 'Report already sent')
 
     return render(request, 'detailed_image_view.html', {
         'image': image,
@@ -118,7 +130,7 @@ def detailed_image_view(request, slug):
         'similar_images': similar_images,
         'moderator': is_moderator(request.user),
         'form': form,
-        'report_from': report_form or ReportForm(),
+        'report_form': report_form,
         'columns': range(0, settings.IMAGE_COLUMNS, 1)
     })
 
@@ -204,13 +216,15 @@ def add_image(request):
             image = image_form.save(commit=False)
             image.author = request.user
             image.save()
+            image_form.service.resize_preview_image(image)
+            image_form.service.add_colors(image)
             image_form.save_m2m()
             return redirect('main:detailed_image_view', slug=image.slug)
     else:
         image_form = ImageUploadForm()
 
     return render(request, 'add.html', {
-        'image_form': image_form,
+        'image_form': image_form or None,
     })
 
 

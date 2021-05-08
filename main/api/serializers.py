@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'profile',)
+        fields = ('username', 'first_name', 'last_name', 'profile',)
 
 
 class ImageFollowersSerializer(serializers.ModelSerializer):
@@ -44,5 +44,5 @@ class ImagesSerializer(serializers.ModelSerializer):
         model = Image
         fields = (
             'id', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'slug', 'rating', 'width', 'height', 'ratio',
-            'downloads', 'author', 'moderator', 'followers', 'status', 'created_at', 'updated_at',
+            'downloads', 'size', 'extension', 'author', 'moderator', 'followers', 'status', 'created_at', 'updated_at',
         )

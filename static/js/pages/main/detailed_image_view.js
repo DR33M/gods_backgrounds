@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     let userActions = new UserActions()
-    let image_put = new ImagePutApi()
+    let image_put = new PatchHelper()
     let request, el, params, event
 
     image_put.rating.onload = function() { rating_onload(this, image_put, request, el) }

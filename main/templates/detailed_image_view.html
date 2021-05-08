@@ -7,19 +7,19 @@
 {% endblock title %}
 
 {% block content %}
-    {% if report_from.data %}
+    {% if report_form.data %}
         <div class="report-wrapper modal-window" data-window="report-wrapper">
-            <h1 class="cw">Report sent</h1>
+            {% include 'messages.html' with messages=messages %}
         </div>
     {% else %}
-        <div class="report-wrapper dn modal-window" data-window="report-wrapper">
+        <div class="report-wrapper dn modal-window big" data-window="report-wrapper">
             <h1 class="cw">Report</h1>
             <form class="report-form mt15px" method="post">
                 {% csrf_token %}
                 <h3 class="cg">Title</h3>
-                {{ report_from.title }}
+                {{ report_form.title }}
                 <h3 class="cg mt15px">Description</h3>
-                {{ report_from.body }}
+                {{ report_form.body }}
                 <button class="button middle button--blue mt15px" type="submit">Send</button>
             </form>
         </div>
@@ -128,6 +128,10 @@
                                             <td class="cg">{{ image.size }} MB</td>
                                         </tr>
                                         <tr>
+                                            <td class="pr10px">Extension:</td>
+                                            <td class="cg">{{ image.extension }}</td>
+                                        </tr>
+                                        <tr>
                                             <td class="pr10px">Resolution:</td>
                                             <td class="cg">{{ image.width }}px x {{ image.height }}px</td>
                                         </tr>
@@ -201,10 +205,10 @@
 {% endblock content %}
 
 {% block js %}
+    <script src="{% static 'js/modules/classes/ImagePatch.js' %}"></script>
     <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
-    <script src="{% static 'js/modules/classes/ImagePutApi.js' %}"></script>
+    <script src="{% static 'js/modules/functions/image_patch.js' %}"></script>
     <script src="{% static 'js/modules/functions/sort.js' %}"></script>
-    <script src="{% static 'js/modules/functions/image_put.js' %}"></script>
     <script src="{% static 'js/pages/main/detailed_image_view.js' %}"></script>
     {{ form.media }}
 {% endblock %}

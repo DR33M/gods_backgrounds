@@ -57,11 +57,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '1/second',
+        'user': '3/second'
+    },
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 12
 }
 
 MIDDLEWARE = [
@@ -201,7 +203,7 @@ EMAIL_PORT = '2525'
 IMAGE_PREVIEW_WIDTH = 500
 IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
 IMAGE_MINIMUM_DIMENSION = (1024, 1024)
-IMAGE_MAXIMUM_COUNT_PER_PAGE = 24
+IMAGE_MAXIMUM_COUNT_PER_PAGE = 2
 IMAGE_MINIMUM_TAGS = 3
 IMAGE_COLUMNS = 4
 IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 1

@@ -1,18 +1,16 @@
 import os
 
-import extcolors
-from PIL import Image as PIL_Image, ImageSequence
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.db import models
-from django.db.models.signals import m2m_changed, pre_save
-from django.dispatch import receiver
-from django.template.defaultfilters import slugify
-from django.urls import reverse
-from taggit.managers import TaggableManager
-from django.contrib.auth.models import User
 from unidecode import unidecode
-from main.utils.colors import convert_hex_color_to_name
+from taggit.managers import TaggableManager
+
+from django.db import models
+from django.urls import reverse
+from django.conf import settings
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from django.template.defaultfilters import slugify
+from django.db.models.signals import m2m_changed, pre_save
 
 import logging
 
@@ -54,7 +52,6 @@ class Image(models.Model):
     image = models.ImageField(upload_to='images/%Y/%m/%d/full_size/')
     preview_image = models.ImageField(upload_to='images/%Y/%m/%d/preview_size/', blank=True)
     image_hash = models.CharField(max_length=255, blank=True)
-    size = models.CharField(max_length=255, blank=True)
 
     colors = models.ManyToManyField(Color, blank=True)
 
@@ -64,9 +61,11 @@ class Image(models.Model):
     rating = models.IntegerField(default=0)
     downloads = models.IntegerField(default=0)
 
-    width = models.IntegerField()
-    height = models.IntegerField()
-    ratio = models.FloatField(blank=True)
+    width = models.IntegerField(default=0, blank=True)
+    height = models.IntegerField(default=0, blank=True)
+    ratio = models.FloatField(default=0, blank=True)
+    size = models.CharField(max_length=255, blank=True)
+    extension = models.CharField(max_length=255, blank=True)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,
@@ -95,41 +94,8 @@ class Image(models.Model):
 
     def delete(self, *args, **kwargs):
         super(Image, self).delete(*args, **kwargs)
-        self.image.storage.delete(self.image.path)
-        self.preview_image.storage.delete(self.preview_image.path)
-
-    def save(self):
-        image_file = PIL_Image.open(self.image)
-        self.height, self.width = image_file.height, image_file.width
-        height_ratio = image_file.height / image_file.width
-        super().save()
-
-        if image_file.width > settings.IMAGE_PREVIEW_WIDTH:
-            output_size = (settings.IMAGE_PREVIEW_WIDTH, round(height_ratio * settings.IMAGE_PREVIEW_WIDTH))
-            # if image_file.format == 'WEBP' or image_file.format == 'GIF':
-            #     resized = []
-            #     for frame in ImageSequence.Iterator(image_file):
-            #         resized.append(frame.copy())
-            #     image_file.save(self.preview_image.path, save_all=True, append_images=resized[1:])
-            # else:
-            image_file = image_file.resize(output_size)
-            image_file.save(self.preview_image.path)
-
-        image_colors, pixel_count = extcolors.extract_from_image(image_file)
-
-        colors = Color.objects.all().values_list('hex', flat=True)
-
-        hex_colors = []
-        add_colors = []
-        for image_color in image_colors:
-            if (image_color[1] / pixel_count) * 100 > settings.IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS:
-                color = '#%02x%02x%02x' % image_color[0]
-                hex_colors.append(color)
-                if color not in colors:
-                    add_colors.append(Color(hex=color, similar_color=convert_hex_color_to_name(color)))
-
-        Color.objects.bulk_create(add_colors)
-        self.colors.add(*Color.objects.filter(hex__in=hex_colors))
+        os.remove(self.image.path)
+        os.remove(self.preview_image.path)
 
 
 class Report(models.Model):

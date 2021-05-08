@@ -1,16 +1,17 @@
-import re
 import json
 from io import StringIO
 from urllib.parse import urlparse
 
-from django.core.cache import cache
+from django.conf import settings
 from django.core import validators
 from django.core import exceptions
 from django.db.models import Prefetch
+from django.core.paginator import Paginator
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import ImagesSerializer
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+@throttle_classes([UserRateThrottle, AnonRateThrottle])
 def images(request):
     query = request.GET.get('q')
 
@@ -36,7 +38,7 @@ def images(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         query = DictORM().make(query_dict)
-
+        logger.error(query.kwargs)
         try:
             images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
                 Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
@@ -46,22 +48,28 @@ def images(request):
         except (validators.ValidationError, exceptions.FieldError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        logger.error(query.kwargs)
         if images_list:
+            paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
+            images_list = paginator.get_page(request.GET.get('page'))
+
             images_list = ImagesSerializer(images_list, many=True)
-            return Response(data=images_list.data, status=status.HTTP_200_OK)
+            return Response(data={'images': images_list.data, 'total_pages': paginator.num_pages}, status=status.HTTP_200_OK)
 
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['PUT'])
+@api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
 def rating(request, image_pk=''):
-    image = Image.objects.get(pk=image_pk)
-    vote = int(request.data['vote']) or None
+    vote = int(request.data) or None
+    if vote == -1 or vote == 1:
+        try:
+            image = Image.objects.get(pk=image_pk)
+        except (Image.DoesNotExist, Image.MultipleObjectsReturned):
+            image = None
 
-    if image:
-        if vote == -1 or vote == 1:
+        if image:
             try:
                 follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image_pk,))
             except ImageFollowers.DoesNotExist:
@@ -88,29 +96,36 @@ def rating(request, image_pk=''):
             image.save()
 
             return Response(data={'count': image.rating, 'vote': follower.vote}, status=status.HTTP_202_ACCEPTED)
-    return Response(status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
 def downloads(request, image_pk=''):
-    image = Image.objects.get(pk=image_pk)
+    download_number = int(request.data) or None
 
-    if image:
-        downloaded = False
+    if download_number == 1:
         try:
-            follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image.pk,))
-            downloaded = follower.downloaded
-            if not follower.downloaded:
-                follower.downloaded = True
-                follower.save()
-        except ImageFollowers.DoesNotExist:
-            ImageFollowers.objects.create(user=request.user, image=image, downloaded=True)
-            image.followers.add(ImageFollowers)
+            image = Image.objects.get(pk=image_pk)
+        except (Image.DoesNotExist, Image.MultipleObjectsReturned):
+            image = None
 
-        if not downloaded:
-            image.downloads = image.downloads + 1
-            image.save()
+        if image:
+            downloaded = False
+            try:
+                follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image.pk,))
+                downloaded = follower.downloaded
+                if not follower.downloaded:
+                    follower.downloaded = True
+                    follower.save()
+            except ImageFollowers.DoesNotExist:
+                ImageFollowers.objects.create(user=request.user, image=image, downloaded=True)
+                image.followers.add(ImageFollowers)
 
-        return Response(data=image.downloads, status=status.HTTP_202_ACCEPTED)
-    return Response(status.HTTP_400_BAD_REQUEST)
+            if not downloaded:
+                image.downloads = image.downloads + 1
+                image.save()
+
+            return Response(data={'count': image.downloads}, status=status.HTTP_202_ACCEPTED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)

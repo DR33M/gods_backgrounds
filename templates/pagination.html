@@ -1,33 +1,19 @@
 {% load templatehelpers %}
 
 <section class="pagination flex jc ac mt50px">
-    {% if page.has_previous %}
-        <button class="button button--gray middle">
-            <a href="{% relative_url 1 'page' request.GET.urlencode %}">First</a>
-            <span class="vertical-line ml50px mr50px"></span>
-            <a href="{% relative_url page.previous_page_number 'page' request.GET.urlencode %}">Previous</a>
-        </button>
-    {% else %}
-        <button class="button button--gray middle disabled">
-            <span class="choices">Next</span>
-            <span class="vertical-line ml50px mr50px"></span>
-            <span class="choices">Last</span>
-        </button>
-    {% endif %}
+    <button class="button button--gray middle">
+        <span class="choices pages-first">First</span>
+        <span class="vertical-line ml50px mr50px"></span>
+        <span class="choices pages-previous">Previous</span>
+    </button>
     <div class="pagination__page">
-        {{ page.number }} из {{ page.paginator.num_pages }}
+        <span class="pages-current">1</span>
+        <span> out of a </span>
+        <span class="pages-total">1</span>
     </div>
-    {% if page.has_next %}
-        <button class="button button--gray middle">
-            <a href="{% relative_url page.next_page_number 'page' request.GET.urlencode %}">Next</a>
-            <span class="vertical-line ml50px mr50px"></span>
-            <a href="{% relative_url page.paginator.num_pages 'page' request.GET.urlencode %}">Last</a>
-        </button>
-    {% else %}
-        <button class="button button--gray middle disabled">
-            <span class="choices">Next</span>
-            <span class="vertical-line ml50px mr50px"></span>
-            <span class="choices">Last</span>
-        </button>
-    {% endif %}
+    <button class="button button--gray middle">
+        <span class="choices pages-next">Next</span>
+        <span class="vertical-line ml50px mr50px"></span>
+        <span class="choices pages-last">Last</span>
+    </button>
 </section>

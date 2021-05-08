@@ -5,7 +5,13 @@
     padding: unset;
     color: inherit;
     box-sizing: border-box;
+    outline: none;
 }
+*:active,
+*:focus {
+    outline: none;
+}
+
 html {
     font-size: 16px;
     font-family: "Roboto";
@@ -34,10 +40,4 @@ input, button, textarea, select {
     background: unset;
     border: unset;
     font: inherit;
-}
-
-button,
-button:active,
-button:focus {
-    outline: none;
 }
