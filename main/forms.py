@@ -1,3 +1,7 @@
+import pickle
+import io
+from shutil import copyfile
+from PIL import Image as PIL_Image, ImageSequence
 import copy
 from django import forms
 from django.conf import settings
@@ -43,9 +47,8 @@ class ImageUploadForm(FormCleanTags):
     def __init__(self, *args, **kwargs):
         self.service = None
         if 'files' in kwargs and 'image' in kwargs['files']:
-            copied_file = ContentFile(kwargs['files']['image'].file.read())
-            copied_file.name = kwargs['files']['image']
-            self.service = ImageService(copied_file)
+            self.service = ImageService(kwargs['files']['image'])
+            kwargs['files']['image'].file.seek(0)
         super(ImageUploadForm, self).__init__(*args, **kwargs)
 
     class Meta:

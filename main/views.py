@@ -217,12 +217,14 @@ def moderator_panel(request):
     })
 
 
-@check_recaptcha
+#@check_recaptcha
 @login_required
 def add_image(request):
     if request.method == 'POST':
+        logger.error(request.FILES)
         image_form = ImageUploadForm(data=request.POST, files=request.FILES)
-        if request.recaptcha_is_valid and image_form.is_valid():
+        #if request.recaptcha_is_valid and image_form.is_valid():
+        if image_form.is_valid():
             image = image_form.save(commit=False)
             image.author = request.user
             image.save()
