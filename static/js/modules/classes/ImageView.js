@@ -233,6 +233,7 @@ class ImageHTML {
             default: {
                 id: '',
                 counter: '',
+                download: '',
                 href: false,
             },
         },
@@ -276,6 +277,8 @@ class ImageHTML {
     choose_status(image_data) {
         if (image_data.status === 0)
             this.image.status.el.classList.remove(this.class_names.disabled)
+        else if (!this.image.status.el.classList.contains(this.class_names.disabled))
+            this.image.status.el.classList.add(this.class_names.disabled)
     }
     set_image_link(image_data) {
         if (image_data['slug'])
@@ -333,12 +336,13 @@ class ImageHTML {
     set_image_download_button(image_data) {
         if (image_data['id']) {
             this.image.download_button.el.setAttribute('href', image_data['image'])
-            this.image.download_button.el.setAttribute('href', image_data['image'])
             this.image.download_button.el.setAttribute('download', image_data['title'] + '.' + image_data['extension'])
+            this.image.download_button.el.setAttribute('data-pk', image_data['id'])
             this.image.download_button.el.setAttribute('data-counter', 'downloads_' + image_data['id'])
         } else {
             if (!this.image.download_button.default['href'])
                 this.image.download_button.el.removeAttribute('href')
+            this.image.download_button.el.setAttribute('download', this.image.download_button.default['download'])
             this.image.download_button.el.setAttribute('data-pk', this.image.download_button.default['id'])
             this.image.download_button.el.setAttribute('data-counter', this.image.download_button.default['counter'])
         }

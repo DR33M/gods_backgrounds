@@ -1,17 +1,28 @@
-from .models import Image, Color, ImageFollowers, Report
+from .models import Image, Color, ImageUserActions, Report
 from .forms import ImageUploadForm
 from django.contrib import admin
+
+
+class ImageUserActionsInline(admin.TabularInline):
+    model = ImageUserActions
 
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
     form = ImageUploadForm
-    fields = ('title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating', 'width', 'height', 'ratio', 'size', 'extension', 'downloads', 'author', 'followers', 'moderator', 'status')
+    fields = (
+        'title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating',
+        'width', 'height', 'ratio', 'size', 'extension', 'downloads', 'author', 'moderator',
+        'status'
+    )
+    exclude = ('image_user_actions',)
     list_display = ('pk', 'slug', 'rating', 'downloads', 'author', 'moderator', 'status', 'created_at', 'updated_at')
     list_filter = ('status', 'created_at', 'updated_at')
     search_fields = ('slug', 'tags__name',)
     ordering = ('pk',)
     actions = ['approve_images', 'moderate_images']
+
+    inlines = (ImageUserActionsInline,)
 
     def approve_images(self, request, queryset):
         queryset.update(moderator=request.user, status=Image.Status.APPROVED)
@@ -33,8 +44,8 @@ class ReportAdmin(admin.ModelAdmin):
 admin.site.register(Color)
 
 
-@admin.register(ImageFollowers)
-class ImageFollowersAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'vote', 'downloaded',)
-    list_filter = ('user_id', 'vote', 'downloaded',)
-    ordering = ('user_id', 'vote', 'downloaded',)
+@admin.register(ImageUserActions)
+class ImageUserActionsAdmin(admin.ModelAdmin):
+    list_display = ('user_id', 'image_id', 'vote', 'downloaded',)
+    list_filter = ('user_id', 'image_id', 'vote', 'downloaded',)
+    ordering = ('user_id', 'image_id', 'vote', 'downloaded',)

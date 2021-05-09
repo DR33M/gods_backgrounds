@@ -24,7 +24,7 @@ from taggit.models import Tag
 
 from utils.user import is_moderator
 
-from .models import Color, Image, ImageFollowers, Report
+from .models import Color, Image, ImageUserActions, Report
 from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
 from utils.mail import Messages as Mail
@@ -46,6 +46,10 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
 
 
 def home(request):
+    # images_list = Image.objects.select_related('author').all().prefetch_related(
+    #     Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
+    # )
+    # return HttpResponse(images_list[0].title)
     query = request.GET.get('q')
 
     if query:
@@ -60,7 +64,7 @@ def home(request):
 
     try:
         images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
-            Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
+            Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
         ).distinct()
         if query.order_list:
             images_list = images_list.order_by(*query.order_list)

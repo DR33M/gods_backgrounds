@@ -28,20 +28,6 @@ class Color(models.Model):
         return self.hex
 
 
-class ImageFollowers(models.Model):
-    class Vote(models.IntegerChoices):
-        DOWNVOTE = -1
-        DEFAULT = 0
-        UPVOTE = 1
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    vote = models.IntegerField(choices=Vote.choices, default=Vote.DEFAULT)
-    downloaded = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.user.username
-
-
 class Image(models.Model):
     class Status(models.IntegerChoices):
         MODERATION = 0
@@ -58,8 +44,8 @@ class Image(models.Model):
     tags = TaggableManager()
     slug = models.SlugField(unique=True, blank=True)
 
-    rating = models.IntegerField(default=0)
-    downloads = models.IntegerField(default=0)
+    rating = models.IntegerField(default=0, blank=True)
+    downloads = models.IntegerField(default=0, blank=True)
 
     width = models.IntegerField(default=0, blank=True)
     height = models.IntegerField(default=0, blank=True)
@@ -70,7 +56,9 @@ class Image(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,
                                   related_name="moderator_id", blank=True)
-    followers = models.ManyToManyField(ImageFollowers, blank=True, related_name='image')
+    image_user_actions = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name='image_id', through='ImageUserActions'
+    )
     status = models.IntegerField(choices=Status.choices, default=Status.MODERATION)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -96,6 +84,21 @@ class Image(models.Model):
         super(Image, self).delete(*args, **kwargs)
         os.remove(self.image.path)
         os.remove(self.preview_image.path)
+
+
+class ImageUserActions(models.Model):
+    class Vote(models.IntegerChoices):
+        DOWNVOTE = -1
+        DEFAULT = 0
+        UPVOTE = 1
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    vote = models.IntegerField(choices=Vote.choices, default=Vote.DEFAULT)
+    downloaded = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
 
 
 class Report(models.Model):

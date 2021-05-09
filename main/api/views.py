@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import ImagesSerializer
 
-from ..models import ImageFollowers, Image
+from ..models import ImageUserActions, Image
 
 from ..utils.DictORM import DictORM
 
@@ -40,7 +40,7 @@ def images(request):
         query = DictORM().make(query_dict)
         try:
             images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
-                Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
+                Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
             ).distinct()
             if query.order_list:
                 images_list = images_list.order_by(*query.order_list)
@@ -48,7 +48,7 @@ def images(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
         images_list = Image.objects.select_related('author').order_by('-created_at').prefetch_related(
-            Prefetch('followers', ImageFollowers.objects.filter(user_id=request.user.pk))
+            Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
         ).distinct()
 
     if images_list:
@@ -65,7 +65,6 @@ def images(request):
 @permission_classes([IsAuthenticated])
 @throttle_classes([UserRateThrottle])
 def rating(request, image_pk=''):
-    logger.error(request.data)
     vote = int(request.data) or None
     if vote == -1 or vote == 1:
         try:
@@ -75,31 +74,31 @@ def rating(request, image_pk=''):
 
         if image:
             try:
-                follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image_pk,))
-            except ImageFollowers.DoesNotExist:
-                follower = ImageFollowers.objects.create(user=request.user)
-                image.followers.add(follower)
+                actor = ImageUserActions.objects.get(user_id=request.user.pk, image_id=image_pk)
+            except ImageUserActions.DoesNotExist:
+                image.image_user_actions.add(request.user)
+                actor = ImageUserActions.objects.get(user_id=request.user.pk, image_id=image_pk)
 
-            previous_vote = follower.vote
+            previous_vote = actor.vote
 
-            if follower.vote + vote > ImageFollowers.Vote.UPVOTE:
-                follower.vote = ImageFollowers.Vote.DOWNVOTE
+            if actor.vote + vote > ImageUserActions.Vote.UPVOTE:
+                actor.vote = ImageUserActions.Vote.DOWNVOTE
                 vote = -2
-            elif follower.vote + vote < ImageFollowers.Vote.DOWNVOTE:
-                follower.vote = ImageFollowers.Vote.UPVOTE
+            elif actor.vote + vote < ImageUserActions.Vote.DOWNVOTE:
+                actor.vote = ImageUserActions.Vote.UPVOTE
                 vote = 2
             else:
-                follower.vote = follower.vote + vote
+                actor.vote = actor.vote + vote
 
-            follower.save()
-            if follower.vote == ImageFollowers.Vote.DEFAULT:
+            actor.save()
+            if actor.vote == ImageUserActions.Vote.DEFAULT:
                 image.rating = image.rating - previous_vote
             else:
                 image.rating = image.rating + vote
 
             image.save()
 
-            return Response(data={'count': image.rating, 'vote': follower.vote}, status=status.HTTP_202_ACCEPTED)
+            return Response(data={'count': image.rating, 'vote': actor.vote}, status=status.HTTP_202_ACCEPTED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -118,14 +117,14 @@ def downloads(request, image_pk=''):
         if image:
             downloaded = False
             try:
-                follower = ImageFollowers.objects.get(user_id=request.user.pk, image__in=(image.pk,))
-                downloaded = follower.downloaded
-                if not follower.downloaded:
-                    follower.downloaded = True
-                    follower.save()
-            except ImageFollowers.DoesNotExist:
-                ImageFollowers.objects.create(user=request.user, image=image, downloaded=True)
-                image.followers.add(ImageFollowers)
+                actor = ImageUserActions.objects.get(user_id=request.user.pk, image_id=image_pk)
+                downloaded = actor.downloaded
+                if not actor.downloaded:
+                    actor.downloaded = True
+                    actor.save()
+            except ImageUserActions.DoesNotExist:
+                image.image_user_actions.add(request.user)
+                ImageUserActions.objects.filter(user_id=request.user.pk, image_id=image_pk).update(downloaded=True)
 
             if not downloaded:
                 image.downloads = image.downloads + 1

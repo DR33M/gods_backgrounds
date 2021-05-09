@@ -45,6 +45,7 @@ class PatchHelper {
                     this.set_pk()
                     this.option = this.options[key]
                     this.prepare()
+                    //console.log(this.option)
                     //console.log(this.path)
                     //console.log(this.data)
 

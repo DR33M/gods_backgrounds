@@ -1,6 +1,7 @@
 import copy
 from django import forms
 from django.conf import settings
+from django.core.files.base import ContentFile
 from dal import autocomplete
 
 from .models import Image, Report
@@ -42,12 +43,16 @@ class ImageUploadForm(FormCleanTags):
     def __init__(self, *args, **kwargs):
         self.service = None
         if 'files' in kwargs and 'image' in kwargs['files']:
-            self.service = ImageService(copy.deepcopy(kwargs['files']['image']))
+            copied_file = ContentFile(kwargs['files']['image'].file.read())
+            copied_file.name = kwargs['files']['image']
+            self.service = ImageService(copied_file)
         super(ImageUploadForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Image
-        fields = ('title', 'image', 'preview_image', 'image_hash', 'size',  'width',  'height',  'extension', 'ratio', 'tags',)
+        fields = (
+            'title', 'image', 'preview_image', 'image_hash', 'size', 'width', 'height', 'extension', 'ratio', 'tags',
+        )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Photo title'}),
             'image': forms.FileInput(attrs={'id': 'input-image'}),
@@ -59,7 +64,8 @@ class ImageUploadForm(FormCleanTags):
     def clean(self):
         super().clean()
         cd = self.cleaned_data
-        if self.service:
+
+        if self.service and 'image' in cd:
             cd['image_hash'] = self.service.get_hash()
             cd['width'], cd['height'] = self.service.get_resolution()
             cd['size'] = self.service.get_size()
@@ -69,16 +75,16 @@ class ImageUploadForm(FormCleanTags):
             if self.service.is_animated():
                 self.add_error('image', forms.ValidationError('Only images'))
 
-            if Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
+            if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:
-                if cd['size'] > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
+                if 'image' in cd and cd['size'] > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
                     self.add_error('image', forms.ValidationError('Maximum size is %d MB' % settings.IMAGE_MAXIMUM_FILESIZE_IN_MB))
             except AttributeError:
                 pass
 
-            if cd['width'] < settings.IMAGE_MINIMUM_DIMENSION[0] or cd['height'] < settings.IMAGE_MINIMUM_DIMENSION[1]:
+            if 'image' in cd and cd['width'] < settings.IMAGE_MINIMUM_DIMENSION[0] or cd['height'] < settings.IMAGE_MINIMUM_DIMENSION[1]:
                 self.add_error('image', forms.ValidationError('Minimum dimension is %d x %d' % settings.IMAGE_MINIMUM_DIMENSION))
 
         return cd
