@@ -22,7 +22,7 @@
     </section>
     <section class="account-section flex jc ac mt50px">
         <div class="panel flex jc ac p10px">
-            <div class="account-section__info flex jc ac pr10px">
+            <div class="account-section__info flex jc ac pr10px user_id" data-user-id="{{ user.id }}">
                 <img class="avatar" src="{{ user.profile.photo.url }}"/>
                 <p class="account__nickname ml10px">{{ user.first_name }} {{ user.last_name }}</p>
             </div>

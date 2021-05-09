@@ -7,6 +7,15 @@ function get_cookie(name) {
 function set_search_params(path) {
     window.history.replaceState(null, null, path)
 }
+function set_search_params_uniq(path) {
+    path = path.split('/')
+    path.filter(function (value, index, self) {
+        return self.indexOf(value) === index
+    })
+    path = path.join('/')
+
+    set_search_params(path)
+}
 function insert_search_param(key, value) {
     key = encodeURIComponent(key)
     value = encodeURIComponent(value)

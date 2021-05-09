@@ -1,11 +1,5 @@
-import pickle
-import io
-from shutil import copyfile
-from PIL import Image as PIL_Image, ImageSequence
-import copy
 from django import forms
 from django.conf import settings
-from django.core.files.base import ContentFile
 from dal import autocomplete
 
 from .models import Image, Report

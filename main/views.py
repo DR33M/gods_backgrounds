@@ -81,6 +81,7 @@ def home(request):
         'images_list': images_list.content.decode(),
         'number_of_columns': settings.IMAGE_COLUMNS,
         'total_pages': paginator.num_pages,
+        'page': request.GET.get('page'),
         #'color': color,
         'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'messages': messages.get_messages(request),
@@ -153,11 +154,25 @@ def cabinet(request, username=''):
     if not user.username == username:
         user = User.objects.get(username=username)
 
-    images_list = Image.objects.select_related('author').filter(author=user).order_by('-created_at')
+    query = request.GET.get('q')
+    if query:
+        try:
+            query_dict = json.load(StringIO(urlparse(query).path))
+        except json.decoder.JSONDecodeError:
+            return HttpResponseRedirect('/')
+    else:
+        query_dict = {'in': {'author': [request.user.pk]}}
 
-    search_query = request.GET.get('search', '')
-    if search_query:
-        images_list = images_list.filter(tags__name__iexact=search_query)
+    query = DictORM().make(query_dict)
+
+    try:
+        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
+            Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
+        ).distinct()
+        if query.order_list:
+            images_list = images_list.order_by(*query.order_list)
+    except (validators.ValidationError, exceptions.FieldError):
+        return HttpResponseRedirect('/')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     images_list = paginator.get_page(request.GET.get('page'))
@@ -172,6 +187,7 @@ def cabinet(request, username=''):
         'messages': messages.get_messages(request),
         'images_list': images_list.content.decode(),
         'number_of_columns': settings.IMAGE_COLUMNS,
+        'page': request.GET.get('page'),
         'total_pages': paginator.num_pages,
     })
 

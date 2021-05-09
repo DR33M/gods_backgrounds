@@ -7,12 +7,20 @@ document.addEventListener("DOMContentLoaded", function () {
     let image_view = new ImageView(user_actions, number_of_columns, image_get, image_patch)
 
     let request, params
-    let search_query = get_search_params()
-    let initial_query = null
 
-    if (search_query && search_query[image_get.query_name])
-        initial_query = search_query[image_get.query_name]
+    let pathname = window.location.pathname.split('/').filter(function(el) {return el.length != 0})
+    let view = pathname[0]
+    let username = pathname[1]
+    let user_id = Number(document.getElementsByClassName('user_id')[0].dataset.userId)
+    pathname = '/' + view + '/' + username
 
+    let initial_query = {
+        in: {
+            'author': [user_id,]
+        }
+    }
+
+    pagination.page = page
     pagination.update_total_pages(total_pages)
     pagination.update_html()
 
@@ -20,12 +28,14 @@ document.addEventListener("DOMContentLoaded", function () {
         set_search_params(global_api.last_path)
         image_view.onchange(request)
         pagination.first()
-        pagination.onchange(request, image_view.response_text['total_pages'])
+        if (pagination.onchange(request, image_view.response_text['total_pages']))
+            set_search_params_uniq(pathname + global_api.last_path)
     }
     let img_pagination_onchange = function () {
-        set_search_params(global_api.last_path)
-        if (pagination.onchange(request, image_view.response_text['total_pages']))
+        if (pagination.onchange(request, image_view.response_text['total_pages'])) {
+            set_search_params_uniq(pathname + global_api.last_path)
             image_view.html.arrange(pagination.response_text['images'])
+        }
     }
     let img_patch_onchange = function () {
         image_view.onchange(request)
@@ -39,10 +49,11 @@ document.addEventListener("DOMContentLoaded", function () {
             params = global_api.patch(image_patch.request, image_patch.data)
             params.onchange = img_patch_onchange
         } else if ((pagination.listen(e.target))) {
-            if (!image_get.request.paths['table'])
-                image_get.request.paths['table'] = image_get.default_table
+            image_get.el = e.target
+            image_get.initialize(initial_query)
+            image_get.make_unwanted_queries()
+            image_get.prepare()
             image_get.request.queries['page'] = pagination.page
-
             params = global_api.get(image_get.request)
             params.onchange = img_pagination_onchange
         } else params = null

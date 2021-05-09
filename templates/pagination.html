@@ -18,6 +18,11 @@
     </button>
 </section>
 <script>
+    {% if page %}
+        let page =  {{ page }};
+    {% else %}
+        let page =  1;
+    {% endif %}
     {% if total_pages %}
         let total_pages =  {{ total_pages }};
     {% endif %}

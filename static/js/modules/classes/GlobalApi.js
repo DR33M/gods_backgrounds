@@ -17,9 +17,7 @@ class GlobalApi {
     get_async() {
         return this.async
     }
-    get_path(request=null) {
-        let path = []
-
+    get_path(request=null, path=[]) {
         if (request) {
             for (let key in request.paths) {
                 path.push('/')
@@ -60,7 +58,7 @@ class GlobalApi {
         this.params.async = this.get_async()
         this.params.path = this.get_path(request)
 
-        console.log(request)
+        //console.log(request)
         return this.last_params = this.params
     }
     patch(path, data) {
@@ -71,7 +69,7 @@ class GlobalApi {
         this.params.path = this.get_path(path)
         this.params.data = this.get_data(data)
 
-        console.log(this.params)
+        //console.log(this.params)
         return this.last_params = this.params
     }
 }

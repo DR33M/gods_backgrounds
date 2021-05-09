@@ -384,7 +384,7 @@ class ImageHTML {
             this.image.original_list.el.append(this.image_columns[i])
         }
 
-        console.log(images_data)
+        //console.log(images_data)
     }
 }
 class ImageView {

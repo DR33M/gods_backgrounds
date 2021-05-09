@@ -29,6 +29,11 @@ class GetHelper {
     default_table = 'image'
     
     options = {
+        author: {
+            table: 'image',
+            field: 'author',
+            listen: 'qAuthor',
+        },
         tags: {
             table: 'image',
             field: 'slug',
@@ -126,8 +131,9 @@ class GetHelper {
         if (Object.keys(query).length)
             for (let key in query) {
                 //console.log(key)
-                if (typeof query[key] === 'object' && Object.keys(query[key]).length)
-                    this.cleaning(query[key], unwanted[key])
+                if (typeof query[key] === 'object' && !Array.isArray(query[key]) && Object.keys(query[key]).length)
+                    if (unwanted)
+                        this.cleaning(query[key], unwanted[key])
                 else {
                     //console.log(query, unwanted[key])
                     //console.log(Object.keys(query[key]).length)
