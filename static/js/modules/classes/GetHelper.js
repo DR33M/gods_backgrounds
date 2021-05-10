@@ -193,6 +193,9 @@ class GetHelper {
             this.request['queries'][this.query_name] = this.query
         }
     }
+    flush_listening_elements() {
+        this.listening_elements = {}
+    }
     listen(el, initial_query=null) {
         let is_get = false
 

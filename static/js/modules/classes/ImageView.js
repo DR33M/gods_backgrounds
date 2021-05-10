@@ -68,12 +68,16 @@ class SortingHTML {
         rotate_zero: 'rotate0'
     }
 
-    change_order(elem) {
-        if (!elem.classList.contains(this.class_names.sort_active)) {
-            let sort_items = document.getElementsByClassName(this.class_names.sort_active)
+    remove_sort_active_all() {
+        let sort_items = document.getElementsByClassName(this.class_names.sort_active)
             for (let i = 0; i < sort_items.length; i++)
                 sort_items[i].classList.remove(this.class_names.sort_active)
 
+    }
+    change_order(elem) {
+        console.log(elem)
+        if (!elem.classList.contains(this.class_names.sort_active)) {
+            this.remove_sort_active_all()
             elem.classList.add(this.class_names.sort_active)
         }
 
@@ -435,18 +439,19 @@ class ImageView {
                             this.filter.change_ratio(this.image_get.listening_elements[key])
                             break;
                     }
+
+                this.image_get.flush_listening_elements()
             } else if (request.xhr.status === request.HTTP_202_ACCEPTED) {
-                for (let key in this.image_patch.listening_elements)
-                    switch (this.image_patch.options[key]) {
-                        case this.image_patch.options['rating']:
-                            this.update.rating(this.image_patch.listening_elements[key], this.response_text['vote'])
-                            this.update.counter(this.image_patch.listening_elements[key], this.response_text['count'])
-                            break
-                        case this.image_patch.options['downloads']:
-                            this.update.downloads(this.image_patch.listening_elements[key])
-                            this.update.counter(this.image_patch.listening_elements[key], this.response_text['count'])
-                            break
-                    }
+                switch (this.image_patch.options[key]) {
+                    case this.image_patch.options['rating']:
+                        this.update.rating(this.image_patch.el, this.response_text['vote'])
+                        this.update.counter(this.image_patch.el, this.response_text['count'])
+                        break
+                    case this.image_patch.options['downloads']:
+                        this.update.downloads(this.image_patch.el)
+                        this.update.counter(this.image_patch.el, this.response_text['count'])
+                        break
+                }
             }
          }
     }

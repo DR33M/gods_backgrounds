@@ -6,13 +6,17 @@ class PatchHelper {
 
     options = {
         rating: {
-            table: 'image',
-            field: 'rating',
+            paths: {
+                table: 'image',
+                field: 'rating',
+            },
             listen: '.rating-button',
         },
         downloads: {
-            table: 'image',
-            field: 'downloads',
+            paths: {
+                table: 'image',
+                field: 'downloads',
+            },
             listen: '.download',
         }
     }
@@ -22,38 +26,32 @@ class PatchHelper {
     option = {}
 
     set_pk() {
-        this.pk = this.el.dataset.pk
+        this.option.paths['pk'] = this.el.dataset.pk
+    }
+    set_data(data) {
+        if (data)
+            this.data = this.el.dataset.data
     }
     prepare() {
         this.request = {
-            paths: {
-                table: this.option.table,
-                field: this.option.field,
-                pk: this.pk
-            },
+            paths: this.option.paths
         }
-        if (this.el.dataset.data)
-            this.data = this.el.dataset.data
+
+        this.set_data(this.el.dataset.data)
     }
     listen(el) {
         let is_patch = false
 
         for (let key in this.options)
             if ((this.el = el.closest(this.options[key].listen))) {
-                //console.log(this.el)
-                if (this.el.dataset.pk) {
+                this.option = this.options[key]
+                this.prepare()
+                if (this.el.dataset.pk)
                     this.set_pk()
-                    this.option = this.options[key]
-                    this.prepare()
-                    //console.log(this.option)
-                    //console.log(this.path)
-                    //console.log(this.data)
 
-                    this.listening_elements[key] = this.el
-                    is_patch = true
-                }
+                is_patch = true
             }
 
-        return this.listening_elements
+        return is_patch
     }
 }
