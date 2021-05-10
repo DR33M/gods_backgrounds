@@ -118,7 +118,7 @@ class GetHelper {
         }
     }
     delete(query, key) {
-        query[key] = false
+        query[key] = null
         delete query[key]
     }
     cleaning(query = null, unwanted=null) {
@@ -131,18 +131,15 @@ class GetHelper {
         if (Object.keys(query).length)
             for (let key in query) {
                 //console.log(key)
-                if (typeof query[key] === 'object' && !Array.isArray(query[key]) && Object.keys(query[key]).length)
-                    if (unwanted)
-                        this.cleaning(query[key], unwanted[key])
-                else {
-                    //console.log(query, unwanted[key])
-                    //console.log(Object.keys(query[key]).length)
-                    if (unwanted[key])
-                        this.delete(query, key)
-                }
+                if (typeof query[key] === 'object') {
+                    this.cleaning(query[key], unwanted[key]) //recursion
 
-                if (query.hasOwnProperty(key) && !Object.keys(query[key]).length)
+                    if (!Object.keys(query[key]).length) {
+                        this.delete(query, key)
+                    }
+                } else if (unwanted && unwanted[key]) { //if unwanted[operation][option] == true
                     this.delete(query, key)
+                }
             }
     }
     set_field() {
@@ -179,7 +176,7 @@ class GetHelper {
                 }
     }
     redirect() {
-        if (this.el.dataset.hasOwnProperty(this.option.listen))
+        if (this.el && this.el.dataset.hasOwnProperty(this.option.listen))
             this.el = document.getElementsByClassName(this.el.dataset[this.option.listen])[0]
     }
     prepare() {

@@ -42,21 +42,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.body.addEventListener('click', function (e) {
-        if (image_get.listen(e.target, initial_query) && Object.keys(image_get.listening_elements).length) {
+        if (image_get.listen(e.target, initial_query) && Object.keys(image_get.listening_elements).length)
+        {
+            pagination.first()
+            image_get.request.queries['page'] = pagination.page
             params = global_api.get(image_get.request)
             params.onchange = img_get_onchange
-        } else if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length) {
+        }
+        else if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length)
+        {
             params = global_api.patch(image_patch.request, image_patch.data)
             params.onchange = img_patch_onchange
-        } else if ((pagination.listen(e.target))) {
-            image_get.el = e.target
-            image_get.initialize(initial_query)
-            image_get.make_unwanted_queries()
-            image_get.prepare()
+        }
+        else if ((pagination.listen(e.target)))
+        {
+            if (!image_get.el) {
+                image_get.initialize(initial_query)
+                image_get.prepare()
+            }
             image_get.request.queries['page'] = pagination.page
             params = global_api.get(image_get.request)
             params.onchange = img_pagination_onchange
-        } else params = null
+        }
+        else params = null
+
 
         if (params) {
             request = new HttpRequestsHelper()
