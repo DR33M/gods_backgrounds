@@ -19,6 +19,6 @@ urlpatterns = [
 
     path('api/', include('main.api.urls', namespace='api')),
 
-    path('', views.home, name="home"),
     path('image/', views.home, name="home"),
+    path('', views.home, name="home"),
 ]

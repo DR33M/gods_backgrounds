@@ -48,6 +48,7 @@ function get_search_params() {
         try {
             params[tmp[0]] = JSON.parse(decodeURIComponent(tmp[1]))
         } catch (e) {
+            params[tmp[0]] = (decodeURIComponent(tmp[1]))
             console.log(e + ', you are dumb')
         }
     }

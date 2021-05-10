@@ -38,7 +38,7 @@
         <h1 class="mt15px">Posts tagged with "{{ tag.name }}"</h1>
     {% endif %}
     {% if color %}
-        <h1 class="mt15px">Posts tagged with color "{{ color.similar_color }}"</h1>
+        <h1 class="mt25px" style="color: {{ color.hex }}">{{ color.similar_color }}</h1>
     {% endif %}
     <section class="images-section flex jc ac mt50px">
         {% include 'messages.html' with messages=messages %}

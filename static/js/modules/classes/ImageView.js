@@ -75,7 +75,6 @@ class SortingHTML {
 
     }
     change_order(elem) {
-        console.log(elem)
         if (!elem.classList.contains(this.class_names.sort_active)) {
             this.remove_sort_active_all()
             elem.classList.add(this.class_names.sort_active)

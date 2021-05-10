@@ -46,8 +46,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         else if ((pagination.listen(e.target)))
         {
-            if (!image_get.request.paths['table'])
-                image_get.request.paths['table'] = image_get.default_table
+            if (!image_get.el) {
+                image_get.initialize(initial_query)
+                image_get.prepare()
+            }
 
             image_get.request.queries['page'] = pagination.page
             params = global_api.get(image_get.request)

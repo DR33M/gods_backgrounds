@@ -46,15 +46,16 @@ class TagsAutocomplete(autocomplete.Select2QuerySetView):
 
 
 def home(request):
-    # images_list = Image.objects.select_related('author').all().prefetch_related(
-    #     Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
-    # )
-    # return HttpResponse(images_list[0].title)
     query = request.GET.get('q')
+    color = False
 
     if query:
         try:
-            query_dict = json.load(StringIO(urlparse(query).path))
+            parse_data = urlparse(query)
+            query_dict = json.load(StringIO(parse_data.path))
+
+            if 'where' in query_dict and 'colors__similar_color' in query_dict['where']:
+                color = Color.objects.filter(similar_color=query_dict['where']['colors__similar_color']).first()
         except json.decoder.JSONDecodeError:
             return HttpResponseRedirect('/')
     else:
@@ -66,10 +67,11 @@ def home(request):
         images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
             Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
         ).distinct()
+
         if query.order_list:
             images_list = images_list.order_by(*query.order_list)
     except (validators.ValidationError, exceptions.FieldError):
-        return HttpResponseRedirect('/')
+         return HttpResponseRedirect('/')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     images_list = paginator.get_page(request.GET.get('page'))
@@ -82,7 +84,7 @@ def home(request):
         'number_of_columns': settings.IMAGE_COLUMNS,
         'total_pages': paginator.num_pages,
         'page': request.GET.get('page'),
-        #'color': color,
+        'color': color,
         'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'messages': messages.get_messages(request),
     })
