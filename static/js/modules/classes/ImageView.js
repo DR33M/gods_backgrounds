@@ -137,8 +137,12 @@ class ImageUpdateHTML {
         if (disable)
             elem.classList.add(this.class_names.downloaded)
     }
+    tag_error(elem, data) {
+        if (data)
+            elem.innerHTML = JSON.parse(data).tags
+    }
 }
-class ImageHTML {
+class ImagesHTML {
     class_names = {
         disabled: 'dn'
     }
@@ -390,6 +394,163 @@ class ImageHTML {
         //console.log(images_data)
     }
 }
+
+class ImageDetailHTML {
+    image = {
+        picture: {
+            class: '.image-detail__img',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                src: false,
+            },
+        },
+        author: {
+            class: '.image-detail .account-info',
+            el: {},
+            default: {
+                author: ''
+            },
+        },
+        author_name: {
+            class: '.image-detail .account-info .full-name',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                href: false,
+            },
+        },
+        author_avatar: {
+            class: '.image-detail .account-info .avatar',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                href: false,
+            },
+        },
+        created_at: {
+            class: '.created-time',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                href: false,
+            },
+        },
+        colors: {
+            class: '.colors',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                href: false,
+            },
+        },
+        color: {
+            class: '.colors .color',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                href: false,
+            },
+        },
+        tags: {
+            class: '#id_tags',
+            el: {},
+            default: {
+                id: '',
+                counter: '',
+                href: false,
+            },
+        },
+        tags_error: {
+            class: '.tags .error',
+            el: {},
+        },
+    }
+    constructor() {
+        this.fill_image_object()
+        console.log(this.image)
+    }
+    fill_image_object() {
+        for (let key in this.image)
+            if (this.image[key]['many'])
+                this.image[key].el = document.querySelectorAll(this.image[key].class)
+            else
+                this.image[key].el = document.querySelector(this.image[key].class)
+    }
+    set_image_picture(image_data) {
+        if (image_data['image'])
+            this.image.picture.el.setAttribute('src', image_data.image)
+        else this.image.picture.el.setAttribute('src', this.image.picture.default.src)
+    }
+    set_image_author(image_data) {
+        this.image.author.el.setAttribute('href', this.image.author.default['author'])
+        this.image.author_name.el.innerText = this.image.author_name.default['name']
+        this.image.author_avatar.el.setAttribute('src', this.image.author_avatar.default['avatar'])
+
+        if (image_data['author'] ) {
+            if (image_data['author']['username']) {
+                this.image.author.el.setAttribute('href', '/cabinet/' + image_data['author']['username'])
+            }
+            if (image_data['author']['first_name'] && image_data['author']['last_name']) {
+                this.image.author_name.el.innerText = image_data['author']['first_name'] + ' ' + image_data['author']['last_name']
+            }
+            if (image_data['author']['profile'] && image_data['author']['profile']['photo']) {
+                this.image.author_avatar.el.setAttribute('src', image_data['author']['profile']['photo'])
+            }
+        }
+    }
+    set_image_created_time(image_data) {
+        if (image_data['created_at'])
+            this.image.created_at.el.innerHTML = new Date(image_data.created_at).toLocaleString('en-US')
+        else this.image.created_at.el.innerHTML = new Date().toLocaleString('en-US')
+    }
+    set_image_colors(image_data) {
+        if (image_data['colors']) {
+            let color = this.image.color.el
+            let color_url = color.getAttribute('href').split('=')[0]
+            this.image.colors.el.innerHTML = ''
+
+
+            for(let i = 0; i < image_data.colors.length; i++) {
+               color.setAttribute('href',color_url + '=' + image_data.colors[i].hex)
+               color.style.background = image_data.colors[i].hex
+               this.image.colors.el.append(color.cloneNode(true))
+            }
+        }
+        else this.image.colors.el.innerHTML = ''
+    }
+    update_image_tags(image_data) {
+        this.image.tags.el.innerHTML = ''
+        for (let i = 0; i < image_data.tags.length; i++) {
+            let option = document.createElement('option')
+            option.setAttribute('value', image_data.tags[i])
+            option.setAttribute('data-select2-tag', true)
+            option.innerHTML = image_data.tags[i]
+            option.selected = true
+            this.image.tags.el.append(option)
+        }
+    }
+    parse_image_tags() {
+        let tags = []
+        for (let i = 0; i < this.image.tags.el.options.length; i++)
+            tags.push(this.image.tags.el.options[i].value)
+        return JSON.stringify({'tags': tags});
+    }
+    render(image_data) {
+        //image_data = image_data.images[0]
+        this.set_image_picture(image_data)
+        this.set_image_author(image_data)
+        this.set_image_created_time(image_data)
+        this.set_image_colors(image_data)
+        this.update_image_tags(image_data)
+    }
+}
 class ImageView {
     request = {}
     response_text = {}
@@ -399,7 +560,7 @@ class ImageView {
     constructor(user_actions, number_of_columns, image_get, image_patch) {
         this.user_actions = user_actions
         this.update = new ImageUpdateHTML()
-        this.html = new ImageHTML(number_of_columns)
+        this.html = new ImagesHTML(number_of_columns)
         this.search = new SearchHTML()
         this.sorting = new SortingHTML()
         this.filter = new FilterHTML()

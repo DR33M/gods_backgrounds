@@ -41,11 +41,10 @@ class ReportAdmin(admin.ModelAdmin):
     ordering = ('title', 'image_id', 'user')
 
 
-admin.site.register(Color)
-
-
 @admin.register(ImageUserActions)
 class ImageUserActionsAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'image_id', 'vote', 'downloaded',)
     list_filter = ('user_id', 'image_id', 'vote', 'downloaded',)
     ordering = ('user_id', 'image_id', 'vote', 'downloaded',)
+
+admin.site.register(Color)

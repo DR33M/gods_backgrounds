@@ -3,6 +3,7 @@ class GlobalApi {
     methods = {
         get: 'GET',
         patch: 'PATCH',
+        delete: 'DELETE',
     }
     current_method = ''
 
@@ -23,7 +24,8 @@ class GlobalApi {
                 path.push('/')
                 path.push(request.paths[key])
             }
-            if (this.current_method === this.methods.get) {
+            console.log(request)
+            if (this.current_method === this.methods.get && request.queries) {
                 path.push('/?')
                 let keys = Object.keys(request.queries)
                 for (let i = 0; i < keys.length; i++) {
@@ -31,9 +33,8 @@ class GlobalApi {
                     path.push('=')
                     path.push(encodeURI(JSON.stringify(request.queries[keys[i]])))
                 }
-            } else if (this.current_method === this.methods.patch) {
-                path.push('/')
             }
+            path.push('/')
         }
 
         this.last_path = path.join('')
@@ -70,6 +71,16 @@ class GlobalApi {
         this.params.data = this.get_data(data)
 
         //console.log(this.params)
+        return this.last_params = this.params
+    }
+    delete(path) {
+        this.params = {}
+
+        this.params.method = this.current_method = this.methods.delete
+        this.params.async = this.get_async()
+        this.params.path = this.get_path(path)
+
+        console.log(this.params)
         return this.last_params = this.params
     }
 }

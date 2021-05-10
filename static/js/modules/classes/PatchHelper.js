@@ -20,7 +20,7 @@ class PatchHelper {
             listen: '.download',
         }
     }
-    
+
     pk = ''
     el = {}
     option = {}

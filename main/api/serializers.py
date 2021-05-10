@@ -1,8 +1,10 @@
+from django.conf import settings
 from rest_framework import serializers
 
 from django.contrib.auth.models import User
-from taggit_serializer.serializers import TagListSerializerField
+from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 from accounts.models import Profile
+from taggit.models import Tag
 from ..models import Color, Image, ImageUserActions
 
 
@@ -41,6 +43,19 @@ class ImagesSerializer(serializers.ModelSerializer):
         )
 
 
+class EditTagsSerializer(TaggitSerializer, serializers.ModelSerializer):
+    tags = TagListSerializerField()
+
+    class Meta:
+        model = Image
+        fields = ('tags',)
+
+    def validate(self, data):
+        if len(data['tags']) < settings.IMAGE_MINIMUM_TAGS:
+            raise serializers.ValidationError({"tags": 'There must be at least %d tags' % settings.IMAGE_MINIMUM_TAGS})
+        return data
+
+
 class ImageUserActionsSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.id')
     image = serializers.ReadOnlyField(source='image.id')
@@ -48,3 +63,9 @@ class ImageUserActionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageUserActions
         fields = ('user', 'image', 'downloaded', 'vote')
+
+
+class TagsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'name')

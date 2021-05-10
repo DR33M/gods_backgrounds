@@ -64,6 +64,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 12
 }
 
 MIDDLEWARE = [
@@ -75,7 +77,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'main.middleware.ModeratorOnWorkMiddleware',
+    #'main.middleware.ModeratorOnWorkMiddleware',
 ]
 
 ROOT_URLCONF = 'goodfon.urls'
@@ -239,4 +241,8 @@ INTERNAL_IPS = [
 ]
 
 REPORT_EMAIL = 'utorrentfilibusters@gmail.com'
+
 GOOGLE_RECAPTCHA_SECRET_KEY = '6Lecnb0aAAAAAAo5nFN9FA2-lMuZcebcUE3p0jY2'
+
+PASSWORD_RESET_TIMEOUT = 3600
+

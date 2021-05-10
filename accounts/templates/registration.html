@@ -7,7 +7,8 @@
 {% endblock title %}
 
 {% block content %}
-    <section class="auth-section flex jc ac">
+    {% include 'header.html' %}
+    <section class="auth-section flex jc ac mt50px">
         {% if messages %}
             {% include "messages.html" with messages=messages %}
         {% else %}

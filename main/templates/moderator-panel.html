@@ -7,74 +7,111 @@
 {% endblock title %}
 
 {% block content %}
-    {% include 'header.html' %}
-    {% include "messages.html" with messages=messages %}
-    <section class="image-detail mt50px">
-        <div class="flex jc">
-            <div class="image-detail__info panel mb20px">
-                <a class="account-info flex jc ac p06rem" href="{% url 'main:cabinet' image.author.username %}">
-                    <img class="avatar" src="{{ image.author.profile.photo.url }}" alt="Account image"/>
-                    <p class="full-name ml05rem">{{ image.author.first_name }} {{ image.author.last_name }}</p>
-                </a>
-                <span class="created-time p06rem">{{ image.created_at }}</span>
-                {% if not image.author.is_staff %}
-                    <form action="{% url 'accounts:delete_user' username=image.author.username %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" name="user-ban" class="button button--red small mr5px"
-                                onclick="return confirm('Are you sure you want to ban this user?');">
-                            Ban user
-                        </button>
-                    </form>
-                {% endif %}
+    <div class="message modal-window big dn" data-window=".message">
+        <h1 class="cw">Not found</h1>
+    </div>
+    <div class="delete-image__wrapper dn modal-window" data-window=".delete-image__wrapper">
+        <div class="wrapper">
+            <h1 class="cg">Are you sure you want to delete this image?</h1>
+            <div class="flex jc">
+                <button class="button middle button--blue mr10px delete-button">Yes</button>
+                <button class="button middle button--gray modal-window " data-window=".delete-image__wrapper" type="button">No</button>
             </div>
-            <div class="image-detail__image mb20px">
-                <img src="{{ image }}">
+        </div>
+    </div>
+    <div class="approve-image__wrapper dn modal-window" data-window=".approve-image__wrapper">
+        <div class="wrapper">
+            <h1 class="cg">Are you sure you want to approve this image?</h1>
+            <div class="flex jc">
+                <button class="button middle button--blue mr10px approve-button">Yes</button>
+                <button class="button middle button--gray modal-window" data-window=".approve-image__wrapper" type="button">No</button>
             </div>
-            <div class="image-detail__edit">
-                <div class="edit-tags mt10px">
-                    <form id="edit-tags" method="post" class="edit-tags__form">
-                        {% csrf_token %}
-                        <div class="tags">
-                            {{ form.errors.tags }}
-                            <div class="bottom-content mt5px">
-                                {{ form.tags }}
-                            </div>
-                        </div>
-                    </form>
-                    <form id="delete-image" action="{% url 'main:delete_image' slug=image.slug %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                    </form>
-                    <form id="end-work" action="{% url 'main:moderator-panel' %}" method="post">
-                        {% csrf_token %}
-                    </form>
-                    <div class="edit-tags__buttons mt15px">
-                        <button type="submit" name="edit" class="button button--blue small mr10px" form="edit-tags"
-                                onclick="return confirm('Are you sure you want to approve this image?');">
-                            Approve
-                        </button>
-                        <button type="submit" name="delete" class="button button--red small mr10px"
-                                onclick="return confirm('Are you sure you want to delete this item?');"
-                                form="delete-image">Delete image
-                        </button>
-                        <button type="submit" name="end-work" class="button button--green small" form="end-work">End
-                            work
-                        </button>
-                    </div>
-                </div>
-                <div class="colors-panel flex js ac mt15px">
-                    <span class="colors-span">Colors:</span>
-                    {% for color in colors %}
-                        <a class="color ml5px" href="{% url 'main:home' %}?color={{ color|urlencode }}"
-                           style="background: {{ color }}"></a>
-                    {% endfor %}
+        </div>
+    </div>
+    <div class="flex jc">
+        <div class="edit-image__collision-wrapper mr15px">
+            <div class="edit-image__panel">
+                <div class="edit-tags__buttons">
+                    <button type="button" class="edit-tags__option p10px modal-window mr10px" data-window=".approve-image__wrapper">Approve</button>
+                    <button type="button" class="edit-tags__option p10px modal-window mr10px" data-window=".delete-image__wrapper">Delete image</button>
+                    <button type="submit" name="end-work" class="edit-tags__option p10px" form="end-work">End work</button>
                 </div>
             </div>
         </div>
-    </section>
+        <div class="flex fc w100per">
+            {% include 'header.html' %}
+            {% include "messages.html" with messages=messages %}
+            <section class="image-detail mt50px">
+                <div class="flex jc">
+                    <div class="image-detail__info panel mb20px">
+                        <a class="account-info flex jc ac p06rem" href="#">
+                            <img class="avatar" src="" alt="Account image"/>
+                            <p class="full-name ml05rem"></p>
+                        </a>
+                        <span class="created-time p06rem"></span>
+                        {% if not image.author.is_staff %}
+                            <form action="#"
+                                  method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" name="user-ban" class="button button--red small mr5px"
+                                        onclick="return confirm('Are you sure you want to ban this user?');">
+                                    Ban user
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="image-detail__image mb20px">
+                        <img class="image-detail__img" src="#">
+                    </div>
+                    <div class="image-detail__edit">
+                        <div class="edit-tags mt10px">
+                            <form id="edit-tags" method="post" class="edit-tags__form">
+                                {% csrf_token %}
+                                <div class="tags">
+                                    <span class="error"></span>
+                                    <div class="bottom-content mt5px">
+                                        {{ form.tags }}
+                                    </div>
+                                </div>
+                            </form>
+                            <form id="end-work" method="post">
+                                {% csrf_token %}
+                            </form>
+                        </div>
+                        <div class="colors-panel flex js ac mt15px">
+                            <span class="colors-span">Colors:</span>
+                            <div class="colors flex js ac">
+                                <a class="color ml5px" href="{% url 'main:home' %}?color="
+                                   style="background: #000"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
     {% include 'footer.html' %}
 {% endblock content %}
+
+{% block css %}
+    {{ form.media.css }}
+{% endblock %}
+
 {% block js %}
-    {{ form.media }}
+    <script>
+        {% if image %}
+            let image_data = JSON.parse('{{ image|safe }}');
+            let cabinet_link = "{% url 'main:cabinet' username=request.user.username %}";
+        {% endif %}
+    </script>
+    {{ form.media.js }}
+    <script src="{% static 'js/modules/classes/GetHelper.js' %}"></script>
+    <script src="{% static 'js/modules/classes/PatchHelper.js' %}"></script>
+    <script src="{% static 'js/modules/classes/DeleteHelper.js' %}"></script>
+    <script src="{% static 'js/modules/classes/ImageView.js' %}"></script>
+    <script src="{% static 'js/modules/classes/ModeratorApi.js' %}"></script>
+    <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
+    <script src="{% static 'js/modules/functions/mp.js' %}"></script>
+    <script src="{% static 'js/pages/main/moderator-panel.js' %}"></script>
 {% endblock %}

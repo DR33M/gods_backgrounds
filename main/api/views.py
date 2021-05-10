@@ -8,13 +8,17 @@ from django.core import exceptions
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
 
-from rest_framework import status
+from rest_framework import status, generics
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from .serializers import ImagesSerializer
+from taggit.models import Tag
+
+from .serializers import ImagesSerializer, EditTagsSerializer, TagsSerializer
 
 from ..models import ImageUserActions, Image
 
@@ -132,3 +136,48 @@ def downloads(request, image_pk=''):
 
             return Response(data={'count': image.downloads}, status=status.HTTP_202_ACCEPTED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes([IsAdminUser])
+@throttle_classes([UserRateThrottle])
+def mp_image(request):
+    try:
+        image = Image.objects.get(moderator_id=request.user.id, status=Image.Status.MODERATION)
+    except Image.DoesNotExist:
+        image = Image.objects.select_related('author').filter(moderator_id=None, status=Image.Status.MODERATION).first()
+
+        if not image:
+            return Response({'message': 'The image does not exist'}, status.HTTP_404_NOT_FOUND)
+
+        image.moderator_id = request.user.id
+        image.save()
+
+    if request.method == 'GET':
+        return Response(data=ImagesSerializer(image).data, status=status.HTTP_202_ACCEPTED)
+
+    elif request.method == 'PATCH':
+        tags_data = JSONParser().parse(request)
+        tags_serializer = EditTagsSerializer(image, data=tags_data)
+        if tags_serializer.is_valid():
+            tags_serializer.save(status=Image.Status.APPROVED)
+            return Response(tags_serializer.data, status=status.HTTP_204_NO_CONTENT)
+        return Response(tags_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        image.delete()
+        return Response({'message': 'Image was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+    return Response(status.HTTP_400_BAD_REQUEST)
+
+
+class Tags(generics.ListAPIView):
+    serializer_class = TagsSerializer
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        queryset = Tag.objects.all()
+        name = self.request.query_params.get('name')
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset

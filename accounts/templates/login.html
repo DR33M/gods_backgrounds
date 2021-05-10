@@ -7,7 +7,8 @@
 {% endblock title %}
 
 {% block content %}
-    <section class="auth-section flex jc ac mt25px">
+    {% include 'header.html' %}
+    <section class="auth-section flex jc ac mt50px">
         <h1 class="mt25px">Welcome Back To Godsfon</h1>
         {% if messages %}
             {% include 'messages.html' with messages=messages %}

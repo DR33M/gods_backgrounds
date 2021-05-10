@@ -1,10 +1,11 @@
 from django import forms
 from django.conf import settings
-from dal import autocomplete
 
 from .models import Image, Report
 from .service import ImageService
 import logging
+
+from .widgets import Select2MultipleWidget
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,18 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'class': 'report-description'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.image = kwargs.pop('image', None)
+        super(ReportForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        if self.user and self.image and Report.objects.filter(user=self.user, image=self.image).exists():
+            raise forms.ValidationError('You have been already reported.')
+        return self.cleaned_data
 
 
 class FormCleanTags(forms.ModelForm):
@@ -31,8 +44,8 @@ class EditTagsForm(FormCleanTags):
         model = Image
         fields = ('tags',)
         widgets = {
-            'tags': autocomplete.TaggitSelect2(url='main:tags-autocomplete', attrs={
-                'required': True, 'data-placeholder': 'A comma-separated list of tags.', 'class': 'settings-input p10px'
+            'tags': Select2MultipleWidget(attrs={
+                'required': True, 'data-placeholder': 'A comma-separated list of tags.'
             })
         }
 
@@ -53,8 +66,8 @@ class ImageUploadForm(FormCleanTags):
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Photo title'}),
             'image': forms.FileInput(attrs={'id': 'input-image'}),
-            'tags': autocomplete.TaggitSelect2(url='main:tags-autocomplete', attrs={
-                'required': True, 'data-placeholder': 'A comma-separated list of tags.', 'class': 'settings-input'
+            'tags': Select2MultipleWidget(attrs={
+               'required': True, 'data-placeholder': 'A comma-separated list of tags.'
             })
         }
 
