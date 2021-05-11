@@ -21,7 +21,6 @@ class DictORM:
                 value = self.query_dict['where'][key]
                 if value:
                     self.kwargs[key + '__iregex'] = r'' + value
-                logger.error(self.kwargs)
 
     def _in(self):
         for key in self.query_dict['in']:

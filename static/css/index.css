@@ -712,8 +712,25 @@ input[type="file"] {    display: none;
 }
 .user-agreements > .flex {
     flex-direction: column;
-    width: 80%;
+    width: 40rem;
 }
+.user-agreements__disclaimer {
+    max-width: 25rem;
+    text-align: center;
+}
+.user-agreements-list > li  {
+    display: flex;
+}
+.user-agreements-list > li > span {
+    max-width: 30rem;
+}
+.svg-icon.check {
+    display: block;
+    fill: forestgreen;
+    width: 30px;
+    height: 30px;
+}
+
 
 .main-footer {
     display: flex;
@@ -799,6 +816,16 @@ input[type="file"] {    display: none;
 .cw { color: white; }
 .cg { color: RGBA(0,0,0,.4); }
 .cb { color: RGB(51,51,51); }
+
+.ta-c {
+    text-align: center;
+}
+.text-light {
+    font-weight: 300;
+}
+.text-small {
+    font-size: .9rem;
+}
 
 .blurred {
     filter: blur(1px);

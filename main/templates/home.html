@@ -9,9 +9,7 @@
 
 {% block content %}
     {% include "image-templates.html" with number_of_columns=number_of_columns images_list=images_list %}
-    <div class="not-found modal-window big dn" data-window=".not-found">
-        <h1 class="cw">Not found</h1>
-    </div>
+    {% include "not-found.html" %}
     {% include 'header.html' %}
     <section class="image-search-section mt50px">
         <div class="flex jc ac search-input-container">

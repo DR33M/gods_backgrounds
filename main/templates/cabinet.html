@@ -8,6 +8,7 @@
 
 {% block content %}
     {% include "image-templates.html" with number_of_columns=number_of_columns images_list=images_list %}
+    {% include "not-found.html" %}
     {% include 'header.html' %}
     <section class="image-search-section mt50px">
         <div class="flex jc ac search-input-container">
