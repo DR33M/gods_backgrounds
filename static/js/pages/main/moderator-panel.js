@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let img_get_onchange = function () {
         if (request.xhr.readyState === 4) {
-            if (request.xhr.status === request.HTTP_400_BAD_REQUEST || request.xhr.status === request.HTTP_202_ACCEPTED)
+            if (request.xhr.responseText)
                 messages.add_message(JSON.parse(request.xhr.responseText))
             params = global_api.get(get_request)
             params.onchange = render
@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function send_request(params) {
+        console.log(params)
         if (params) {
             request = new HttpRequestsHelper()
             request.send(params, params.onchange)
@@ -42,6 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (delete_helper.listen(e.target)) {
             params = global_api.delete(delete_helper.request)
             params.onchange = img_get_onchange
+            if (delete_helper.option.api_path) {
+                params.path = delete_helper.option.api_path + delete_helper.option.paths.pk
+            }
         } else if (image_patch.listen(e.target)) {
             params = global_api.patch(image_patch.request, image_detail_view.parse_image_tags())
             params.onchange = img_get_onchange

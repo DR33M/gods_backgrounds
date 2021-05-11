@@ -9,6 +9,11 @@ class DeleteHelper {
             },
             listen: '.delete-button',
         },
+        ban_user: {
+            paths: {},
+            api_path: '/accounts/api/user/',
+            listen: '.ban-button',
+        },
     }
 
     pk = ''
