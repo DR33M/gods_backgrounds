@@ -4,7 +4,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class DictORM:
+    max_words = 5
     kwargs_max_size = 3
     order_max_size = 3
 
@@ -15,10 +17,11 @@ class DictORM:
 
     def _where(self):
         for key in self.query_dict['where']:
-            if not hasattr(self.kwargs, key + 'where') or len(self.kwargs[key + 'where']) < self.kwargs_max_size:
-                field = self.query_dict['where'][key]
-                if field:
-                    self.kwargs[key + '__contains'] = field
+            if not key + '__where' in self.kwargs or len(self.kwargs[key + '__where']) < self.kwargs_max_size:
+                value = self.query_dict['where'][key]
+                if value:
+                    self.kwargs[key + '__iregex'] = r'' + value
+                logger.error(self.kwargs)
 
     def _in(self):
         for key in self.query_dict['in']:

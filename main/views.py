@@ -50,8 +50,7 @@ def home(request):
 
     if query:
         try:
-            parse_data = urlparse(query)
-            query_dict = json.load(StringIO(parse_data.path))
+            query_dict = json.load(StringIO(urlparse(query).geturl()))
 
             if 'where' in query_dict and 'colors__similar_color' in query_dict['where']:
                 color = Color.objects.filter(similar_color=query_dict['where']['colors__similar_color']).first()
@@ -61,6 +60,7 @@ def home(request):
         query_dict = {'in': {'status': [Image.Status.APPROVED]}}
 
     query = DictORM().make(query_dict)
+    logger.error(query.kwargs)
 
     try:
         images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(

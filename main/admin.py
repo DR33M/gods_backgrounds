@@ -11,7 +11,7 @@ class ImageUserActionsInline(admin.TabularInline):
 class ImageAdmin(admin.ModelAdmin):
     form = ImageUploadForm
     fields = (
-        'title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'rating',
+        'title', 'image', 'preview_image', 'image_hash', 'colors', 'tags', 'slug', 'rating',
         'width', 'height', 'ratio', 'size', 'extension', 'downloads', 'author', 'moderator',
         'status'
     )

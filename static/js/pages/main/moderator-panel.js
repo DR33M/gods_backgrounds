@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (delete_helper.listen(e.target) && Object.keys(image_patch.listening_elements).length) {
             params = global_api.delete(delete_helper.request)
             params.onchange = img_get_onchange
-        } else if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length) {
+        } else if (image_patch.listen(e.target)) {
             params = global_api.patch(image_patch.request, image_detail_view.parse_image_tags())
             params.onchange = img_get_onchange
         } else params = null

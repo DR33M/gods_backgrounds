@@ -15,6 +15,8 @@ class Votes {
     }
 }
 class SearchHTML {
+    max_tags = 8
+
     get_tag_list(string) {
         if (typeof string === 'string')
             return  string.split(',')
@@ -26,7 +28,9 @@ class SearchHTML {
 
         tag = tag.toLowerCase()
         tag = tag.replace(/([a-zA-Z0-9])\s([a-zA-Z0-9])/g, "$1-$2") //tag name => tag-name
-        tag = tag.replace(/\s/g, '') //  t a  gname => tagname
+        tag = tag.replace(/\s/g, '')
+
+        //'^(?=.*-katerina-soria-)(?=.*-stockings-).*$'
 
         return tag
     }
@@ -37,8 +41,8 @@ class SearchHTML {
     }
     sort_by_alphabet(clean_tags_list) {
         clean_tags_list.sort(function(a, b){
-            if(a < b) return -1
-            if(a > b) return 1
+            if(a[0] < b[0]) return -1
+            if(a[0] > b[0]) return 1
             return 0
         })
 
@@ -47,15 +51,28 @@ class SearchHTML {
     get_slug(tags_string) {
         let tags_list = this.get_tag_list(tags_string)
         let clean_tags_list = []
+        let expressions_list = []
+        let expression
 
         for (let i = 0; i < tags_list.length; i++) {
             tags_list[i] = this.format_tag(tags_list[i])
-            if (this.validate_tag(tags_list[i]))
+            if (this.validate_tag(tags_list[i])) {
                 clean_tags_list.push(tags_list[i])
+            }
         }
 
         clean_tags_list = this.sort_by_alphabet(clean_tags_list)
-        return clean_tags_list.join('-')
+        expressions_list.push('^')
+        for (let i = 0; i < clean_tags_list.length && i < this.max_tags; i++) {
+            expression = ''
+            expression += '(?=.*\\b' + String(clean_tags_list[i]) + '\\b)'
+            expressions_list.push(expression)
+        }
+        expressions_list.push('.*$')
+
+        //console.log(expressions_list)
+        expressions_list = expressions_list.join('')
+        return expressions_list
     }
 }
 class SortingHTML {
@@ -602,14 +619,15 @@ class ImageView {
 
                 this.image_get.flush_listening_elements()
             } else if (request.xhr.status === request.HTTP_202_ACCEPTED) {
-                switch (this.image_patch.options[key]) {
+                console.log(this.image_patch.option)
+                switch (this.image_patch.option) {
                     case this.image_patch.options['rating']:
-                        this.update.rating(this.image_patch.el, this.response_text['vote'])
-                        this.update.counter(this.image_patch.el, this.response_text['count'])
+                        this.update.rating(this.image_patch.option.el, this.response_text['vote'])
+                        this.update.counter(this.image_patch.option.el, this.response_text['count'])
                         break
                     case this.image_patch.options['downloads']:
-                        this.update.downloads(this.image_patch.el)
-                        this.update.counter(this.image_patch.el, this.response_text['count'])
+                        this.update.downloads(this.image_patch.option.el)
+                        this.update.counter(this.image_patch.option.el, this.response_text['count'])
                         break
                 }
             }

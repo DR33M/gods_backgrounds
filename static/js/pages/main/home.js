@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
             params = global_api.get(image_get.request)
             params.onchange = img_get_onchange
         }
-        else if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length)
+        else if (image_patch.listen(e.target))
         {
             params = global_api.patch(image_patch.request, image_patch.data)
             params.onchange = img_patch_onchange
@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!image_get.el) {
                 image_get.initialize(initial_query)
                 image_get.prepare()
+                console.log(image_get.request)
             }
 
             image_get.request.queries['page'] = pagination.page

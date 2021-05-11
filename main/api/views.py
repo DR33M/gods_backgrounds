@@ -37,7 +37,7 @@ def images(request):
 
     if query:
         try:
-            query_dict = json.load(StringIO(urlparse(query).path))
+            query_dict = json.load(StringIO(urlparse(query).geturl()))
         except json.decoder.JSONDecodeError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
