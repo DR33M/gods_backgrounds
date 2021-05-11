@@ -28,13 +28,3 @@
         }
     });
 })($);
-
-function update_tags(tags, element_id = '#id_tags') {
-    $(element_id).html('');
-    for (let i = 0; i < tags.length; i++) {
-        $(element_id).append(
-            '<option value="' + tags[i] + '" data-select2-tag="true">' + tags[i] + '</option>'
-        );
-    }
-    $(element_id).val(tags).trigger("change");
-}

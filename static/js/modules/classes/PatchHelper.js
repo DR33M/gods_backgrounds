@@ -5,6 +5,12 @@ class PatchHelper {
     listening_elements = {}
 
     options = {
+        approve_image: {
+            paths: {
+                moderator_panel: 'moderator-panel',
+            },
+            listen: '.approve-button',
+        },
         rating: {
             paths: {
                 table: 'image',
@@ -41,7 +47,6 @@ class PatchHelper {
     }
     listen(el) {
         let is_patch = false
-
         for (let key in this.options)
             if ((this.el = el.closest(this.options[key].listen))) {
                 this.option = this.options[key]

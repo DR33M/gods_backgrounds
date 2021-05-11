@@ -72,15 +72,6 @@
                             <span class="cb mr5px">Rating: </span>
                             <span id="rating_{{ image.pk }}" class="cg rating mr5px">{{ image.rating }}</span>
                         </div>
-                        {% if moderator and not image.author.is_staff %}
-                            <form action="{% url 'accounts:delete_user' username=image.author.username %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" name="user-ban" class="button button--red small mr5px"
-                                        onclick="return confirm('Are you sure you want to ban this user?');">
-                                    Ban user
-                                </button>
-                            </form>
-                        {% endif %}
                     </div>
                     <div class="image-detail__image mb20px">
                         <button class="top-image-options button rating-button" data-pk="{{ image.pk }}" data-counter="rating_{{ image.pk }}" data-data="1">

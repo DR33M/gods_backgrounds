@@ -34,7 +34,8 @@ class GlobalApi {
                     path.push(encodeURI(JSON.stringify(request.queries[keys[i]])))
                 }
             }
-            path.push('/')
+            if (this.current_method === this.methods.patch)
+                path.push('/')
         }
 
         this.last_path = path.join('')
@@ -70,7 +71,7 @@ class GlobalApi {
         this.params.path = this.get_path(path)
         this.params.data = this.get_data(data)
 
-        //console.log(this.params)
+        console.log(this.params)
         return this.last_params = this.params
     }
     delete(path) {

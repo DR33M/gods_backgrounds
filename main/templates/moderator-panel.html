@@ -7,21 +7,18 @@
 {% endblock title %}
 
 {% block content %}
-    <div class="message modal-window big dn" data-window=".message">
-        <h1 class="cw">Not found</h1>
-    </div>
-    <div class="delete-image__wrapper dn modal-window" data-window=".delete-image__wrapper">
+    <div class="delete-image__wrapper modal-window--black dn modal-window" data-window=".delete-image__wrapper">
         <div class="wrapper">
-            <h1 class="cg">Are you sure you want to delete this image?</h1>
+            <h2 class="cg">Are you sure you want to delete this image?</h2>
             <div class="flex jc">
                 <button class="button middle button--blue mr10px delete-button">Yes</button>
                 <button class="button middle button--gray modal-window " data-window=".delete-image__wrapper" type="button">No</button>
             </div>
         </div>
     </div>
-    <div class="approve-image__wrapper dn modal-window" data-window=".approve-image__wrapper">
+    <div class="approve-image__wrapper modal-window--black dn modal-window" data-window=".approve-image__wrapper">
         <div class="wrapper">
-            <h1 class="cg">Are you sure you want to approve this image?</h1>
+            <h2 class="cg">Are you sure you want to approve this image?</h2>
             <div class="flex jc">
                 <button class="button middle button--blue mr10px approve-button">Yes</button>
                 <button class="button middle button--gray modal-window" data-window=".approve-image__wrapper" type="button">No</button>
@@ -40,26 +37,15 @@
         </div>
         <div class="flex fc w100per">
             {% include 'header.html' %}
-            {% include "messages.html" with messages=messages %}
             <section class="image-detail mt50px">
                 <div class="flex jc">
+                    <div class="js-messages mb20px"></div>
                     <div class="image-detail__info panel mb20px">
                         <a class="account-info flex jc ac p06rem" href="#">
                             <img class="avatar" src="" alt="Account image"/>
                             <p class="full-name ml05rem"></p>
                         </a>
                         <span class="created-time p06rem"></span>
-                        {% if not image.author.is_staff %}
-                            <form action="#"
-                                  method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.path }}">
-                                <button type="submit" name="user-ban" class="button button--red small mr5px"
-                                        onclick="return confirm('Are you sure you want to ban this user?');">
-                                    Ban user
-                                </button>
-                            </form>
-                        {% endif %}
                     </div>
                     <div class="image-detail__image mb20px">
                         <img class="image-detail__img" src="#">
@@ -82,8 +68,7 @@
                         <div class="colors-panel flex js ac mt15px">
                             <span class="colors-span">Colors:</span>
                             <div class="colors flex js ac">
-                                <a class="color ml5px" href="{% url 'main:home' %}?color="
-                                   style="background: #000"></a>
+                                <a class="color ml5px" style="background: #000"></a>
                             </div>
                         </div>
                     </div>
@@ -110,8 +95,8 @@
     <script src="{% static 'js/modules/classes/PatchHelper.js' %}"></script>
     <script src="{% static 'js/modules/classes/DeleteHelper.js' %}"></script>
     <script src="{% static 'js/modules/classes/ImageView.js' %}"></script>
-    <script src="{% static 'js/modules/classes/ModeratorApi.js' %}"></script>
     <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
+    <script src="{% static 'js/modules/classes/Messages.js' %}"></script>
     <script src="{% static 'js/modules/functions/mp.js' %}"></script>
     <script src="{% static 'js/pages/main/moderator-panel.js' %}"></script>
 {% endblock %}

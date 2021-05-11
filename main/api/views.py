@@ -161,12 +161,12 @@ def mp_image(request):
         tags_serializer = EditTagsSerializer(image, data=tags_data)
         if tags_serializer.is_valid():
             tags_serializer.save(status=Image.Status.APPROVED)
-            return Response(tags_serializer.data, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Image has been approved', 'status': 'success'}, status=status.HTTP_202_ACCEPTED)
         return Response(tags_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
         image.delete()
-        return Response({'message': 'Image was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Image has been deleted successfully!', 'status': 'success'}, status=status.HTTP_202_ACCEPTED)
 
     return Response(status.HTTP_400_BAD_REQUEST)
 

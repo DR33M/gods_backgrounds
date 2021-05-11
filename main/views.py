@@ -17,10 +17,6 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
 
-
-from dal import autocomplete
-from taggit.models import Tag
-
 from utils.user import is_moderator
 
 from .models import Color, Image, ImageUserActions, Report
@@ -34,14 +30,6 @@ from .api.serializers import ImagesSerializer
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-class TagsAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        qs = Tag.objects.all()
-        if self.q:
-            qs = qs.filter(name__istartswith=self.q)
-        return qs
 
 
 def home(request):
