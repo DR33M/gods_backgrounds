@@ -185,7 +185,7 @@ class GetHelper {
         //console.log(this.unwanted_queries)
         this.cleaning()
 
-        console.log(this.query)
+        //console.log(this.query)
         this.request['paths'] = {
             table: (this.option.table? this.option.table : this.default_table)
         }

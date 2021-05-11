@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.body.addEventListener('click', function (e) {
-        if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length) {
+        if (image_patch.listen(e.target)) {
             params = global_api.patch(image_patch.request, image_patch.data)
             params.onchange = img_patch_onchange
         } else params = null

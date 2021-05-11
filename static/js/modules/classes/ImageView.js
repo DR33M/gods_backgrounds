@@ -619,7 +619,6 @@ class ImageView {
 
                 this.image_get.flush_listening_elements()
             } else if (request.xhr.status === request.HTTP_202_ACCEPTED) {
-                console.log(this.image_patch.option)
                 switch (this.image_patch.option) {
                     case this.image_patch.options['rating']:
                         this.update.rating(this.image_patch.option.el, this.response_text['vote'])
