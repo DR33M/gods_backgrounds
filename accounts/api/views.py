@@ -18,6 +18,8 @@ class Profile(APIView):
         user = self.get_object(pk)
         if user.is_staff:
             return Response({'message': 'You can\'t ban another admin.'}, status=status.HTTP_403_FORBIDDEN)
+        if not user.is_active:
+            return Response({'message': 'User has already been banned'}, status=status.HTTP_202_ACCEPTED)
         user.is_active = False
         user.save()
         [s.delete() for s in Session.objects.all() if str(s.get_decoded().get('_auth_user_id')) == str(user.id)]

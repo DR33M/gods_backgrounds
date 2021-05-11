@@ -11,15 +11,12 @@ class ModeratorOnWorkMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        skip_urls = [
-            reverse('main:moderator-panel'),
-            reverse('main:tags-autocomplete'),
-        ]
-        API_URL = request.path.startswith('/api/')
+        MAIN_API_URL = request.path.startswith('/api/')
+        ACCOUNTS_API_URL = request.path.startswith('/accounts/api/')
         MEDIA_URL = request.path.startswith(settings.MEDIA_URL)
         STATIC_URL = request.path.startswith(settings.STATIC_URL)
-        if request.user.is_authenticated and is_moderator(request.user) and not MEDIA_URL and not STATIC_URL and not API_URL:
-            if request.path not in skip_urls and Image.objects.filter(moderator_id=request.user.id,
-                                                                      status=Image.Status.MODERATION).exists():
-                return HttpResponseRedirect(reverse('main:moderator-panel'))
+        if request.user.is_authenticated and is_moderator(request.user):
+            if not reverse('main:moderator-panel') == request.path and not (MAIN_API_URL or ACCOUNTS_API_URL or MEDIA_URL or STATIC_URL):
+                if Image.objects.filter(moderator_id=request.user.id, status=Image.Status.MODERATION).exists():
+                    return HttpResponseRedirect(reverse('main:moderator-panel'))
         return response

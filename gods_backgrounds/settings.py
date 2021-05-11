@@ -75,7 +75,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
-    #'main.middleware.ModeratorOnWorkMiddleware',
+    'main.middleware.ModeratorOnWorkMiddleware',
 ]
 
 ROOT_URLCONF = 'gods_backgrounds.urls'
