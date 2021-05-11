@@ -2,12 +2,11 @@ class PatchHelper {
     request = {}
     data = ''
 
-    listening_elements = {}
-
     options = {
         approve_image: {
             paths: {
-                moderator_panel: 'moderator-panel',
+                table: 'image',
+                extra_action: 'mp_approve',
             },
             listen: '.approve-button',
             el: {},
@@ -15,7 +14,7 @@ class PatchHelper {
         rating: {
             paths: {
                 table: 'image',
-                field: 'rating',
+                extra_action: 'change_rating',
             },
             listen: '.rating-button',
             el: {},
@@ -23,7 +22,7 @@ class PatchHelper {
         downloads: {
             paths: {
                 table: 'image',
-                field: 'downloads',
+                extra_action: 'add_download',
             },
             listen: '.download',
             el: {},

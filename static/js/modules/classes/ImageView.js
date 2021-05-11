@@ -484,14 +484,18 @@ class ImageDetailHTML {
                 href: false,
             },
         },
-        tags_error: {
-            class: '.tags .error',
+        approve_button: {
+            class: '.approve-button',
+            el: {},
+        },
+        delete_button: {
+            class: '.delete-button',
             el: {},
         },
     }
     constructor() {
         this.fill_image_object()
-        console.log(this.image)
+        //console.log(this.image)
     }
     fill_image_object() {
         for (let key in this.image)
@@ -542,6 +546,12 @@ class ImageDetailHTML {
         }
         else this.image.colors.el.innerHTML = ''
     }
+    set_image_buttons(image_data) {
+        if (image_data['id']) {
+            this.image.approve_button.el.setAttribute('data-pk', image_data['id'])
+            this.image.delete_button.el.setAttribute('data-pk', image_data['id'])
+        }
+    }
     update_image_tags(image_data) {
         this.image.tags.el.innerHTML = ''
         for (let i = 0; i < image_data.tags.length; i++) {
@@ -560,11 +570,11 @@ class ImageDetailHTML {
         return JSON.stringify({'tags': tags});
     }
     render(image_data) {
-        //image_data = image_data.images[0]
         this.set_image_picture(image_data)
         this.set_image_author(image_data)
         this.set_image_created_time(image_data)
         this.set_image_colors(image_data)
+        this.set_image_buttons(image_data)
         this.update_image_tags(image_data)
     }
 }

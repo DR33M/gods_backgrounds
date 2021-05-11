@@ -11,7 +11,7 @@ class Select2MultipleWidget(forms.widgets.SelectMultiple):
         css = {
             'all': ('css/select2.min.css',)
         }
-        js = ('js/modules/libs/select2.min.js', 'js/modules/functions/tags.js')
+        js = ('js/modules/libs/select2.min.js', 'js/modules/functions/tags-select.js')
 
     def value_from_datadict(self, data, files, name):
         values = super(Select2MultipleWidget, self).value_from_datadict(data, files, name)

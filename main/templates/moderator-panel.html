@@ -13,14 +13,14 @@
     <div class="delete-image__wrapper dn modal-window" data-window=".delete-image__wrapper">
         <h1 class="cw">Are you sure you want to delete this image?</h1>
         <div class="flex jc mt25px">
-            <button class="button middle button--blue mr10px approve-button">Yes</button>
+            <button class="button middle button--blue mr10px delete-button" data-pk="">Yes</button>
             <button class="button middle button--white modal-window cw" data-window=".approve-image__wrapper" type="button">No</button>
         </div>
     </div>
     <div class="approve-image__wrapper dn modal-window" data-window=".approve-image__wrapper">
         <h1 class="cw">Are you sure you want to approve this image?</h1>
         <div class="flex jc mt25px">
-            <button class="button middle button--blue mr10px approve-button">Yes</button>
+            <button class="button middle button--blue mr10px approve-button" data-pk="">Yes</button>
             <button class="button middle button--white modal-window cw" data-window=".approve-image__wrapper" type="button">No</button>
         </div>
     </div>
@@ -107,7 +107,6 @@
     <script src="{% static 'js/modules/classes/DeleteHelper.js' %}"></script>
     <script src="{% static 'js/modules/classes/ImageView.js' %}"></script>
     <script src="{% static 'js/modules/classes/UserActions.js' %}"></script>
-    <script src="{% static 'js/modules/functions/mp.js' %}"></script>
     <script src="{% static 'js/pages/main/moderator-panel.js' %}"></script>
 
 {% endblock %}

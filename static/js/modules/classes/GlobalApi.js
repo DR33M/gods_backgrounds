@@ -25,7 +25,7 @@ class GlobalApi {
                 path.push(request.paths[key])
             }
             if (this.current_method === this.methods.get && request.queries) {
-                path.push('/?')
+                path.push('?')
                 let keys = Object.keys(request.queries)
                 for (let i = 0; i < keys.length; i++) {
                     path.push((i !== 0 ? '&' : '') + keys[i])
@@ -33,12 +33,12 @@ class GlobalApi {
                     //console.log(request.queries['q'])
                     path.push(encodeURI(JSON.stringify(request.queries[keys[i]])))
                 }
-            } else if (this.current_method === this.methods.patch)
+            } else if (this.current_method !== this.methods.get)
                 path.push('/')
         }
 
         this.last_path = path.join('')
-        this.last_full_path = path = this.prefix + this.last_path
+        this.last_full_path = path = (request.paths.api? request.paths.api : this.prefix) + this.last_path
 
         //console.log(path)
         //console.log(request)

@@ -25,52 +25,89 @@ class GetHelper {
     }
 
     listening_elements = {}
-
-    default_table = 'image'
     
     options = {
+        mp_get: {
+            paths: {
+                table: 'image',
+                extra_action: 'mp_get',
+            },
+        },
+        all_images: {
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
+        },
         author: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'author',
             listen: 'qAuthor',
         },
         tags: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'slug',
             listen: 'qTags', //for redirect, dataset.qWhere
         },
         colors: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'colors',
             listen: 'qColors',
         },
         created_at: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'created_at',
             listen: 'qDate',
         },
         downloads: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'downloads',
             listen: 'qDownloads',
         },
         rating: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'rating',
             listen: 'qRating',
         },
         width: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'width',
             listen: 'qWidth',
         },
         height: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'height',
             listen: 'qHeight',
         },
         ratio: {
-            table: 'image',
+            paths: {
+                table: 'image',
+                extra_action: 'get',
+            },
             field: 'ratio',
             listen: 'qRatio',
         }
@@ -186,9 +223,8 @@ class GetHelper {
         this.cleaning()
 
         //console.log(this.query)
-        this.request['paths'] = {
-            table: (this.option.table? this.option.table : this.default_table)
-        }
+        if (this.option)
+            this.request['paths'] = this.option.paths
         if (Object.keys(this.query).length)
             this.request['queries'][this.query_name] = this.query
     }
@@ -200,7 +236,7 @@ class GetHelper {
 
         for (let key in this.options) {
             //console.log(this.selector + this.options[key].listen)
-            if ((this.el = el.closest(this.selector + this.options[key].listen))) {
+            if (this.options[key].hasOwnProperty('listen') && (this.el = el.closest(this.selector + this.options[key].listen))) {
                 //console.log(this.el)
                 this.option = this.options[key]
                 this.initialize(initial_query)

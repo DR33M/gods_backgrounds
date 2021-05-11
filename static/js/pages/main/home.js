@@ -47,9 +47,9 @@ document.addEventListener("DOMContentLoaded", function () {
         else if ((pagination.listen(e.target)))
         {
             if (!image_get.el) {
+                image_get.option = image_get.options.all_images
                 image_get.initialize(initial_query)
                 image_get.prepare()
-                console.log(image_get.request)
             }
 
             image_get.request.queries['page'] = pagination.page
