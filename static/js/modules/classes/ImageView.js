@@ -154,9 +154,11 @@ class ImageUpdateHTML {
         if (disable)
             elem.classList.add(this.class_names.downloaded)
     }
-    tag_error(elem, data) {
-        if (data)
-            elem.innerHTML = JSON.parse(data).tags
+    tags_error(elem, data) {
+        if (data && data.tags) {
+            elem.classList.add('error')
+            elem.innerHTML = data.tags
+        }
     }
 }
 class ImagesHTML {
@@ -492,6 +494,10 @@ class ImageDetailHTML {
             class: '.delete-button',
             el: {},
         },
+        ban_user_button: {
+            class: '.ban-button',
+            el: {},
+        },
     }
     constructor() {
         this.fill_image_object()
@@ -534,12 +540,10 @@ class ImageDetailHTML {
     set_image_colors(image_data) {
         if (image_data['colors']) {
             let color = this.image.color.el
-            let color_url = color.getAttribute('href').split('=')[0]
             this.image.colors.el.innerHTML = ''
 
 
             for(let i = 0; i < image_data.colors.length; i++) {
-               color.setAttribute('href',color_url + '=' + image_data.colors[i].hex)
                color.style.background = image_data.colors[i].hex
                this.image.colors.el.append(color.cloneNode(true))
             }
@@ -550,6 +554,8 @@ class ImageDetailHTML {
         if (image_data['id']) {
             this.image.approve_button.el.setAttribute('data-pk', image_data['id'])
             this.image.delete_button.el.setAttribute('data-pk', image_data['id'])
+            if (image_data['author'])
+                this.image.ban_user_button.el.setAttribute('data-pk', image_data['author']['id'])
         }
     }
     update_image_tags(image_data) {

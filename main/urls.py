@@ -10,8 +10,6 @@ urlpatterns = [
     path('download/<slug>/', views.download_image, name="download_image"),
     path('user_agreements/', views.user_agreements, name="user_agreements"),
 
-    path('tags-autocomplete/', views.TagsAutocomplete.as_view(), name='tags-autocomplete'),
-
     path('cabinet/moderator-panel', views.moderator_panel, name='moderator-panel'),
     path('cabinet/<username>/image/', views.cabinet, name='cabinet'),
     path('cabinet/<username>', views.cabinet, name='cabinet'),

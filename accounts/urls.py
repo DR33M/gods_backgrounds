@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from . import views
 
@@ -15,5 +15,5 @@ urlpatterns = [
     path('reset_password/', views.reset_password, name="reset_password"),
     path('reset_password_done/', views.reset_password_done, name="reset_password_done"),
 
-    path('delete-user/<username>', views.delete_user, name="delete_user"),
+    path('api/', include('accounts.api.urls', namespace='api')),
 ]

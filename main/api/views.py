@@ -157,7 +157,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         tags_serializer = EditTagsSerializer(image, data=tags_data)
         if tags_serializer.is_valid():
             tags_serializer.save(status=Image.Status.APPROVED)
-            return Response(tags_serializer.data, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Image has been approved', 'status': 'success'}, status=status.HTTP_202_ACCEPTED)
         return Response(tags_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['DELETE'], permission_classes=[IsAuthenticated], throttle_classes=[UserRateThrottle])
@@ -169,7 +169,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
         if image.author.pk == request.user.pk or request.user.is_staff:
             image.delete()
-        return Response({'message': 'Image was deleted successfully!'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Image was deleted successfully!', 'status': 'success'}, status=status.HTTP_200_OK)
 
 
 @throttle_classes([UserRateThrottle, AnonRateThrottle])

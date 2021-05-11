@@ -38,7 +38,7 @@ class GlobalApi {
         }
 
         this.last_path = path.join('')
-        this.last_full_path = path = (request.paths.api? request.paths.api : this.prefix) + this.last_path
+        this.last_full_path = path = (request.api? request.api : this.prefix) + this.last_path
 
         //console.log(path)
         //console.log(request)

@@ -12,8 +12,8 @@ class DeleteHelper {
             el: {},
         },
         ban_user: {
+            api: '/accounts/api',
             paths: {
-                api: '/accounts/api',
                 user: 'user'
             },
             listen: '.ban-button',
@@ -32,6 +32,7 @@ class DeleteHelper {
     }
     prepare() {
         this.request = {
+            api: this.option.api,
             paths: this.option.paths
         }
 

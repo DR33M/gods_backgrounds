@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'taggit',
     'taggit_serializer',
     'social_django',
-    'dal',
-    'dal_select2',
 
     'main.apps.MainConfig',
     'accounts',

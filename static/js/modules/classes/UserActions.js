@@ -20,7 +20,6 @@ class UserActions {
 
     modal_window(el) {
         this.currEl = el
-
         if ((this.currEl = this.currEl.closest(this.modal_window_class))) {
             if (this.currEl.dataset.window) {
                 this.window = document.querySelector(this.currEl.dataset.window)

@@ -17,8 +17,6 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
 
-from dal import autocomplete
-from taggit.models import Tag
 
 from utils.user import is_moderator
 
@@ -34,14 +32,6 @@ from .api.serializers import ImagesSerializer
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-class TagsAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        qs = Tag.objects.all()
-        if self.q:
-            qs = qs.filter(name__istartswith=self.q)
-        return qs
 
 
 def home(request):
@@ -72,17 +62,14 @@ def home(request):
     except (validators.ValidationError, exceptions.FieldError):
         return HttpResponseRedirect('/')
 
-    if not images_list:
-        return HttpResponseRedirect('/')
-
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-    images_list = paginator.get_page(request.GET.get('page'))
-
-    images_list = ImagesSerializer(images_list, many=True)
-    images_list = JsonResponse(images_list.data, safe=False)
+    if images_list:
+        images_list = paginator.get_page(request.GET.get('page'))
+        images_list = ImagesSerializer(images_list, many=True)
+        images_list = JsonResponse(images_list.data, safe=False).content.decode()
 
     return render(request, 'home.html', {
-        'images_list': images_list.content.decode(),
+        'images_list': images_list,
         'number_of_columns': settings.IMAGE_COLUMNS,
         'total_pages': paginator.num_pages,
         'page': request.GET.get('page'),

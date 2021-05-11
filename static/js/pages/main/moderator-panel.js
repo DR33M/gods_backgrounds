@@ -5,26 +5,31 @@ document.addEventListener("DOMContentLoaded", function () {
     let image_patch = new PatchHelper()
     let user_actions = new UserActions()
     let image_detail_view = new ImageDetailHTML()
-    let image_upload = new ImageUpdateHTML()
+    let messages = new Messages('.js-messages')
 
     let request, params
 
     let render = function () {
-        //if (request.xhr.status === request.HTTP_404_NOT_FOUND)
-            //window.location.replace(cabinet_link);
+        if (request.xhr.status === request.HTTP_404_NOT_FOUND)
+            window.location.replace(cabinet_link)
         if (request.xhr.responseText)
             image_detail_view.render(JSON.parse(request.xhr.responseText))
     }
 
     let img_get_onchange = function () {
         if (request.xhr.readyState === 4) {
+            if (request.xhr.responseText)
+                messages.add_message(JSON.parse(request.xhr.responseText))
             params = global_api.get(image_get.options.mp_get)
             params.onchange = render
-            if (params) {
-                request = new HttpRequestsHelper()
-                request.send(params, params.onchange)
-            }
-            params = null
+            send_request(params)
+        }
+    }
+
+    function send_request(params) {
+        if (params) {
+            request = new HttpRequestsHelper()
+            request.send(params, params.onchange)
         }
     }
 
@@ -37,10 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
             params.onchange = img_get_onchange
         } else params = null
 
-        if (params) {
-            request = new HttpRequestsHelper()
-            request.send(params, params.onchange)
-        }
+        send_request(params)
 
         user_actions.modal_window(e.target)
     })
