@@ -24,17 +24,16 @@ class GlobalApi {
                 path.push('/')
                 path.push(request.paths[key])
             }
-            console.log(request)
             if (this.current_method === this.methods.get && request.queries) {
                 path.push('/?')
                 let keys = Object.keys(request.queries)
                 for (let i = 0; i < keys.length; i++) {
                     path.push((i !== 0 ? '&' : '') + keys[i])
                     path.push('=')
+                    //console.log(request.queries['q'])
                     path.push(encodeURI(JSON.stringify(request.queries[keys[i]])))
                 }
-            }
-            if (this.current_method === this.methods.patch)
+            } else if (this.current_method === this.methods.patch)
                 path.push('/')
         }
 
@@ -42,6 +41,7 @@ class GlobalApi {
         this.last_full_path = path = this.prefix + this.last_path
 
         //console.log(path)
+        //console.log(request)
 
         return path
     }
@@ -81,7 +81,7 @@ class GlobalApi {
         this.params.async = this.get_async()
         this.params.path = this.get_path(path)
 
-        console.log(this.params)
+        //console.log(this.params)
         return this.last_params = this.params
     }
 }

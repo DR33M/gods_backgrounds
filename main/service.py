@@ -11,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 class ImageService:
-    def __init__(self, file):
+    def __init__(self, file=None):
         self.data = {}
-        self.file = file
-        self.image_file = PIL_Image.open(file)
+        if file:
+            self.file = file
+            self.image_file = PIL_Image.open(file)
 
     def get_hash(self):
         self.data['image_hash'] = imagehash.phash(self.image_file, 31).__str__()

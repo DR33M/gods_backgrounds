@@ -52,10 +52,7 @@ class EditTagsForm(FormCleanTags):
 
 class ImageUploadForm(FormCleanTags):
     def __init__(self, *args, **kwargs):
-        self.service = None
-        if 'files' in kwargs and 'image' in kwargs['files']:
-            self.service = ImageService(kwargs['files']['image'])
-            kwargs['files']['image'].file.seek(0)
+        self.service = ImageService()
         super(ImageUploadForm, self).__init__(*args, **kwargs)
 
     class Meta:
@@ -76,6 +73,9 @@ class ImageUploadForm(FormCleanTags):
         cd = self.cleaned_data
 
         if self.service and 'image' in cd:
+            self.service = ImageService(cd['image'])
+            cd['image'].file.seek(0)
+
             cd['image_hash'] = self.service.get_hash()
             cd['width'], cd['height'] = self.service.get_resolution()
             cd['size'] = self.service.get_size()

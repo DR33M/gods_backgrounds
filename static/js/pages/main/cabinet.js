@@ -25,11 +25,10 @@ document.addEventListener("DOMContentLoaded", function () {
     pagination.update_html()
 
     let img_get_onchange = function () {
-        set_search_params(global_api.last_path)
         image_view.onchange(request)
         pagination.first()
-        if (pagination.onchange(request, image_view.response_text['total_pages']))
-            set_search_params_uniq(pathname + global_api.last_path)
+        pagination.onchange(request, image_view.response_text['total_pages'])
+        set_search_params_uniq(pathname + global_api.last_path)
     }
     let img_pagination_onchange = function () {
         if (pagination.onchange(request, image_view.response_text['total_pages'])) {
@@ -49,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             params = global_api.get(image_get.request)
             params.onchange = img_get_onchange
         }
-        else if (image_patch.listen(e.target) && Object.keys(image_patch.listening_elements).length)
+        else if (image_patch.listen(e.target))
         {
             params = global_api.patch(image_patch.request, image_patch.data)
             params.onchange = img_patch_onchange

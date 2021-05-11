@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function send_request(params) {
-        console.log(params)
         if (params) {
             request = new HttpRequestsHelper()
             request.send(params, params.onchange)

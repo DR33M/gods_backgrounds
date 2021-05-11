@@ -17,12 +17,14 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
 
+
 from utils.user import is_moderator
 
-from .models import Color, Image, ImageUserActions, Report
+from utils.mail import Messages as Mail
+
+from .models import Color, Image, ImageUserActions
 from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
-from utils.mail import Messages as Mail
 from .decorators import check_recaptcha
 
 from .api.serializers import ImagesSerializer
@@ -38,8 +40,7 @@ def home(request):
 
     if query:
         try:
-            parse_data = urlparse(query)
-            query_dict = json.load(StringIO(parse_data.path))
+            query_dict = json.load(StringIO(urlparse(query).geturl()))
 
             if 'where' in query_dict and 'colors__similar_color' in query_dict['where']:
                 color = Color.objects.filter(similar_color=query_dict['where']['colors__similar_color']).first()
@@ -51,23 +52,24 @@ def home(request):
     query = DictORM().make(query_dict)
 
     try:
-        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
+        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by(
+            '-created_at').prefetch_related(
             Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
         ).distinct()
 
         if query.order_list:
             images_list = images_list.order_by(*query.order_list)
     except (validators.ValidationError, exceptions.FieldError):
-         return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/')
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
-    images_list = paginator.get_page(request.GET.get('page'))
-
-    images_list = ImagesSerializer(images_list, many=True)
-    images_list = JsonResponse(images_list.data, safe=False)
+    if images_list:
+        images_list = paginator.get_page(request.GET.get('page'))
+        images_list = ImagesSerializer(images_list, many=True)
+        images_list = JsonResponse(images_list.data, safe=False).content.decode()
 
     return render(request, 'home.html', {
-        'images_list': images_list.content.decode(),
+        'images_list': images_list,
         'number_of_columns': settings.IMAGE_COLUMNS,
         'total_pages': paginator.num_pages,
         'page': request.GET.get('page'),
@@ -155,13 +157,14 @@ def cabinet(request, username=''):
     query = DictORM().make(query_dict)
 
     try:
-        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
+        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by(
+            '-created_at').prefetch_related(
             Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
         ).distinct()
         if query.order_list:
             images_list = images_list.order_by(*query.order_list)
     except (validators.ValidationError, exceptions.FieldError):
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(reverse('main:cabinet'))
 
     paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
     images_list = paginator.get_page(request.GET.get('page'))
@@ -214,14 +217,13 @@ def moderator_panel(request):
     })
 
 
-#@check_recaptcha
+@check_recaptcha
 @login_required
 def add_image(request):
     if request.method == 'POST':
         logger.error(request.FILES)
         image_form = ImageUploadForm(data=request.POST, files=request.FILES)
-        #if request.recaptcha_is_valid and image_form.is_valid():
-        if image_form.is_valid():
+        if request.recaptcha_is_valid and image_form.is_valid():
             image = image_form.save(commit=False)
             image.author = request.user
             image.save()

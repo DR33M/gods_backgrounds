@@ -185,13 +185,12 @@ class GetHelper {
         //console.log(this.unwanted_queries)
         this.cleaning()
 
-        console.log(this.query)
-        if (Object.keys(this.query).length) {
-            this.request['paths'] = {
-                table: (this.option.table? this.option.table : this.default_table)
-            }
-            this.request['queries'][this.query_name] = this.query
+        //console.log(this.query)
+        this.request['paths'] = {
+            table: (this.option.table? this.option.table : this.default_table)
         }
+        if (Object.keys(this.query).length)
+            this.request['queries'][this.query_name] = this.query
     }
     flush_listening_elements() {
         this.listening_elements = {}
