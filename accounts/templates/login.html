@@ -9,7 +9,7 @@
 {% block content %}
     {% include 'header.html' %}
     <section class="auth-section flex jc ac mt50px">
-        <h1 class="mt25px">Welcome Back To Godsfon</h1>
+        <h1 class="mt25px">Welcome Back To {{ SITE_TITLE }}</h1>
         {% if messages %}
             {% include 'messages.html' with messages=messages %}
         {% endif %}

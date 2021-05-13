@@ -41,7 +41,7 @@ class Image(models.Model):
     colors = models.ManyToManyField(Color, blank=True)
 
     tags = TaggableManager()
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=255)
 
     rating = models.IntegerField(default=0, blank=True)
     downloads = models.IntegerField(default=0, blank=True)

@@ -85,7 +85,7 @@ class ImageUploadForm(FormCleanTags):
             if self.service.is_animated():
                 self.add_error('image', forms.ValidationError('Only images'))
 
-            if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=cd['image']).count() > 0:
+            if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=str(cd['image'])).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:

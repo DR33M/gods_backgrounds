@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'accounts.com',
+    'godb.com',
 ]
 
 # Application definition
@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'debug_toolbar',
     'rest_framework',
 ]
 
@@ -74,12 +73,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'main.middleware.ModeratorOnWorkMiddleware',
 ]
 
 ROOT_URLCONF = 'gods_backgrounds.urls'
-SITE_TITLE = 'GodFon'
+SITE_TITLE = 'Gods Backgrounds'
 
 TEMPLATES = [
     {
@@ -108,8 +106,12 @@ WSGI_APPLICATION = 'gods_backgrounds.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'godb',
+        'USER': 'gsckmchn',
+        'PASSWORD': '1',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 CACHES = {
@@ -118,6 +120,7 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/0",
         'TIMEOUT': 60,#60 * 60 * 24,
         "OPTIONS": {
+	    "PASSWORD": "1",
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
     }
@@ -148,7 +151,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '809794877796-7k18usfc3vt0nu7skiuh50adgr77q66l.a
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'p1WTnw_Qnw6GSPox_2STRP88'
 
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/accounts/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/accounts/logout/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
@@ -187,7 +190,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
