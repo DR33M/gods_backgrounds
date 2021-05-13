@@ -83,7 +83,7 @@ class ImageUploadForm(FormCleanTags):
             cd['extension'] = self.service.get_extension()
 
             if self.service.is_animated():
-                self.add_error('image', forms.ValidationError('Only images'))
+                self.add_error('image', forms.ValidationError('Only static images'))
 
             if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=str(cd['image'])).count() > 0:
                 self.add_error('image', forms.ValidationError('Image already exists'))
