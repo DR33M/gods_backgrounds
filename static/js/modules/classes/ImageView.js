@@ -65,7 +65,7 @@ class SearchHTML {
         expressions_list.push('^')
         for (let i = 0; i < clean_tags_list.length && i < this.max_tags; i++) {
             expression = ''
-            expression += '(?=.*\\b' + String(clean_tags_list[i]) + '\\b)'
+            expression += '(?=.*\\y' + String(clean_tags_list[i]) + '\\y)'
             expressions_list.push(expression)
         }
         expressions_list.push('.*$')
