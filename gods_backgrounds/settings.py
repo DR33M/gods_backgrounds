@@ -126,7 +126,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'godb',
-        'USER': 'gsckmchn',
+        'USER': 'dr333m',
         'PASSWORD': '1',
         'HOST': 'localhost',
         'PORT': '5432',
