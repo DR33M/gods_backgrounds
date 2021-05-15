@@ -11,12 +11,12 @@ urlpatterns = [
     path('user_agreements/', views.user_agreements, name="user_agreements"),
 
     path('cabinet/moderator-panel', views.moderator_panel, name='moderator-panel'),
-    path('cabinet/<username>/image/', views.cabinet, name='cabinet'),
+    path('cabinet/<username>/image/get', views.cabinet, name='cabinet'),
     path('cabinet/<username>', views.cabinet, name='cabinet'),
     path('cabinet/', views.cabinet, name='cabinet'),
 
     path('api/', include('main.api.urls', namespace='api')),
 
-    path('image/', views.home, name="home"),
+    path('image/get', views.home, name="home"),
     path('', views.home, name="home"),
 ]

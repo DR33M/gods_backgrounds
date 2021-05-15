@@ -28,6 +28,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'godb.com',
+    '194.67.86.113',
 ]
 
 # Application definition
@@ -137,7 +138,7 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/0",
         'TIMEOUT': 60,  # 60 * 60 * 24,
         "OPTIONS": {
-            #"PASSWORD": "1",
+            "PASSWORD": "1",
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
     }
@@ -222,7 +223,7 @@ EMAIL_PORT = '2525'
 IMAGE_PREVIEW_WIDTH = 500
 IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
 IMAGE_MINIMUM_DIMENSION = (1024, 1024)
-IMAGE_MAXIMUM_COUNT_PER_PAGE = 4
+IMAGE_MAXIMUM_COUNT_PER_PAGE = 20
 IMAGE_MINIMUM_TAGS = 3
 IMAGE_COLUMNS = 4
 IMAGE_COLORS_MAX_WIDTH = 10

@@ -34,6 +34,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'], permission_classes=[AllowAny], throttle_classes=[UserRateThrottle, AnonRateThrottle])
     def get(self, request):
         query = request.GET.get('q')
+        query_dict = {}
 
         if query:
             try:
@@ -41,19 +42,25 @@ class ImageViewSet(viewsets.ModelViewSet):
             except json.decoder.JSONDecodeError:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            query = DictORM().make(query_dict)
-            try:
-                images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
-                    Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
-                ).distinct()
-                if query.order_list:
-                    images_list = images_list.order_by(*query.order_list)
-            except (validators.ValidationError, exceptions.FieldError):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+        image_status = [Image.Status.APPROVED]
+
+        if 'where' in query_dict or 'in' in query_dict:
+            image_status.append(Image.Status.MODERATION)
+
+        if 'in' not in query_dict:
+            query_dict['in'] = {}
         else:
-            images_list = Image.objects.select_related('author').order_by('-created_at').prefetch_related(
+            query_dict['in']['status'] = image_status
+        query = DictORM().make(query_dict)
+
+        try:
+            images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
                 Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
             ).distinct()
+            if query.order_list:
+                images_list = images_list.order_by(*query.order_list)
+        except (validators.ValidationError, exceptions.FieldError):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if images_list:
             paginator = Paginator(images_list, settings.IMAGE_MAXIMUM_COUNT_PER_PAGE)
