@@ -7,7 +7,9 @@
 {% endblock title %}
 
 {% block content %}
-    {% include "image-templates.html" with number_of_columns=number_of_columns images_list=images_list %}
+    {% if images_list %}
+        {% include "image-templates.html" with number_of_columns=number_of_columns images_list=images_list %}
+    {% endif %}
     {% if report_form.data %}
         <div class="report-wrapper modal-window" data-window=".report-wrapper">
             {% include 'messages.html' with messages=messages %}
@@ -25,13 +27,13 @@
             </form>
         </div>
     {% endif %}
-    <div class="delete-image__wrapper dn modal-window" data-window="delete-image__wrapper">
+    <div class="delete-image__modal-window modal-window--black dn modal-window" data-window=".delete-image__modal-window">
         <form class="delete-image__form" action="{% url 'main:delete_image' slug=image.slug %}" method="post">
             {% csrf_token %}
-            <h1 class="cg">Are you sure you want to delete this item?</h1>
-            <div class="flex jc">
-                <button class="button middle button--blue mr10px" type="submit" name="delete">Yes</button>
-                <button class="button middle button--gray modal-window" data-window="delete-image__wrapper" type="button">No</button>
+            <h1 class="cw">Are you sure you want to delete this item?</h1>
+            <div class="flex jc mt25px">
+                <button class="button middle button--blue mr10px delete-button" type="submit" name="delete">Yes</button>
+                <button class="button middle button--white modal-window cw" data-window=".delete-image__modal-window" type="button">No</button>
             </div>
         </form>
     </div>
@@ -40,8 +42,8 @@
             <div class="edit-image__collision-wrapper mr15px">
                 <div class="edit-image__panel">
                     <div class="edit-tags__buttons">
-                        <button type="submit" name="edit" class="edit-tags__option p10px" form="edit-tags">Save changes</button>
-                        <button name="delete" class="edit-tags__option p10px modal-window" data-window="delete-image__wrapper">Delete image</button>
+                        <button type="submit" name="edit" class="edit-tags__option p10px" form="edit-tags" data-pk="{{ image.pk }}">Save changes</button>
+                        <button name="delete" class="edit-tags__option p10px modal-window" data-window=".delete-image__modal-window">Delete image</button>
                     </div>
                 </div>
             </div>
@@ -177,12 +179,14 @@
                     </div>
                 </div>
             </section>
-            <section class="images-section flex jc ac mt50px">
-                <h1 class="mb20px">SIMILAR IMAGES</h1>
-                <ul class="images-list flex js as">
-                    <ul class="images-list flex js as mt15px"></ul>
-                </ul>
-            </section>
+            {% if images_list %}
+                <section class="images-section flex jc ac mt50px">
+                    <h1 class="mb20px">SIMILAR IMAGES</h1>
+                    <ul class="images-list flex js as">
+                        <ul class="images-list flex js as mt15px"></ul>
+                    </ul>
+                </section>
+            {% endif %}
             {% include 'footer.html' %}
     {% if moderator or image.author == request.user %}
             </div>
