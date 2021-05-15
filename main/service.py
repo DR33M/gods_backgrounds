@@ -48,7 +48,16 @@ class ImageService:
         return False
 
     def add_colors(self, image):
-        image_colors, pixel_count = extcolors.extract_from_image(self.image_file)
+        width_ratio = self.get_ratio()
+
+        output_size = {
+            'width': round(width_ratio * settings.IMAGE_COLORS_MAX_WIDTH),
+            'height': settings.IMAGE_COLORS_MAX_WIDTH
+        }
+
+        image_file = self.image_file.resize((output_size['width'], output_size['height']))
+
+        image_colors, pixel_count = extcolors.extract_from_image(image_file)
 
         colors = Color.objects.all().values_list('hex', flat=True)
 

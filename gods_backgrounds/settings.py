@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -119,7 +118,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gods_backgrounds.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -130,16 +128,16 @@ DATABASES = {
         'USER': 'gsckmchn',
         'PASSWORD': '1',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/0",
-        'TIMEOUT': 60,#60 * 60 * 24,
+        'TIMEOUT': 60,  # 60 * 60 * 24,
         "OPTIONS": {
-	    "PASSWORD": "1",
+            #"PASSWORD": "1",
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
     }
@@ -221,13 +219,13 @@ EMAIL_HOST_USER = '3ba048c6deada2'
 EMAIL_HOST_PASSWORD = '67589f75607117'
 EMAIL_PORT = '2525'
 
-
 IMAGE_PREVIEW_WIDTH = 500
 IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
 IMAGE_MINIMUM_DIMENSION = (1024, 1024)
 IMAGE_MAXIMUM_COUNT_PER_PAGE = 4
 IMAGE_MINIMUM_TAGS = 3
 IMAGE_COLUMNS = 4
+IMAGE_COLORS_MAX_WIDTH = 10
 IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 1
 SIMILAR_IMAGES_COUNT = 4
 DISPLAY_MOST_COMMON_TAGS_COUNT = 10
@@ -265,4 +263,3 @@ REPORT_EMAIL = 'utorrentfilibusters@gmail.com'
 GOOGLE_RECAPTCHA_SECRET_KEY = '6Lecnb0aAAAAAAo5nFN9FA2-lMuZcebcUE3p0jY2'
 
 PASSWORD_RESET_TIMEOUT = 3600
-
