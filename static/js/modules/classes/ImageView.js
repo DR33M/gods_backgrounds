@@ -403,6 +403,7 @@ class ImagesHTML {
         }
     }
     arrange(images_data) {
+	window.scrollTo(0, 0)
         this.prepare(images_data)
 
         this.image.original_list.el.classList.remove(this.class_names.disabled)
