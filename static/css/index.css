@@ -639,11 +639,12 @@ input[type="file"] {    display: none;
 .auth-form__enter-btn {
     width: 100%;
 }
-.auth-form__svg-icon {
-    position: absolute;
-    left: .75rem;
+.auth-form__google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.auth-form__svg-icon svg {
+.auth-form__google > svg {
     fill: #fff;
     width: 27px;
 }
@@ -861,6 +862,10 @@ img {
         overflow-x: hidden;
     }
 
+    .messages__item {
+        width: unset;
+    }
+
     .search-input-container {
         padding: 0 1rem;
         display: flex;
@@ -944,8 +949,6 @@ img {
         width: 100%;
     }
 
-
-    /* detail image */
     .detail-image {
         margin-bottom: 100px;
     }
@@ -1015,5 +1018,40 @@ img {
         position: fixed;
         top: 50%;
         margin-top: -150px;
+    }
+
+    .auth-form, .reg-form {
+        padding: 0 .5rem;
+        width: 100%;
+    }
+
+    .settings-section > .bottom-content, .settings-password-section > .center-content {
+        padding: 0 .5rem;
+        width: 100%;
+    }
+
+    .auth-section > .subtitle-message {
+        padding: 0 .5rem;
+        width: 100%;
+    }
+
+    .account-section > .panel {
+        border-radius: unset;
+        box-shadow: unset;
+        flex-direction: column;
+    }
+    .account-section__info {
+        border: unset;
+    }
+    .account-section__options {
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 4px;
+        box-shadow: 0 0 0 rgb(0 0 0 / 25%), 0 5px 6px rgb(0 0 0 / 22%);
+    }
+
+    .add-images__form {
+        padding: 0 .5rem;
+        width: 100%;
     }
 }

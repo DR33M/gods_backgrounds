@@ -22,6 +22,7 @@ from main import views
 
 
 urlpatterns = [
+    #path('favicon.ico', RedirectView.as_view(url='/static/img/favicon.ico', permanent=True)),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
