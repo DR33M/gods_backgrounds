@@ -162,6 +162,10 @@ class ImageUpdateHTML {
     }
 }
 class ImagesHTML {
+    adaptability = true
+    min_preview_width = 300
+    number_of_columns_sm = 2 //sm - small width
+
     class_names = {
         disabled: 'dn'
     }
@@ -272,10 +276,11 @@ class ImagesHTML {
                 this.image[key].el = this.image[key].parent.el.getElementsByClassName(this.image[key].class)[0]
             } else this.image[key].el = document.getElementsByClassName(this.image[key].class)[0]
     }
-    constructor(number_of_columns) {
+    constructor(number_of_columns, adaptability=true) {
         this.votes = new Votes()
 
         this.number_of_columns = number_of_columns
+        this.adaptability = adaptability
         this.image_columns = []
 
         this.fill_image_object()
@@ -379,6 +384,11 @@ class ImagesHTML {
         let image_column
         let image_item
 
+        if (this.adaptability) {
+            if (window.innerWidth < this.min_preview_width * this.number_of_columns)
+                this.number_of_columns = this.number_of_columns_sm//Math.floor(window.innerWidth / this.min_preview_width)
+        }
+
         for (let i = 0; i < this.number_of_columns; i++) {
             if (this.image_columns[i])
                 this.clear_image_column(this.image_columns[i])
@@ -403,7 +413,7 @@ class ImagesHTML {
         }
     }
     arrange(images_data) {
-	window.scrollTo(0, 0)
+	    window.scrollTo(0, 0)
         this.prepare(images_data)
 
         this.image.original_list.el.classList.remove(this.class_names.disabled)

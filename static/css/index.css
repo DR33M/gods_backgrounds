@@ -172,6 +172,10 @@ input[type="file"] {    display: none;
     position: relative;
     width: 20rem;
 }
+.find-button {
+    height: 2.5rem;
+    width: 2.5rem;
+}
 .search-placeholder {
     position: absolute;
     left: 1rem;
@@ -226,6 +230,7 @@ input[type="file"] {    display: none;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
     width: 100%;
 }
 .tags-list a {
@@ -849,4 +854,95 @@ img {
     width: 100%;
     max-width: 100%;
     object-fit: cover;
+}
+
+
+@media (max-width: 800px) {
+    body {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .search-input-container {
+        padding: 0 1rem;
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        width: 22rem;
+        font-weight: 300;
+        border: 1px solid RGBA(0, 0, 0, 0.1);
+        border-radius: 6px;
+    }
+    .search-input.rounded-input {
+        width: 18rem;
+        border: unset;
+        border-radius: unset;
+        overflow-x: auto;
+    }
+
+
+    .sorting-section {
+        position: relative;
+        overflow-x: auto;
+        justify-content: unset;
+    }
+    .sort-list, .filter-list {
+        width: unset;
+        justify-content: center;
+    }
+    .sort-item {
+        margin: 0 1rem;
+    }
+    .filter-item {
+        margin: 0 1rem;
+        padding: 0;
+    }
+    .sort-text, .filter-text {
+        font-size: 1.2rem;
+    }
+    .screen.drop-list {
+        left: calc(50% - 150px);
+        top: 4rem;
+        width: 300px;
+    }
+    .screen-size-inputs {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .image-column {
+        width: 50%;
+    }
+    .author__account-link > .avatar, .author__account-link > .full-name {
+        display: none;
+    }
+    .image__options {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .image__options > .rating, .downloads {
+        display: none;
+    }
+    .rating-button, .download-button {
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+    .pages-current {
+        margin-right: .5rem;
+    }
+    .pages-total {
+        margin-left: .5rem;
+    }
+    .pagination__page {
+        margin: 1rem;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
 }
