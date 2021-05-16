@@ -74,7 +74,6 @@ class ImageUploadForm(FormCleanTags):
 
         if self.service and 'image' in cd:
             self.service = ImageService(cd['image'])
-            cd['image'].file.seek(0)
 
             cd['image_hash'] = self.service.get_hash()
             cd['width'], cd['height'] = self.service.get_resolution()
@@ -82,11 +81,13 @@ class ImageUploadForm(FormCleanTags):
             cd['ratio'] = self.service.get_ratio()
             cd['extension'] = self.service.get_extension()
 
+            cd['image'].file.seek(0)
+
             if self.service.is_animated():
                 self.add_error('image', forms.ValidationError('Only static images'))
 
-            if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=str(cd['image'])).count() > 0:
-                self.add_error('image', forms.ValidationError('Image already exists'))
+            #if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=str(cd['image'])).count() > 0:
+                #self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:
                 if 'image' in cd and cd['size'] > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:

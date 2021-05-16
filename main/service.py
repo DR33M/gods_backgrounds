@@ -1,6 +1,6 @@
 import extcolors
 import imagehash
-from PIL import Image as PIL_Image, ImageSequence
+from PIL import Image as PIL_Image, ImageSequence, ImageOps
 from django.conf import settings
 
 from .models import Color
@@ -16,17 +16,18 @@ class ImageService:
         if file:
             self.file = file
             self.image_file = PIL_Image.open(file)
+            self.image_file_et = ImageOps.exif_transpose(self.image_file)
 
     def get_hash(self):
         self.data['image_hash'] = imagehash.phash(self.image_file, 31).__str__()
         return self.data['image_hash']
 
     def get_resolution(self):
-        self.data['width'], self.data['height']  = self.image_file.width, self.image_file.height,
+        self.data['width'], self.data['height'] = self.image_file_et.width, self.image_file_et.height,
         return [self.data['width'], self.data['height']]
 
     def get_ratio(self):
-        self.data['ratio'] = round((self.image_file.width / self.image_file.height), 2)
+        self.data['ratio'] = round((self.image_file_et.width / self.image_file_et.height), 2)
         return self.data['ratio']
 
     def get_size(self):
@@ -76,7 +77,7 @@ class ImageService:
     def resize_preview_image(self, image):
         height_ratio = self.data['height'] / self.data['width']
 
-        if self.image_file.width > settings.IMAGE_PREVIEW_WIDTH:
-            output_size = (settings.IMAGE_PREVIEW_WIDTH, round(height_ratio * settings.IMAGE_PREVIEW_WIDTH))
-            image_file = self.image_file.resize(output_size)
+        if self.image_file_et.width > settings.IMAGE_PREVIEW_WIDTH:
+            output_size = (settings.IMAGE_PREVIEW_WIDTH, round(round(height_ratio, 2) * settings.IMAGE_PREVIEW_WIDTH))
+            image_file = self.image_file_et.resize(output_size)
             image_file.save(image.preview_image.path)

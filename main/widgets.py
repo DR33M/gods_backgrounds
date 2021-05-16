@@ -29,7 +29,6 @@ class Select2MultipleWidget(forms.widgets.SelectMultiple):
         return values
 
     def optgroups(self, name, value, attrs=None):
-        logger.error(value)
         default = [None, [], 0]
         groups = [default]
 
