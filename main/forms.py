@@ -86,8 +86,8 @@ class ImageUploadForm(FormCleanTags):
             if self.service.is_animated():
                 self.add_error('image', forms.ValidationError('Only static images'))
 
-            #if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=str(cd['image'])).count() > 0:
-                #self.add_error('image', forms.ValidationError('Image already exists'))
+            if 'image' in cd and Image.objects.filter(image_hash=cd['image_hash']).exclude(image__iexact=str(cd['image'])).count() > 0:
+                self.add_error('image', forms.ValidationError('Image already exists'))
 
             try:
                 if 'image' in cd and cd['size'] > settings.IMAGE_MAXIMUM_FILESIZE_IN_MB * 1024 * 1024:
