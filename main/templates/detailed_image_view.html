@@ -67,6 +67,7 @@
                     <div class="image-detail__image mb20px">
                         <div class="prel">
                             <button class="top-image-options button rating-button" data-pk="{{ image.pk }}" data-counter="rating_{{ image.pk }}" data-data="1">
+                                {% if request.user.is_authenticated %}
                                 {% with image.followers.all as followers %}
                                 {% if followers %}
                                     {% for follower in followers %}
@@ -106,6 +107,7 @@
                                     </svg>
                                 {% endif %}
                                 {% endwith %}
+                                {% endif %}
                             </button>
                         </div>
                         <div class="image-block">
