@@ -925,7 +925,7 @@ img {
         justify-content: center;
         align-items: center;
     }
-    .image__options > .rating, .downloads {
+    .image__options > .rating, .image__options > .downloads {
         display: none;
     }
     .rating-button, .download-button {
@@ -965,14 +965,18 @@ img {
         width: 100vw;
         height: auto;
         border-radius: 4px;
-        border-top: 2px solid rgba(26,26,26,.15);
+        border-top: 2px solid rgba(26,26,26,.01);
         border-right: unset;
         top: unset;
         z-index: 2;
     }
     .edit-tags__buttons {
+        padding: unset;
         justify-content: space-around;
         flex-direction: row;
+    }
+    .select2-container {
+         width: 70vw !important;
     }
 
     .image-detail__image, .image-detail {
@@ -987,6 +991,7 @@ img {
     .image-detail__image {
         background: unset;
         box-shadow: unset;
+        max-width: 70%;
     }
     .image-detail__image .bottom-image-options {
         position: unset;
@@ -997,7 +1002,10 @@ img {
         width: 10rem;
         margin-right: 0;
         margin-left: 0;
-        border: 1px solid rgba(0,0,0, .25);
+        border: 1px solid rgba(0,0,0, .05);
+    }
+    .image-detail__edit {
+        width: 70%;
     }
 
     .report-form {
@@ -1035,19 +1043,22 @@ img {
         width: 100%;
     }
 
-    .account-section > .panel {
+    .account-section > .panel, .image-detail__info.panel  {
         border-radius: unset;
         box-shadow: unset;
         flex-direction: column;
     }
-    .account-section__info {
+    .account-section__info, .image-detail__info > .account-info {
         border: unset;
     }
-    .account-section__options {
+    .account-section__options, .image-detail__actions-info, .image-detail__info > .created-time {
         padding: 10px;
         margin-top: 15px;
         border-radius: 4px;
         box-shadow: 0 0 0 rgb(0 0 0 / 25%), 0 5px 6px rgb(0 0 0 / 22%);
+    }
+    .ban-user-button {
+        margin-top: 1rem;
     }
 
     .add-images__form {

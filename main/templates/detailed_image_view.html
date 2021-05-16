@@ -57,7 +57,7 @@
                             <img class="avatar" src="{{ image.author.profile.photo.url }}" alt="Account image"/>
                             <p class="full-name ml05rem">{{ image.author.first_name }} {{ image.author.last_name }}</p>
                         </a>
-                        <div class="flex">
+                        <div class="image-detail__actions-info flex">
                             <span class="cb mr5px">Downloads: </span>
                             <span id="downloads_{{ image.pk }}" class="cg downloads mr15px">{{ image.downloads }}</span>
                             <span class="cb mr5px">Rating: </span>
@@ -142,7 +142,7 @@
                             <button class="button button--white mr15px modal-window" data-window=".report-wrapper">Report</button>
                             {% with image.followers.all as followers %}
                             {% with followers.0 as follower %}
-                            <a href="{{ image }}" download="{{ image.title }}.{{ image.extension }}" class="button button--blue middle download {% if follower.downloaded %}downloaded{% endif %}" data-pk="{{ image.pk }}" data-counter="downloads_{{ image.pk }}">Download</a>
+                            <a href="{{ image }}" download="{{ image.title }}.{{ image.extension }}" class="button button--blue middle download {% if follower.downloaded %}downloaded{% endif %}" data-pk="{{ image.pk }}" data-counter="downloads_{{ image.pk }}" data-data="1">Download</a>
                             {% endwith %}
                             {% endwith %}
                             <button class="button button--white ml15px modal-window" data-window=".image-information">Information</button>
