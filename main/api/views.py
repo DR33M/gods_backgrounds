@@ -74,6 +74,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['PATCH'], permission_classes=[IsAuthenticated], throttle_classes=[UserRateThrottle])
     def change_rating(self, request, pk=''):
         vote = int(request.data) or None
+
         if vote == -1 or vote == 1:
             try:
                 image = Image.objects.get(pk=pk)

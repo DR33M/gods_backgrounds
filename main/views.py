@@ -76,6 +76,7 @@ def home(request):
         'color': color,
         'common_tags': Image.tags.most_common()[:settings.DISPLAY_MOST_COMMON_TAGS_COUNT],
         'messages': messages.get_messages(request),
+        'request': request
     })
 
 
@@ -130,12 +131,15 @@ def detailed_image_view(request, slug):
         'report_form': report_form,
         'images_list': similar_images.content.decode(),
         'number_of_columns': settings.IMAGE_COLUMNS,
+        'request': request
     })
 
 
-@login_required
 def cabinet(request, username=''):
     if not username:
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:login'))
+
         return HttpResponseRedirect(reverse('main:cabinet', kwargs={
             'username': request.user.username
         }))
@@ -250,15 +254,15 @@ def delete_image(request, slug):
     return HttpResponseRedirect(next_redirect)
 
 
-def download_image(request, slug):
-    image = get_object_or_404(Image, slug=slug)
-    image_url = settings.MEDIA_ROOT + str(image)[7:]
-    image_extension = os.path.splitext(image.image.name)[1]
-    file = open(image_url, "rb").read()
-    content_type = mimetypes.guess_type(image_url)[0]
-    response = HttpResponse(file, content_type=content_type)
-    response['Content-Disposition'] = f'attachment; filename={image.slug + image_extension}'
-    return response
+# def download_image(request, slug):
+#     image = get_object_or_404(Image, slug=slug)
+#     image_url = settings.MEDIA_ROOT + str(image)[7:]
+#     image_extension = os.path.splitext(image.image.name)[1]
+#     file = open(image_url, "rb").read()
+#     content_type = mimetypes.guess_type(image_url)[0]
+#     response = HttpResponse(file, content_type=content_type)
+#     response['Content-Disposition'] = f'attachment; filename={image.slug + image_extension}'
+#     return response
 
 
 def user_agreements(request):

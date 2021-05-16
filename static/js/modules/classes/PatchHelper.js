@@ -2,6 +2,8 @@ class PatchHelper {
     request = {}
     data = ''
 
+    disabled_class = 'disabled'
+
     options = {
         approve_image: {
             paths: {
@@ -50,7 +52,7 @@ class PatchHelper {
         let option_el
 
         for (let key in this.options) {
-            if ((option_el = el.closest(this.options[key].listen))) {
+            if ((option_el = el.closest(this.options[key].listen)) && !option_el.classList.contains(this.disabled_class)) {
                 this.option = this.options[key]
                 this.option.el = option_el
                 this.prepare()

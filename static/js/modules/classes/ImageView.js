@@ -293,11 +293,15 @@ class ImagesHTML {
         image_column.innerHTML = ''
     }
     choose_vote_svg(image_data) {
+        if (!this.image.rating_button.el)
+            return
+
         this.votes.current = this.votes.list['0']
 
         if (image_data['followers'] && image_data['followers'][0] && image_data['followers'][0]['vote'])
             this.votes.set_current(image_data['followers'][0]['vote'])
 
+        if (this.image.rating_button.el.children)
         for (let i = 0; i < this.image.rating_button.el.children.length; i++) {
             if (this.image.rating_button.el.children[i].classList.contains(this.votes.current))
                 this.image.rating_button.el.children[i].classList.remove(this.votes.inactive_class)
@@ -348,6 +352,9 @@ class ImagesHTML {
         else this.image.rating.el.innerHTML = this.image.rating.default['count']
     }
     set_image_rating_button(image_data) {
+        if (!this.image.rating_button.el)
+            return
+
         if (image_data['id']) {
             this.image.rating_button.el.setAttribute('data-pk', image_data['id'])
             this.image.rating_button.el.setAttribute('data-counter', 'rating_' + image_data['id'])
@@ -365,6 +372,9 @@ class ImagesHTML {
         else this.image.downloads.el.innerHTML = this.image.downloads.default['count']
     }
     set_image_download_button(image_data) {
+        if (!this.image.download_button.el)
+            return
+
         if (image_data['id']) {
             this.image.download_button.el.setAttribute('href', image_data['image'])
             this.image.download_button.el.setAttribute('download', image_data['title'] + '.' + image_data['extension'])
@@ -621,7 +631,11 @@ class ImageView {
         if (request.xhr.status === request.HTTP_404_NOT_FOUND) {
             this.user_actions.modal_window(this.not_found)
         } else if (request.xhr.responseText.length) {
-            this.response_text = JSON.parse(request.xhr.responseText)
+            try {
+                this.response_text = JSON.parse(request.xhr.responseText)
+            } catch (e) {
+                return;
+            }
             this.request = request
             this.elements = elements
 
