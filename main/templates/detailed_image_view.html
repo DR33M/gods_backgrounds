@@ -166,9 +166,9 @@
                         {% else %}
                             <div class="tags-panel flex js ac">
                                 {% for tag in image.tags.all %}
-                                    <div class="tag flex js ac mr5px">
-                                        <a class="tag-name" href="#">{{ tag }}</a>
-                                    </div>
+				<a href="/image/get?q=%7B%22where%22:%7B%22slug%22:%22%5E(?=.*%5C%5Cy{{tag.slug}}%5C%5Cy).*$%22%7D%7D&page=1" class="button tag-name mr5px">
+    				    <span style="font-size: {{tag.weight|floatformat:0}}px;">{{ tag }}</span>
+				</a>
                                 {% endfor %}
                             </div>
                         {% endif %}
