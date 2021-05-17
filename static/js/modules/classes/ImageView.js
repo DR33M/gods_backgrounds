@@ -614,8 +614,6 @@ class ImageView {
     elements = {}
     image_get = {}
 
-    image_data = {}
-
     constructor(user_actions, number_of_columns, image_get, image_patch) {
         this.user_actions = user_actions
         this.update = new ImageUpdateHTML()
@@ -645,8 +643,7 @@ class ImageView {
             this.elements = elements
 
             if (request.xhr.status === request.HTTP_200_OK) {
-                this.image_data = this.response_text['images']
-                this.html.arrange(image_data)
+                this.html.arrange(this.response_text['images'])
 
                 for (let key in this.image_get.listening_elements)
                     switch (this.image_get.options[key]) {
