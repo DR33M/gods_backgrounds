@@ -12,4 +12,4 @@ extcolors~=1.0.0
 Unidecode~=1.2.0
 requests~=2.25.1
 psycopg2-binary~=2.8.6
-django-environ~=v0.4.5
+django-environ~=0.4.5
