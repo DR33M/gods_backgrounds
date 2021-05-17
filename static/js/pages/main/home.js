@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (search_query && search_query[image_get.query_name])
             initial_query = search_query[image_get.query_name]
 
+        image_view.image_data = images_list
+
         pagination.page = page
         pagination.update_total_pages(total_pages)
         pagination.update_html()
@@ -85,4 +87,5 @@ document.addEventListener("DOMContentLoaded", function () {
         typeof number_of_columns !== 'undefined' &&
         typeof images_list !== 'undefined')
         main()
+
 })

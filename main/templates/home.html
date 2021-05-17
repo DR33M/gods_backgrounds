@@ -16,8 +16,8 @@
     {% if common_tags %}
         {% get_tag_weight common_tags as tags %}
         {% for tag in tags %}
-            <div class="button tag-name mr5px find-button qTags" href="{% url "main:home" %}?tags={{ tag.slug }}" data-where="{{ tag.slug }}">
-                <span class="{{ tag.slug }}" style="font-size: {{tag.weight|floatformat:0}}px;">{{ tag }}</span>
+            <div class="button tag-name mr5px find-button qTags" data-where="^(?=.*\y{{ tag.slug }}\y).*$">
+                <span style="font-size: {{tag.weight|floatformat:0}}px;">{{ tag }}</span>
             </div>
         {% endfor %}
     {% endif %}

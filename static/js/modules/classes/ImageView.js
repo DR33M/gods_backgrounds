@@ -430,10 +430,11 @@ class ImagesHTML {
 
         this.image.original_list.el.classList.remove(this.class_names.disabled)
         for (let i = 0; i < this.number_of_columns; i++) {
+            this.image_columns[i].style.width = Number(100 / this.number_of_columns) + '%'
             this.image.original_list.el.append(this.image_columns[i])
         }
 
-        console.log(images_data)
+        //console.log(images_data)
     }
 }
 
@@ -613,6 +614,8 @@ class ImageView {
     elements = {}
     image_get = {}
 
+    image_data = {}
+
     constructor(user_actions, number_of_columns, image_get, image_patch) {
         this.user_actions = user_actions
         this.update = new ImageUpdateHTML()
@@ -642,7 +645,8 @@ class ImageView {
             this.elements = elements
 
             if (request.xhr.status === request.HTTP_200_OK) {
-                this.html.arrange(this.response_text['images'])
+                this.image_data = this.response_text['images']
+                this.html.arrange(image_data)
 
                 for (let key in this.image_get.listening_elements)
                     switch (this.image_get.options[key]) {
