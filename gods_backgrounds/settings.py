@@ -220,22 +220,3 @@ TAGS_CLOUD_MIN = 12
 DISPLAY_MOST_COMMON_TAGS_COUNT = 10
 
 PASSWORD_RESET_TIMEOUT = 3600
-
-COLORS = {
-    '000000': 'black',
-    'ffffff': 'white',
-    '808080': 'dark gray',
-    'b0b0b0': 'light gray',
-    'ff0000': 'red',
-    '800000': 'dark red',
-    '00ff00': 'green',
-    '008000': 'darkgreen',
-    '0000ff': 'blue',
-    '000080': 'dark blue',
-    'ffff00': 'yellow',
-    '808000': 'olive',
-    'ffa500': 'orange',
-    '00ffff': 'cyan',
-    'ff00ff': 'magenta',
-    '800080': 'purple'
-}

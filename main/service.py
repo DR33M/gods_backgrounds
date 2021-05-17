@@ -4,7 +4,7 @@ from PIL import Image as PIL_Image, ImageSequence, ImageOps
 from django.conf import settings
 
 from .models import Color
-from main.utils.colors import convert_hex_color_to_name
+from main.utils.colors import get_closest_color
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,23 +56,19 @@ class ImageService:
             'height': settings.IMAGE_COLORS_MAX_WIDTH
         }
 
+        colors = Color.objects.all()
+
         image_file = self.image_file.resize((output_size['width'], output_size['height']))
 
         image_colors, pixel_count = extcolors.extract_from_image(image_file)
 
-        colors = Color.objects.all().values_list('hex', flat=True)
-
-        hex_colors = []
-        add_colors = []
+        related_colors = []
         for image_color in image_colors:
             if (image_color[1] / pixel_count) * 100 > settings.IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS:
                 color = '#%02x%02x%02x' % image_color[0]
-                hex_colors.append(color)
-                if color not in colors:
-                    add_colors.append(Color(hex=color, similar_color=convert_hex_color_to_name(color)))
+                related_colors.append(get_closest_color(color, colors))
 
-        Color.objects.bulk_create(add_colors)
-        image.colors.add(*Color.objects.filter(hex__in=hex_colors))
+        image.colors.add(*related_colors)
 
     def resize_preview_image(self, image):
         height_ratio = self.data['height'] / self.data['width']

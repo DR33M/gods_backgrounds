@@ -175,7 +175,7 @@
                         <div class="colors-panel flex js ac mt15px">
                             <span class="colors-span">Colors:</span>
                             {% for color in colors %}
-                                <a class="color ml5px" href="{% url 'main:home' %}?q=%7B%22where%22%3A%20%7B%22colors__similar_color%22%3A%20%22{{ color.similar_color|urlencode }}%22%7D%7D" style="background: {{ color }}"></a>
+                                <a class="color ml5px" href="{% url 'main:home' %}?q=%7B%22in%22%3A%20%7B%22colors__id%22%3A%20%5B{{ color.id|urlencode }}%5D%7D%7D" style="background: {{ color }}"></a>
                             {% endfor %}
                         </div>
                     </div>

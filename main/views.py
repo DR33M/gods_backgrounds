@@ -40,8 +40,8 @@ def home(request):
         try:
             query_dict = json.load(StringIO(urlparse(query).geturl()))
 
-            if 'where' in query_dict and 'colors__similar_color' in query_dict['where']:
-                color = Color.objects.filter(similar_color=query_dict['where']['colors__similar_color']).first()
+            if 'in' in query_dict and 'colors__id' in query_dict['in']:
+                color = Color.objects.get(id=query_dict['in']['colors__id'][0])
         except json.decoder.JSONDecodeError:
             return HttpResponseRedirect('/')
     else:

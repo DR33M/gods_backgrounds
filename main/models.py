@@ -21,7 +21,7 @@ class Color(models.Model):
         verbose_name_plural = "Colors"
 
     hex = models.CharField(max_length=7, unique=True)
-    similar_color = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.hex
