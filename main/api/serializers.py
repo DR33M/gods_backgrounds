@@ -11,7 +11,7 @@ from ..models import Color, Image, UsersActions
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Color
-        fields = ('hex',)
+        fields = ('hex', 'name')
 
 
 class ProfileSerializer(serializers.ModelSerializer):
