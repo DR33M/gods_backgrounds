@@ -1005,7 +1005,7 @@ img {
         border: 1px solid rgba(0,0,0, .05);
     }
     .image-detail__edit {
-        width: 70%;
+        width: 100%;
     }
 
     .report-form {
