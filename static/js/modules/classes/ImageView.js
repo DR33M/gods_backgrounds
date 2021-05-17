@@ -278,7 +278,6 @@ class ImagesHTML {
     }
     constructor(number_of_columns, adaptability=true) {
         this.votes = new Votes()
-
         this.number_of_columns = number_of_columns
         this.adaptability = adaptability
         this.image_columns = []

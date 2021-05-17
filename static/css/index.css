@@ -929,7 +929,7 @@ img {
         align-items: center;
     }
     .image__options > .rating, .image__options > .downloads {
-        display: none;
+        /*display: none;*/
     }
     .rating-button, .download-button {
         width: 1.2rem;
