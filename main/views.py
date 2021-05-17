@@ -198,6 +198,7 @@ def cabinet(request, username=''):
 
     return render(request, 'cabinet.html', {
         'user': user,
+        'request': request,
         'images_display_status': True,
         'moderator': is_moderator(user),
         'messages': messages.get_messages(request),

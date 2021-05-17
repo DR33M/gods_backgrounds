@@ -17,13 +17,15 @@
                 <img class="avatar" src="{{ user.profile.photo.url }}"/>
                 <p class="account__nickname ml10px">{{ user.first_name }} {{ user.last_name }}</p>
             </div>
-            <div class="account-section__options">
-                <a class="p10px" href="{% url 'main:add_image' %}">Add image</a>
-                <a class="p10px" href="{% url 'accounts:settings' %}">Settings</a>
-                {% if moderator %}
-                    <a class="p10px" href="{% url 'main:moderator-panel' %}">Moderator panel</a>
-                {% endif %}
-            </div>
+            {% if request.user.is_authenticated and request.user.pk == user.pk %}
+                <div class="account-section__options">
+                    <a class="p10px" href="{% url 'main:add_image' %}">Add image</a>
+                    <a class="p10px" href="{% url 'accounts:settings' %}">Settings</a>
+                    {% if moderator %}
+                        <a class="p10px" href="{% url 'main:moderator-panel' %}">Moderator panel</a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </section>
     <section class="images-section flex jc ac">
