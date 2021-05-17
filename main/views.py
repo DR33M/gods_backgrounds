@@ -1,6 +1,4 @@
 import json
-import mimetypes
-import os
 from io import StringIO
 from urllib.parse import urlparse
 
@@ -22,12 +20,12 @@ from utils.user import is_moderator
 
 from utils.mail import Messages as Mail
 
-from .models import Color, Image, ImageUserActions
+from .models import Color, Image, UsersActions
 from .forms import ImageUploadForm, EditTagsForm, ReportForm
 from .utils.DictORM import DictORM
 from .decorators import check_recaptcha
 
-from .api.serializers import ImagesSerializer
+from .api.serializers import ImagesSerializer, UsersActionsSerializer
 
 import logging
 
@@ -52,9 +50,13 @@ def home(request):
     query = DictORM().make(query_dict)
 
     try:
-        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by(
-            '-created_at').prefetch_related(
-            Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
+        # Django ORM is a shit
+        images_list = Image.objects.select_related(
+            'author'
+        ).filter(**query.kwargs).order_by(
+            '-created_at'
+        ).prefetch_related(
+            Prefetch('usersactions_set', queryset=UsersActions.objects.filter(user_id=request.user.pk))
         ).distinct()
 
         if query.order_list:
@@ -82,14 +84,27 @@ def home(request):
 
 def detailed_image_view(request, slug):
     image = get_object_or_404(Image, slug=slug)
+    actor = False
     images_tags_ids = image.tags.values_list('id', flat=True)
-    similar_images = Image.objects.select_related('author').filter(tags__in=images_tags_ids).exclude(id=image.id)
+    similar_images = Image.objects.select_related(
+        'author'
+    ).filter(tags__in=images_tags_ids).order_by(
+        '-created_at'
+    ).exclude(id=image.id).prefetch_related(
+        Prefetch('usersactions_set', queryset=UsersActions.objects.filter(user_id=request.user.pk))
+    ).distinct()
     similar_images = similar_images.annotate(same_tags=Count('tags')).order_by('-same_tags')[
                      :settings.SIMILAR_IMAGES_COUNT]
     similar_images = ImagesSerializer(similar_images, many=True)
     similar_images = JsonResponse(similar_images.data, safe=False)
     form = EditTagsForm(instance=image)
     report_form = ReportForm()
+
+    if request.user.is_authenticated:
+        try:
+            actor = UsersActions.objects.get(user_id=request.user, image=image)
+        except UsersActions.DoesNotExist:
+            pass
 
     if request.method == 'POST':
         if 'edit' in request.POST:
@@ -125,6 +140,7 @@ def detailed_image_view(request, slug):
 
     return render(request, 'detailed_image_view.html', {
         'image': image,
+        'actor': actor,
         'colors': image.colors.all(),
         'moderator': is_moderator(request.user),
         'form': form,
@@ -156,15 +172,19 @@ def cabinet(request, username=''):
         except json.decoder.JSONDecodeError:
             return HttpResponseRedirect('/')
     else:
-        query_dict = {'in': {'author': [request.user.pk]}}
+        query_dict = {'in': {'author': [user.pk]}}
 
     query = DictORM().make(query_dict)
 
     try:
-        images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by(
-            '-created_at').prefetch_related(
-            Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
+        images_list = Image.objects.select_related(
+            'author'
+        ).filter(**query.kwargs).order_by(
+            '-created_at'
+        ).prefetch_related(
+            Prefetch('usersactions_set', queryset=UsersActions.objects.filter(user_id=request.user.pk))
         ).distinct()
+
         if query.order_list:
             images_list = images_list.order_by(*query.order_list)
     except (validators.ValidationError, exceptions.FieldError):

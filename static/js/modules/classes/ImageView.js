@@ -298,15 +298,17 @@ class ImagesHTML {
 
         this.votes.current = this.votes.list['0']
 
-        if (image_data['followers'] && image_data['followers'][0] && image_data['followers'][0]['vote'])
-            this.votes.set_current(image_data['followers'][0]['vote'])
+        if (image_data['usersactions_set'] && image_data['usersactions_set'][0] && image_data['usersactions_set'][0]['vote']) {
+            this.votes.set_current(image_data['usersactions_set'][0]['vote'])
+        }
 
-        if (this.image.rating_button.el.children)
-        for (let i = 0; i < this.image.rating_button.el.children.length; i++) {
-            if (this.image.rating_button.el.children[i].classList.contains(this.votes.current))
-                this.image.rating_button.el.children[i].classList.remove(this.votes.inactive_class)
-            else if (!this.image.rating_button.el.children[i].classList.contains(this.votes.inactive_class))
-                this.image.rating_button.el.children[i].classList.add(this.votes.inactive_class)
+        if (this.image.rating_button.el.children) {
+            for (let i = 0; i < this.image.rating_button.el.children.length; i++) {
+                if (this.image.rating_button.el.children[i].classList.contains(this.votes.current)) {
+                    this.image.rating_button.el.children[i].classList.remove(this.votes.inactive_class)
+                } else if (!this.image.rating_button.el.children[i].classList.contains(this.votes.inactive_class))
+                    this.image.rating_button.el.children[i].classList.add(this.votes.inactive_class)
+            }
         }
     }
     choose_status(image_data) {
@@ -431,7 +433,7 @@ class ImagesHTML {
             this.image.original_list.el.append(this.image_columns[i])
         }
 
-        //console.log(images_data)
+        console.log(images_data)
     }
 }
 
@@ -634,7 +636,7 @@ class ImageView {
             try {
                 this.response_text = JSON.parse(request.xhr.responseText)
             } catch (e) {
-                return;
+                this.response_text = request.xhr.responseText
             }
             this.request = request
             this.elements = elements

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 from accounts.models import Profile
 from taggit.models import Tag
-from ..models import Color, Image, ImageUserActions
+from ..models import Color, Image, UsersActions
 
 
 class ColorSerializer(serializers.ModelSerializer):
@@ -28,18 +28,27 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'first_name', 'last_name', 'profile',)
 
 
+class UsersActionsSerializer(serializers.ModelSerializer):
+    image = serializers.ReadOnlyField(source='image.id')
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = UsersActions
+        fields = ('image', 'user', 'downloaded', 'vote')
+
+
 class ImagesSerializer(serializers.ModelSerializer):
     colors = ColorSerializer(read_only=True, many=True)
     tags = TagListSerializerField(read_only=True)
-    image_user_actions = serializers.ReadOnlyField(source='image_user_actions_set')
     author = UserSerializer(read_only=True)
+    usersactions_set = UsersActionsSerializer(many=True, read_only=True)
 
     class Meta:
         model = Image
         fields = (
             'id', 'image', 'preview_image', 'image_hash', 'colors', 'title', 'tags', 'slug',
             'rating', 'width', 'height', 'ratio', 'downloads', 'size', 'extension', 'author',
-            'moderator', 'image_user_actions', 'status', 'created_at', 'updated_at',
+            'moderator', 'usersactions_set', 'status', 'created_at', 'updated_at',
         )
 
 
@@ -54,15 +63,6 @@ class EditTagsSerializer(TaggitSerializer, serializers.ModelSerializer):
         if len(data['tags']) < settings.IMAGE_MINIMUM_TAGS:
             raise serializers.ValidationError({"tags": 'There must be at least %d tags' % settings.IMAGE_MINIMUM_TAGS})
         return data
-
-
-class ImageUserActionsSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.id')
-    image = serializers.ReadOnlyField(source='image.id')
-
-    class Meta:
-        model = ImageUserActions
-        fields = ('user', 'image', 'downloaded', 'vote')
 
 
 class TagsSerializer(serializers.ModelSerializer):

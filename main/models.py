@@ -55,9 +55,6 @@ class Image(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     moderator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None,
                                   related_name="moderator_id", blank=True)
-    image_user_actions = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name='image_id', through='ImageUserActions'
-    )
     status = models.IntegerField(choices=Status.choices, default=Status.MODERATION)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -85,14 +82,14 @@ class Image(models.Model):
         os.remove(self.preview_image.path)
 
 
-class ImageUserActions(models.Model):
+class UsersActions(models.Model):
     class Vote(models.IntegerChoices):
         DOWNVOTE = -1
         DEFAULT = 0
         UPVOTE = 1
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     vote = models.IntegerField(choices=Vote.choices, default=Vote.DEFAULT)
     downloaded = models.BooleanField(default=False)
 

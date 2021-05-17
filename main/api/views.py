@@ -21,7 +21,7 @@ from taggit.models import Tag
 
 from .serializers import ImagesSerializer, EditTagsSerializer, TagsSerializer
 
-from ..models import ImageUserActions, Image
+from ..models import UsersActions, Image
 
 from ..utils.DictORM import DictORM
 
@@ -54,8 +54,12 @@ class ImageViewSet(viewsets.ModelViewSet):
         query = DictORM().make(query_dict)
 
         try:
-            images_list = Image.objects.select_related('author').filter(**query.kwargs).order_by('-created_at').prefetch_related(
-                Prefetch('image_user_actions', ImageUserActions.objects.filter(user_id=request.user.pk))
+            images_list = Image.objects.select_related(
+                'author'
+            ).filter(**query.kwargs).order_by(
+                '-created_at'
+            ).prefetch_related(
+                Prefetch('usersactions_set', queryset=UsersActions.objects.filter(user_id=request.user.pk))
             ).distinct()
             if query.order_list:
                 images_list = images_list.order_by(*query.order_list)
@@ -83,24 +87,23 @@ class ImageViewSet(viewsets.ModelViewSet):
 
             if image:
                 try:
-                    actor = ImageUserActions.objects.get(user_id=request.user.pk, image_id=pk)
-                except ImageUserActions.DoesNotExist:
-                    image.image_user_actions.add(request.user)
-                    actor = ImageUserActions.objects.get(user_id=request.user.pk, image_id=pk)
+                    actor = UsersActions.objects.get(user_id=request.user.pk, image_id=pk)
+                except UsersActions.DoesNotExist:
+                    actor = UsersActions(user_id=request.user.pk, image_id=pk, vote=UsersActions.Vote.DEFAULT, downloaded=False)
 
                 previous_vote = actor.vote
 
-                if actor.vote + vote > ImageUserActions.Vote.UPVOTE:
-                    actor.vote = ImageUserActions.Vote.DOWNVOTE
+                if actor.vote + vote > UsersActions.Vote.UPVOTE:
+                    actor.vote = UsersActions.Vote.DOWNVOTE
                     vote = -2
-                elif actor.vote + vote < ImageUserActions.Vote.DOWNVOTE:
-                    actor.vote = ImageUserActions.Vote.UPVOTE
+                elif actor.vote + vote < UsersActions.Vote.DOWNVOTE:
+                    actor.vote = UsersActions.Vote.UPVOTE
                     vote = 2
                 else:
                     actor.vote = actor.vote + vote
 
                 actor.save()
-                if actor.vote == ImageUserActions.Vote.DEFAULT:
+                if actor.vote == UsersActions.Vote.DEFAULT:
                     image.rating = image.rating - previous_vote
                 else:
                     image.rating = image.rating + vote
@@ -123,14 +126,13 @@ class ImageViewSet(viewsets.ModelViewSet):
             if image:
                 downloaded = False
                 try:
-                    actor = ImageUserActions.objects.get(user_id=request.user.pk, image_id=pk)
+                    actor = UsersActions.objects.get(user_id=request.user.pk, image_id=pk)
                     downloaded = actor.downloaded
                     if not actor.downloaded:
                         actor.downloaded = True
                         actor.save()
-                except ImageUserActions.DoesNotExist:
-                    image.image_user_actions.add(request.user)
-                    ImageUserActions.objects.filter(user_id=request.user.pk, image_id=pk).update(downloaded=True)
+                except UsersActions.DoesNotExist:
+                    UsersActions.objects.create(user_id=request.user.pk, image_id=pk, vote=UsersActions.Vote.DEFAULT, downloaded=False)
 
                 if not downloaded:
                     image.downloads = image.downloads + 1
