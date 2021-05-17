@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+import environ
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+# reading .env file
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,20 +26,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'uec)92b17#1jbl7$c-)@7at=$(qh428a&9_#((=6^ym4!&+q$#'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'godb.com',
-    '194.67.86.113',
-]
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 # Application definition
-
 INSTALLED_APPS = [
     'taggit',
     'taggit_serializer',
@@ -96,7 +97,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'gods_backgrounds.urls'
-SITE_TITLE = 'GB'
 
 TEMPLATES = [
     {
@@ -123,25 +123,10 @@ WSGI_APPLICATION = 'gods_backgrounds.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'godb',
-        'USER': 'gsckmchn',
-        'PASSWORD': '1',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': env.db()
 }
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/0",
-        'TIMEOUT': 60,  # 60 * 60 * 24,
-        "OPTIONS": {
-            "PASSWORD": "1",
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        },
-    }
+    'default': env.cache('REDIS_URL')
 }
 
 AUTHENTICATION_BACKENDS = (
@@ -151,7 +136,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
@@ -164,7 +148,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
-
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '809794877796-7k18usfc3vt0nu7skiuh50adgr77q66l.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'p1WTnw_Qnw6GSPox_2STRP88'
 
@@ -195,13 +178,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -213,25 +192,34 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-TAGGIT_CASE_INSENSITIVE = True
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = int(env("EMAIL_PORT"))
+EMAIL_USE_TLS = True
 
-EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = '3ba048c6deada2'
-EMAIL_HOST_PASSWORD = '67589f75607117'
-EMAIL_PORT = '2525'
+REPORT_EMAIL = env('REPORT_EMAIL')
 
+GOOGLE_RECAPTCHA_SECRET_KEY = env('GOOGLE_RECAPTCHA_SECRET_KEY')
+
+SITE_TITLE = 'GB'
+
+IMAGE_MAXIMUM_COUNT_PER_PAGE = 20
+IMAGE_COLUMNS = 4
 IMAGE_PREVIEW_WIDTH = 500
 IMAGE_MAXIMUM_FILESIZE_IN_MB = 15
 IMAGE_MINIMUM_DIMENSION = (1024, 1024)
-IMAGE_MAXIMUM_COUNT_PER_PAGE = 20
-IMAGE_MINIMUM_TAGS = 3
-IMAGE_COLUMNS = 4
+SIMILAR_IMAGES_COUNT = 4
 IMAGE_COLORS_MAX_WIDTH = 10
 IMAGE_MINIMUM_PERCENTAGE_OF_DOMINANT_COLORS = 1
-SIMILAR_IMAGES_COUNT = 4
-DISPLAY_MOST_COMMON_TAGS_COUNT = 10
+IMAGE_MINIMUM_TAGS = 3
+
+TAGGIT_CASE_INSENSITIVE = True
 TAGS_CLOUD_MAX = 24
 TAGS_CLOUD_MIN = 12
+DISPLAY_MOST_COMMON_TAGS_COUNT = 10
+
+PASSWORD_RESET_TIMEOUT = 3600
 
 COLORS = {
     '000000': 'black',
@@ -251,16 +239,3 @@ COLORS = {
     'ff00ff': 'magenta',
     '800080': 'purple'
 }
-
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
-
-REPORT_EMAIL = 'utorrentfilibusters@gmail.com'
-
-GOOGLE_RECAPTCHA_SECRET_KEY = '6Lecnb0aAAAAAAo5nFN9FA2-lMuZcebcUE3p0jY2'
-
-PASSWORD_RESET_TIMEOUT = 3600
