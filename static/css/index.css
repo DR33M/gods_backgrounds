@@ -888,13 +888,13 @@ img {
 
 
     .sorting-section {
-        position: relative;
         overflow-x: auto;
         justify-content: unset;
     }
     .sort-list, .filter-list {
         width: unset;
         justify-content: center;
+        position: unset;
     }
     .sort-item {
         margin: 0 1rem;
@@ -908,7 +908,7 @@ img {
     }
     .screen.drop-list {
         left: calc(50% - 150px);
-        top: 4rem;
+        top: 10vh;
         width: 300px;
     }
     .screen-size-inputs {
