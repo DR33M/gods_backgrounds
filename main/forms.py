@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.conf import settings
 
@@ -36,6 +38,8 @@ class FormCleanTags(forms.ModelForm):
         tags = self.cleaned_data.get('tags')
         if len(tags) < settings.IMAGE_MINIMUM_TAGS:
             raise forms.ValidationError('There must be at least %d tags' % settings.IMAGE_MINIMUM_TAGS)
+        if re.match(r".*[!#$%&\'*+/=\\?^_`{|}~\",:;<>@\[\]]", ''.join(tags)):
+            raise forms.ValidationError('Only alphanumeric characters are allowed.')
         return tags
 
 
@@ -67,6 +71,12 @@ class ImageUploadForm(FormCleanTags):
                'required': True, 'data-placeholder': 'A comma-separated list of tags.'
             })
         }
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        if re.match(r".*[!#$%&\'*+/=\\?^_`{|}~\",:;<>@\[\]0-9]", title):
+            raise forms.ValidationError('Only alphabet characters are allowed.')
+        return title
 
     def clean(self):
         super().clean()
