@@ -59,9 +59,6 @@ REST_FRAMEWORK = {
         'anon': '1/second',
         'user': '3/second'
     },
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 12
 }

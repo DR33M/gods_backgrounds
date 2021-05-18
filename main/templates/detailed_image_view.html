@@ -10,6 +10,7 @@
     {% if images_list %}
         {% include "image-templates.html" with number_of_columns=number_of_columns images_list=images_list %}
     {% endif %}
+    {% if request.user.is_authenticated %}
     {% if report_form.data %}
         <div class="report-wrapper modal-window" data-window=".report-wrapper">
             {% include 'messages.html' with messages=messages %}
@@ -26,6 +27,7 @@
                 <button class="button middle button--blue mt15px" type="submit">Send</button>
             </form>
         </div>
+    {% endif %}
     {% endif %}
     <div class="delete-image__modal-window modal-window--black dn modal-window" data-window=".delete-image__modal-window">
         <form class="delete-image__form" action="{% url 'main:delete_image' slug=image.slug %}" method="post">
@@ -141,7 +143,11 @@
                             </div>
                         </div>
                         <div class="flex jc bottom-image-options">
-                            <button class="button button--white mr15px modal-window" data-window=".report-wrapper">Report</button>
+                            {% if request.user.is_authenticated %}
+                                <button class="button button--white mr15px modal-window" data-window=".report-wrapper">Report</button>
+                            {% else %}
+                                <button class="button button--white mr15px modal-window" data-window=".auth-first-window">Report</button>
+                            {% endif %}
                             {% with image.followers.all as followers %}
                             {% with followers.0 as follower %}
                             <a href="{{ image }}" download="{{ image.title }}.{{ image.extension }}" class="button button--blue middle download {% if follower.downloaded %}downloaded{% endif %}" data-pk="{{ image.pk }}" data-counter="downloads_{{ image.pk }}" data-data="1">Download</a>

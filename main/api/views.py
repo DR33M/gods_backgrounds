@@ -14,7 +14,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.decorators import action
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.decorators import throttle_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from taggit.models import Tag
@@ -24,6 +24,8 @@ from .serializers import ImagesSerializer, EditTagsSerializer, TagsSerializer
 from ..models import UsersActions, Image
 
 from ..utils.DictORM import DictORM
+
+from utils.user import is_moderator
 
 import logging
 
@@ -79,7 +81,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     def change_rating(self, request, pk=''):
         vote = int(request.data) or None
 
-        if vote == -1 or vote == 1:
+        if vote == -1 or vote == 1 and request.user.is_authenticated:
             try:
                 image = Image.objects.get(pk=pk)
             except (Image.DoesNotExist, Image.MultipleObjectsReturned):
@@ -117,7 +119,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     def add_download(self, request, pk=''):
         download_number = int(request.data) or None
 
-        if download_number == 1:
+        if download_number == 1 and request.user.is_authenticated:
             try:
                 image = Image.objects.get(pk=pk)
             except (Image.DoesNotExist, Image.MultipleObjectsReturned):
@@ -143,6 +145,9 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'], permission_classes=[IsAdminUser], throttle_classes=[UserRateThrottle])
     def mp_get(self, request):
+        if not is_moderator(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         try:
             image = Image.objects.get(moderator_id=request.user.id, status=Image.Status.MODERATION)
         except Image.DoesNotExist:
@@ -158,6 +163,9 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PATCH'], permission_classes=[IsAdminUser], throttle_classes=[UserRateThrottle])
     def mp_approve(self, request, pk):
+        if not is_moderator(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         try:
             image = Image.objects.get(pk=pk)
         except Image.DoesNotExist:
@@ -179,7 +187,8 @@ class ImageViewSet(viewsets.ModelViewSet):
 
         if image.author.pk == request.user.pk or request.user.is_staff:
             image.delete()
-        return Response({'message': 'Image was deleted successfully!', 'status': 'success'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Image was deleted successfully!', 'status': 'success'}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 @throttle_classes([UserRateThrottle, AnonRateThrottle])

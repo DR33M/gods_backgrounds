@@ -106,37 +106,37 @@ def detailed_image_view(request, slug):
         except UsersActions.DoesNotExist:
             pass
 
-    if request.method == 'POST':
-        if 'edit' in request.POST:
-            form = EditTagsForm(data=request.POST, instance=image)
-            if form.is_valid() and (request.user == image.author or is_moderator(request.user)):
-                obj = form.save(commit=False)
-                obj.save()
-                form.save_m2m()
-                return HttpResponseRedirect(reverse('main:detailed_image_view', kwargs={'slug': obj.slug}))
+        if request.method == 'POST':
+            if 'edit' in request.POST:
+                form = EditTagsForm(data=request.POST, instance=image)
+                if form.is_valid() and (request.user == image.author or is_moderator(request.user)):
+                    obj = form.save(commit=False)
+                    obj.save()
+                    form.save_m2m()
+                    return HttpResponseRedirect(reverse('main:detailed_image_view', kwargs={'slug': obj.slug}))
 
-        report_form = ReportForm(data=request.POST, user=request.user, image=image)
-        if report_form.is_valid():
-            report = report_form.save(commit=False)
-            report.user = request.user
-            report.image = image
-            report.save()
+            report_form = ReportForm(data=request.POST, user=request.user, image=image)
+            if report_form.is_valid():
+                report = report_form.save(commit=False)
+                report.user = request.user
+                report.image = image
+                report.save()
 
-            message = str(
-                'Full name: ' + request.user.first_name + ' ' +
-                request.user.last_name + '\n' +
-                report.body
-            )
+                message = str(
+                    'Full name: ' + request.user.first_name + ' ' +
+                    request.user.last_name + '\n' +
+                    report.body
+                )
 
-            Mail.simple_message(
-                report.title,
-                message,
-                request.user.email,
-                [settings.REPORT_EMAIL]
-            )
-            messages.add_message(request, messages.SUCCESS, 'Report sent')
-        else:
-            messages.add_message(request, messages.SUCCESS, 'Report has been already sent')
+                Mail.simple_message(
+                    report.title,
+                    message,
+                    request.user.email,
+                    [settings.REPORT_EMAIL]
+                )
+                messages.add_message(request, messages.SUCCESS, 'Report sent')
+            else:
+                messages.add_message(request, messages.SUCCESS, 'Report has been already sent')
 
     return render(request, 'detailed_image_view.html', {
         'image': image,
