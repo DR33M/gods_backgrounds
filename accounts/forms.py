@@ -35,7 +35,7 @@ class FormCleanFullName(forms.ModelForm):
         if len(first_name) > 20:
             raise forms.ValidationError('First name is too long')
         if re.match(r".*[!#$%&\'*+/=\\?^_`{|}~\",:;<>@\[\]0-9]", first_name):
-            raise forms.ValidationError('Only alphanumeric characters are allowed.')
+            raise forms.ValidationError('Only alphabet characters are allowed.')
 
         return first_name
 
@@ -46,7 +46,7 @@ class FormCleanFullName(forms.ModelForm):
         if len(last_name) > 30:
             raise forms.ValidationError('Last name is too long')
         if re.match(r".*[!#$%&\'*+/=\\?^_`{|}~\",:;<>@\[\]0-9]", last_name):
-            raise forms.ValidationError('Only alphanumeric characters are allowed.')
+            raise forms.ValidationError('Only alphabet characters are allowed.')
 
         return last_name
 
